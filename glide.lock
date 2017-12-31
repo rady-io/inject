@@ -1,0 +1,10 @@
+hash: 47339d578ef7908d575d7f9d561008c3c4e34e7e2d820ffb5c47c5375be54f28
+updated: 2017-12-31T19:19:51.381886+08:00
+imports:
+- name: github.com/labstack/echo
+  version: b338075a0fc6e1a0683dbf03d09b4957a289e26f
+- name: github.com/stretchr/testify
+  version: b91bfb9ebec76498946beb6af7c0230c7cc7ba6c
+  subpackages:
+  - assert
+testImports: []
