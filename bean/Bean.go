@@ -3,7 +3,7 @@ package bean
 import "reflect"
 
 type Bean struct {
-	Type  reflect.Type
+	//Type  reflect.Type
 	Tag   reflect.StructTag
 	Value reflect.Value
 }
@@ -26,7 +26,7 @@ type Middleware struct {
 
 func NewBean(Value reflect.Value, Tag reflect.StructTag) *Bean {
 	return &Bean{
-		Type:  Value.Type(),
+		//Type:  Value.Type(),
 		Tag:   Tag,
 		Value: Value,
 	}

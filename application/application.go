@@ -53,6 +53,9 @@ func (a *Application) load(Type reflect.Type, Value reflect.Value, tag reflect.S
 			name = aliasName
 		}
 	}
+
+	a.Logger.Info("%s", Value.Type())
+
 	a.BeanMap[Type] = map[string]*bean.Bean{
 		name: bean.NewBean(Value, tag),
 	}
@@ -61,12 +64,12 @@ func (a *Application) load(Type reflect.Type, Value reflect.Value, tag reflect.S
 
 func (a *Application) Run() {
 	app := a.app
-	appValue := reflect.ValueOf(app).Elem() // can get Elem if app is pointer of a struct
+	//appValue := reflect.ValueOf(app).Elem() // can get Elem if app is pointer of a struct
 	appType := reflect.TypeOf(app).Elem()
 	for i := 0; i < appType.NumField(); i++ {
 		field := appType.Field(i)
-		fieldValue := appValue.Field(i)
 		if summer.CheckFieldPtr(field.Type) && (field.Tag.Get("type") == "" && summer.ContainsField(field.Type.Elem(), types.Configuration{}) || field.Tag.Get("type") == types.CONFIGURATION) {
+			fieldValue := reflect.New(field.Type).Elem()
 			a.loadField(field, fieldValue)
 		}
 	}
@@ -89,7 +92,7 @@ func (a *Application) recursionLoadField(Field reflect.StructField) {
 			field := appType.Field(i)
 			_, ok := types.COMPONENTS[field.Tag.Get("type")]
 			if summer.CheckFieldPtr(field.Type) && (ok || field.Tag.Get("type") == "" && summer.ContainsFields(field.Type.Elem(), types.COMPONENT_TYPES)) {
-				a.loadField(field, reflect.New(field.Type))
+				a.loadField(field, reflect.New(field.Type).Elem())
 			}
 		}
 	}

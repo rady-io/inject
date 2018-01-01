@@ -13,6 +13,7 @@ type RouterConfig struct {
 
 type UserComponent struct {
 	types.Component
+	*RouterConfig
 }
 
 type App struct {
