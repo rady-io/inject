@@ -20,3 +20,11 @@ func ContainsFields(Mother reflect.Type, Set map[reflect.Type]bool) bool {
 	}
 	return false
 }
+
+func CheckFieldPtr(fieldType reflect.Type) bool {
+	if fieldType.Kind() != reflect.Ptr {
+		return false
+	}
+	return true
+}
+

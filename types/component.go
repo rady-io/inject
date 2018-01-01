@@ -20,6 +20,9 @@ type Router struct {
 type Middleware struct {
 }
 
+type Handler struct {
+}
+
 type Repository struct {
 } 
 
@@ -29,6 +32,7 @@ const SERVICE = "service"
 const CONTROLLER = "controller"
 const ROUTER = "router"
 const MIDDLEWARE = "middleware"
+const HANDLER = "handler"
 const REPOSITORY = "repository"
 
 var COMPONENTS = make(map[string]bool)

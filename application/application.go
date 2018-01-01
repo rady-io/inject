@@ -20,34 +20,42 @@ type Application struct {
 }
 
 func CreateApplication(app interface{}) *Application {
-	application := &Application{
-		app:             app,
-		BeanMap:         make(map[reflect.Type]map[string]*bean.Bean),
-		BeanMethodMap:   make(map[reflect.Type]map[string]*bean.Method),
-		ControllerSlice: make([]*bean.Controller, 0),
-		MiddlewareSlice: make([]*bean.Middleware, 0),
-		Server:          echo.New(),
-		Logger:          logger.NewLogger(),
+	if summer.CheckFieldPtr(reflect.TypeOf(app)) {
+		return (&Application{
+			app:             app,
+			BeanMap:         make(map[reflect.Type]map[string]*bean.Bean),
+			BeanMethodMap:   make(map[reflect.Type]map[string]*bean.Method),
+			ControllerSlice: make([]*bean.Controller, 0),
+			MiddlewareSlice: make([]*bean.Middleware, 0),
+			Server:          echo.New(),
+			Logger:          logger.NewLogger(),
+		}).init()
 	}
-	loggerValue := reflect.ValueOf(application.Logger)
-	loggerType := reflect.TypeOf(application.Logger)
-	application.BeanMap[loggerType] = map[string]*bean.Bean{
-		loggerType.Name(): bean.NewBean(loggerValue, *new(reflect.StructTag)),
-	}
+	logger.NewLogger().Errorf("%s is not kind of Ptr!!!\n", reflect.TypeOf(app).Name)
+	return new(Application)
+}
 
-	return application
+func (a *Application) init() *Application {
+	return a.initialize(a.Logger).initialize(a)
+}
+
+func (a *Application) initialize(elem interface{}) *Application {
+	Value := reflect.ValueOf(elem)
+	Type := reflect.TypeOf(elem)
+	a.BeanMap[Type] = map[string]*bean.Bean{
+		Type.Name(): bean.NewBean(Value, *new(reflect.StructTag)),
+	}
+	return a
 }
 
 func (a *Application) Run() {
 	app := a.app
-	appValue := reflect.Indirect(reflect.ValueOf(app)) // can get Elem if app is pointer of a struct
-	appType := appValue.Type()
+	appValue := reflect.ValueOf(app).Elem() // can get Elem if app is pointer of a struct
+	appType := reflect.TypeOf(app).Elem()
 	for i := 0; i < appType.NumField(); i++ {
 		field := appType.Field(i)
 		fieldValue := appValue.Field(i)
-		if field.Type.Kind() != reflect.Ptr {
-			a.Logger.Errorf("%s is not kind of Ptr!!!\n", field.Name)
-		} else if field.Tag.Get("type") == "" && summer.ContainsField(field.Type.Elem(), types.Configuration{}) || field.Tag.Get("type") == types.CONFIGURATION {
+		if summer.CheckFieldPtr(field.Type) && (field.Tag.Get("type") == "" && summer.ContainsField(field.Type.Elem(), types.Configuration{}) || field.Tag.Get("type") == types.CONFIGURATION) {
 			a.loadField(field, fieldValue)
 		}
 	}
@@ -59,18 +67,21 @@ func (a *Application) loadField(Field reflect.StructField, FieldValue reflect.Va
 		newBean := bean.NewBean(FieldValue, Field.Tag)
 		a.BeanMap[fieldType] = make(map[string]*bean.Bean)
 		a.BeanMap[fieldType][fieldType.Name()] = newBean
-		a.recursion(FieldValue)
+		a.recursionLoadField(Field)
 	}
-	FieldValue.Set(a.BeanMap[fieldType][fieldType.Name()].Value)
+	//FieldValue.Set(a.BeanMap[fieldType][fieldType.Name()].Value)
 }
 
-func (a *Application) recursion(value reflect.Value) {
-	appValue := reflect.Indirect(value) // can get Elem if app is pointer of a struct
-	appType := appValue.Type()
-	for i := 0; i < appType.NumField(); i++ {
-		field := appType.Field(i)
-		if _, ok := types.COMPONENTS[field.Tag.Get("type")]; field.Tag.Get("type") == "" && summer.ContainsFields(field.Type, types.COMPONENT_TYPES) || ok {
-			a.loadField(field, appValue.Field(i))
+func (a *Application) recursionLoadField(Field reflect.StructField) {
+	if summer.CheckFieldPtr(Field.Type) {
+		//appValue := FieldValue.Elem() // can get Elem if app is pointer of a struct
+		appType := Field.Type.Elem()
+		for i := 0; i < appType.NumField(); i++ {
+			field := appType.Field(i)
+			_, ok := types.COMPONENTS[field.Tag.Get("type")]
+			if summer.CheckFieldPtr(field.Type) && (ok || field.Tag.Get("type") == "" && summer.ContainsFields(field.Type.Elem(), types.COMPONENT_TYPES)) {
+				a.loadField(field, reflect.New(field.Type))
+			}
 		}
 	}
 }

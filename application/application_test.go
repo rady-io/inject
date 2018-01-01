@@ -12,7 +12,7 @@ type RouterConfig struct {
 }
 
 type UserController struct {
-	types.Controller
+	types.Component
 }
 
 type App struct {
@@ -22,5 +22,10 @@ type App struct {
 func TestCreateApplication(t *testing.T) {
 	app := CreateApplication(new(App))
 	app.Run()
-	fmt.Println(len(app.BeanMap))
+	for Type, valueMap := range app.BeanMap {
+		fmt.Printf("Type: %s\n", Type.String())
+		for name, value := range valueMap {
+			fmt.Printf("> %s -> %s\n", name, value)
+		}
+	}
 }
