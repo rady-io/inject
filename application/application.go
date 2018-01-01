@@ -43,7 +43,7 @@ func (a *Application) init() *Application {
 func (a *Application) loadElem(elem interface{}, tag reflect.StructTag) *Application {
 	Value := reflect.ValueOf(elem)
 	Type := reflect.TypeOf(elem)
-	return a.load(Type, Value, tag)
+	return a.load(Type, Value.Elem(), tag)
 }
 
 func (a *Application) load(Type reflect.Type, Value reflect.Value, tag reflect.StructTag) *Application {
@@ -69,7 +69,7 @@ func (a *Application) Run() {
 	for i := 0; i < appType.NumField(); i++ {
 		field := appType.Field(i)
 		if summer.CheckFieldPtr(field.Type) && (field.Tag.Get("type") == "" && summer.ContainsField(field.Type.Elem(), types.Configuration{}) || field.Tag.Get("type") == types.CONFIGURATION) {
-			fieldValue := reflect.New(field.Type).Elem()
+			fieldValue := reflect.New(field.Type.Elem()).Elem() // save Elem in Bean
 			a.loadField(field, fieldValue)
 		}
 	}
@@ -92,7 +92,7 @@ func (a *Application) recursionLoadField(Field reflect.StructField) {
 			field := appType.Field(i)
 			_, ok := types.COMPONENTS[field.Tag.Get("type")]
 			if summer.CheckFieldPtr(field.Type) && (ok || field.Tag.Get("type") == "" && summer.ContainsFields(field.Type.Elem(), types.COMPONENT_TYPES)) {
-				a.loadField(field, reflect.New(field.Type).Elem())
+				a.loadField(field, reflect.New(field.Type.Elem()).Elem())
 			}
 		}
 	}
