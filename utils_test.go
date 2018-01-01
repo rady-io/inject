@@ -15,6 +15,8 @@ func TestContainsField(t *testing.T) {
 	handler := Handler{}
 	assert.True(t, ContainsField(reflect.TypeOf(handler), types.Component{}), "Handler should contain Component")
 
+	assert.True(t, ContainsField(reflect.TypeOf(&handler).Elem(), types.Component{}), "Handler should contain Component")
+
 	assert.False(t, ContainsField(reflect.TypeOf(handler), types.Router{}), "Handler should not contain Router")
 }
 

@@ -6,26 +6,36 @@ import (
 	"github.com/labstack/echo"
 	"summer/types"
 	"summer"
+	"summer/logger"
 )
 
 type Application struct {
-	app           interface{}
-	BeanMap       map[reflect.Type]map[string]*bean.Bean
-	BeanMethodMap map[reflect.Type]map[string]*bean.Method
+	app             interface{}
+	BeanMap         map[reflect.Type]map[string]*bean.Bean
+	BeanMethodMap   map[reflect.Type]map[string]*bean.Method
 	ControllerSlice []*bean.Controller
 	MiddlewareSlice []*bean.Middleware
-	Server        *echo.Echo
+	Server          *echo.Echo
+	Logger          *logger.Logger
 }
 
 func CreateApplication(app interface{}) *Application {
-	return &Application{
-		app:           app,
-		BeanMap:       make(map[reflect.Type]map[string]*bean.Bean),
-		BeanMethodMap: make(map[reflect.Type]map[string]*bean.Method),
+	application := &Application{
+		app:             app,
+		BeanMap:         make(map[reflect.Type]map[string]*bean.Bean),
+		BeanMethodMap:   make(map[reflect.Type]map[string]*bean.Method),
 		ControllerSlice: make([]*bean.Controller, 0),
 		MiddlewareSlice: make([]*bean.Middleware, 0),
-		Server:        echo.New(),
+		Server:          echo.New(),
+		Logger:          logger.NewLogger(),
 	}
+	loggerValue := reflect.ValueOf(application.Logger)
+	loggerType := reflect.TypeOf(application.Logger)
+	application.BeanMap[loggerType] = map[string]*bean.Bean{
+		loggerType.Name(): bean.NewBean(loggerValue, *new(reflect.StructTag)),
+	}
+
+	return application
 }
 
 func (a *Application) Run() {
@@ -35,7 +45,9 @@ func (a *Application) Run() {
 	for i := 0; i < appType.NumField(); i++ {
 		field := appType.Field(i)
 		fieldValue := appValue.Field(i)
-		if field.Tag.Get("type") == "" && summer.ContainsField(reflect.Indirect(reflect.New(field.Type)).Type(), types.Configuration{}) || field.Tag.Get("type") == types.CONFIGURATION {
+		if field.Type.Kind() != reflect.Ptr {
+			a.Logger.Errorf("%s is not kind of Ptr!!!\n", field.Name)
+		} else if field.Tag.Get("type") == "" && summer.ContainsField(field.Type.Elem(), types.Configuration{}) || field.Tag.Get("type") == types.CONFIGURATION {
 			a.loadField(field, fieldValue)
 		}
 	}
