@@ -14,6 +14,16 @@ type Method struct {
 	Name string
 }
 
+type Controller struct {
+	Value reflect.Value
+	Tag reflect.StructTag
+}
+
+type Middleware struct {
+	Value reflect.Value
+	Tag reflect.StructTag
+}
+
 func NewBean(Value reflect.Value, Tag reflect.StructTag) *Bean {
 	return &Bean{
 		Type:  Value.Type(),
