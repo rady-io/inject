@@ -11,6 +11,10 @@ type RouterConfig struct {
 	*UserComponent `name:"*UserComponent"`
 }
 
+func (rc *RouterConfig) GetUserComponent() *UserComponent {
+	return new(UserComponent)
+}
+
 type UserComponent struct {
 	types.Component
 	*RouterConfig

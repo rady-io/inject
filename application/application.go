@@ -8,6 +8,7 @@ import (
 	"summer"
 	"summer/logger"
 	"strings"
+	"fmt"
 )
 
 type Application struct {
@@ -53,46 +54,66 @@ func (a *Application) load(Type reflect.Type, Value reflect.Value, tag reflect.S
 			name = aliasName
 		}
 	}
-
 	a.Logger.Info("%s", Value.Type())
 
-	a.BeanMap[Type] = map[string]*bean.Bean{
-		name: bean.NewBean(Value, tag),
+	newBean := bean.NewBean(Value, tag)
+
+	if a.BeanMap[Type] == nil {
+		a.BeanMap[Type] = make(map[string]*bean.Bean)
+	} else if _, ok := a.BeanMap[Type][name]; ok {
+		return a
 	}
+	a.BeanMap[Type][name] = newBean
 	return a
 }
 
 func (a *Application) Run() {
 	app := a.app
-	//appValue := reflect.ValueOf(app).Elem() // can get Elem if app is pointer of a struct
 	appType := reflect.TypeOf(app).Elem()
 	for i := 0; i < appType.NumField(); i++ {
 		field := appType.Field(i)
-		if summer.CheckFieldPtr(field.Type) && (field.Tag.Get("type") == "" && summer.ContainsField(field.Type.Elem(), types.Configuration{}) || field.Tag.Get("type") == types.CONFIGURATION) {
+		if summer.CheckConfiguration(field) {
 			fieldValue := reflect.New(field.Type.Elem()).Elem() // save Elem in Bean
 			a.loadField(field, fieldValue)
+			a.Logger.Info("NumMethod: %d", fieldValue.Addr().NumMethod())
+			for i := 0; i < fieldValue.Addr().NumMethod(); i++ {
+				name := fieldValue.Addr().Type().Method(i).Name
+				a.loadBeanMethod(fieldValue.Addr().MethodByName(name), name)
+			}
 		}
 	}
 }
 
 func (a *Application) loadField(Field reflect.StructField, FieldValue reflect.Value) {
 	fieldType := Field.Type
-	if a.BeanMap[fieldType] == nil {
-		a.load(fieldType, FieldValue, Field.Tag)
-		a.recursionLoadField(Field)
-	}
-	//FieldValue.Set(a.BeanMap[fieldType][fieldType.Name()].Value)
+	a.load(fieldType, FieldValue, Field.Tag)
+	a.recursionLoadField(Field.Type)
 }
 
-func (a *Application) recursionLoadField(Field reflect.StructField) {
-	if summer.CheckFieldPtr(Field.Type) {
-		//appValue := FieldValue.Elem() // can get Elem if app is pointer of a struct
-		appType := Field.Type.Elem()
-		for i := 0; i < appType.NumField(); i++ {
-			field := appType.Field(i)
-			_, ok := types.COMPONENTS[field.Tag.Get("type")]
-			if summer.CheckFieldPtr(field.Type) && (ok || field.Tag.Get("type") == "" && summer.ContainsFields(field.Type.Elem(), types.COMPONENT_TYPES)) {
-				a.loadField(field, reflect.New(field.Type.Elem()).Elem())
+func (a *Application) loadBeanMethod(method reflect.Value, name string) {
+	methodType := method.Type()
+	a.Logger.Info("%s -> %s", name, methodType)
+	if methodType.NumOut() == 1 {
+		a.loadMethodOut(methodType.Out(0), name)
+	}
+}
+
+func (a *Application) loadMethodOut(Out reflect.Type, name string) {
+	if summer.ContainsFields(Out.Elem(), types.COMPONENT_TYPES) {
+		a.load(Out, reflect.New(Out.Elem()).Elem(), (reflect.StructTag)(fmt.Sprintf(`name:"%s"`, name)))
+		a.recursionLoadField(Out)
+	}
+}
+
+func (a *Application) recursionLoadField(fieldType reflect.Type) {
+	if summer.CheckFieldPtr(fieldType) {
+		appType := fieldType.Elem()
+		if appType.Kind() == reflect.Struct {
+			for i := 0; i < appType.NumField(); i++ {
+				field := appType.Field(i)
+				if summer.CheckComponents(field) {
+					a.loadField(field, reflect.New(field.Type.Elem()).Elem())
+				}
 			}
 		}
 	}
