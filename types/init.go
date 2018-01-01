@@ -13,6 +13,7 @@ func init() {
 	COMPONENT_TYPES[reflect.TypeOf(Component{})] = true
 	COMPONENT_TYPES[reflect.TypeOf(Service{})] = true
 	COMPONENT_TYPES[reflect.TypeOf(Repository{})] = true
+	COMPONENT_TYPES[reflect.TypeOf(Parameter{})] = true
 	//COMPONENT_TYPES[reflect.TypeOf(Controller{})] = true
 	//COMPONENT_TYPES[reflect.TypeOf(Router{})] = true
 	//COMPONENT_TYPES[reflect.TypeOf(Middleware{})] = true

@@ -10,18 +10,18 @@ type Bean struct {
 
 type Method struct {
 	Value reflect.Value
-	In   reflect.Type
-	Name string
+	Ins   []reflect.Type
+	Name  string
 }
 
 type Controller struct {
 	Value reflect.Value
-	Tag reflect.StructTag
+	Tag   reflect.StructTag
 }
 
 type Middleware struct {
 	Value reflect.Value
-	Tag reflect.StructTag
+	Tag   reflect.StructTag
 }
 
 func NewBean(Value reflect.Value, Tag reflect.StructTag) *Bean {
@@ -29,5 +29,13 @@ func NewBean(Value reflect.Value, Tag reflect.StructTag) *Bean {
 		//Type:  Value.Type(),
 		Tag:   Tag,
 		Value: Value,
+	}
+}
+
+func NewBeanMethod(Value reflect.Value, Name string) *Method {
+	return &Method{
+		Value: Value,
+		Ins:   make([]reflect.Type, 0),
+		Name:  Name,
 	}
 }

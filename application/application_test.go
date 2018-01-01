@@ -15,11 +15,13 @@ type HandlerConfig struct {
 	types.Configuration
 }
 
-func (rc *RouterConfig) GetUserComponent() *UserComponent {
-	return new(UserComponent)
+type GetUserParam struct {
+	types.Parameter
+	*BookService
 }
 
-func (hc *HandlerConfig) GetUserComponent() *UserComponent {
+
+func (rc *RouterConfig) GetUserComponent(BR *BookRepository, GP *GetUserParam) *UserComponent {
 	return new(UserComponent)
 }
 
@@ -27,6 +29,14 @@ type UserComponent struct {
 	types.Component
 	*RouterConfig
 }
+
+type BookService struct {
+	types.Service
+}
+
+type BookRepository struct {
+	types.Repository
+} 
 
 type App struct {
 	*RouterConfig

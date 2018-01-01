@@ -82,22 +82,39 @@ func (a *Application) loadBeanMethod(method reflect.Value, name string) {
 	methodType := method.Type()
 	a.Logger.Info("%s -> %s", name, methodType)
 	if methodType.NumOut() == 1 {
+		methodBean := bean.NewBeanMethod(method, name)
 		a.loadMethodOut(methodType.Out(0), name)
+		for i:=0; i < methodType.NumIn(); i++ {
+			inType := methodType.In(i)
+			if summer.CheckFieldPtr(inType) && summer.ContainsFields(inType.Elem(), types.COMPONENT_TYPES) {
+				methodBean.Ins = append(methodBean.Ins, inType)
+				a.loadMethodIn(inType)
+			} else {
+				a.Logger.Errorf(`Param %s of %s isn't one of COMPONENT_TYPES`, inType, name)
+				return
+			}
+		}
 	}
 }
 
 func (a *Application) loadMethodOut(Out reflect.Type, name string) {
 	if summer.ContainsFields(Out.Elem(), types.COMPONENT_TYPES) {
-		name := summer.GetBeanName(Out, *new(reflect.StructTag))
+		tag := (reflect.StructTag)(fmt.Sprintf(`name:"%s"`, name))
+		name := summer.GetBeanName(Out, tag)
 		if a.BeanMap[Out] == nil {
 			a.BeanMap[Out] = make(map[string]*bean.Bean)
 		} else if _, ok := a.BeanMap[Out][name]; ok {
 			a.Logger.Errorf("There too many %s named %s in Application", Out, name)
 			return
 		}
-		a.load(Out, reflect.New(Out.Elem()).Elem(), (reflect.StructTag)(fmt.Sprintf(`name:"%s"`, name)))
+		a.load(Out, reflect.New(Out.Elem()).Elem(), tag)
 		a.recursionLoadField(Out)
 	}
+}
+
+func (a *Application) loadMethodIn(inType reflect.Type) {
+	a.load(inType, reflect.New(inType.Elem()).Elem(), *new(reflect.StructTag))
+	a.recursionLoadField(inType)
 }
 
 func (a *Application) recursionLoadField(fieldType reflect.Type) {
