@@ -8,10 +8,10 @@ import (
 
 type RouterConfig struct {
 	types.Configuration
-	*UserController
+	*UserComponent `name:"*UserComponent"`
 }
 
-type UserController struct {
+type UserComponent struct {
 	types.Component
 }
 

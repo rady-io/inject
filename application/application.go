@@ -7,6 +7,7 @@ import (
 	"summer/types"
 	"summer"
 	"summer/logger"
+	"strings"
 )
 
 type Application struct {
@@ -36,14 +37,24 @@ func CreateApplication(app interface{}) *Application {
 }
 
 func (a *Application) init() *Application {
-	return a.initialize(a.Logger).initialize(a)
+	return a.loadElem(a.Logger, *new(reflect.StructTag)).loadElem(a, *new(reflect.StructTag))
 }
 
-func (a *Application) initialize(elem interface{}) *Application {
+func (a *Application) loadElem(elem interface{}, tag reflect.StructTag) *Application {
 	Value := reflect.ValueOf(elem)
 	Type := reflect.TypeOf(elem)
+	return a.load(Type, Value, tag)
+}
+
+func (a *Application) load(Type reflect.Type, Value reflect.Value, tag reflect.StructTag) *Application {
+	name := Type.String()
+	if tag != *new(reflect.StructTag) {
+		if aliasName := tag.Get("name"); strings.Trim(aliasName, " ") != "" {
+			name = aliasName
+		}
+	}
 	a.BeanMap[Type] = map[string]*bean.Bean{
-		Type.Name(): bean.NewBean(Value, *new(reflect.StructTag)),
+		name: bean.NewBean(Value, tag),
 	}
 	return a
 }
@@ -64,9 +75,7 @@ func (a *Application) Run() {
 func (a *Application) loadField(Field reflect.StructField, FieldValue reflect.Value) {
 	fieldType := Field.Type
 	if a.BeanMap[fieldType] == nil {
-		newBean := bean.NewBean(FieldValue, Field.Tag)
-		a.BeanMap[fieldType] = make(map[string]*bean.Bean)
-		a.BeanMap[fieldType][fieldType.Name()] = newBean
+		a.load(fieldType, FieldValue, Field.Tag)
 		a.recursionLoadField(Field)
 	}
 	//FieldValue.Set(a.BeanMap[fieldType][fieldType.Name()].Value)
