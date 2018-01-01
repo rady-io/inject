@@ -2,11 +2,11 @@ package application
 
 import (
 	"reflect"
-	"summer/bean"
+	"rhapsody/bean"
 	"github.com/labstack/echo"
-	"summer/types"
-	"summer"
-	"summer/logger"
+	"rhapsody/types"
+	"rhapsody"
+	"rhapsody/logger"
 	"fmt"
 )
 
@@ -21,7 +21,7 @@ type Application struct {
 }
 
 func CreateApplication(app interface{}) *Application {
-	if summer.CheckFieldPtr(reflect.TypeOf(app)) {
+	if rhapsody.CheckFieldPtr(reflect.TypeOf(app)) {
 		return (&Application{
 			app:             app,
 			BeanMap:         make(map[reflect.Type]map[string]*bean.Bean),
@@ -48,8 +48,8 @@ func (a *Application) loadElem(elem interface{}, tag reflect.StructTag) *Applica
 
 func (a *Application) load(fieldType reflect.Type, Value reflect.Value, tag reflect.StructTag) *Application {
 	a.Logger.Debug("%s", Value.Type())
-	name := summer.GetBeanName(fieldType, tag)
-	if summer.ConfirmAddBeanMap(a.BeanMap, fieldType, name) {
+	name := rhapsody.GetBeanName(fieldType, tag)
+	if rhapsody.ConfirmAddBeanMap(a.BeanMap, fieldType, name) {
 		newBean := bean.NewBean(Value, tag)
 		a.BeanMap[fieldType][name] = newBean
 	}
@@ -61,7 +61,7 @@ func (a *Application) Run() {
 	appType := reflect.TypeOf(app).Elem()
 	for i := 0; i < appType.NumField(); i++ {
 		field := appType.Field(i)
-		if summer.CheckConfiguration(field) {
+		if rhapsody.CheckConfiguration(field) {
 			fieldValue := reflect.New(field.Type.Elem()).Elem() // save Elem in Bean
 			a.loadField(field, fieldValue)
 			for i := 0; i < fieldValue.Addr().NumMethod(); i++ {
@@ -80,13 +80,13 @@ func (a *Application) loadField(Field reflect.StructField, FieldValue reflect.Va
 
 func (a *Application) loadBeanMethod(method reflect.Value, name string) {
 	methodType := method.Type()
-	a.Logger.Info("%s -> %s", name, methodType)
+	a.Logger.Debug("%s -> %s", name, methodType)
 	if methodType.NumOut() == 1 {
 		methodBean := bean.NewBeanMethod(method, name)
 		a.loadMethodOut(methodType.Out(0), name)
 		for i:=0; i < methodType.NumIn(); i++ {
 			inType := methodType.In(i)
-			if summer.CheckFieldPtr(inType) && summer.ContainsFields(inType.Elem(), types.COMPONENT_TYPES) {
+			if rhapsody.CheckFieldPtr(inType) && rhapsody.ContainsFields(inType.Elem(), types.COMPONENT_TYPES) {
 				methodBean.Ins = append(methodBean.Ins, inType)
 				a.loadMethodIn(inType)
 			} else {
@@ -98,9 +98,9 @@ func (a *Application) loadBeanMethod(method reflect.Value, name string) {
 }
 
 func (a *Application) loadMethodOut(Out reflect.Type, name string) {
-	if summer.ContainsFields(Out.Elem(), types.COMPONENT_TYPES) {
+	if rhapsody.ContainsFields(Out.Elem(), types.COMPONENT_TYPES) {
 		tag := (reflect.StructTag)(fmt.Sprintf(`name:"%s"`, name))
-		name := summer.GetBeanName(Out, tag)
+		name := rhapsody.GetBeanName(Out, tag)
 		if a.BeanMap[Out] == nil {
 			a.BeanMap[Out] = make(map[string]*bean.Bean)
 		} else if _, ok := a.BeanMap[Out][name]; ok {
@@ -118,12 +118,12 @@ func (a *Application) loadMethodIn(inType reflect.Type) {
 }
 
 func (a *Application) recursionLoadField(fieldType reflect.Type) {
-	if summer.CheckFieldPtr(fieldType) {
+	if rhapsody.CheckFieldPtr(fieldType) {
 		appType := fieldType.Elem()
 		if appType.Kind() == reflect.Struct {
 			for i := 0; i < appType.NumField(); i++ {
 				field := appType.Field(i)
-				if summer.CheckComponents(field) {
+				if rhapsody.CheckComponents(field) {
 					a.loadField(field, reflect.New(field.Type.Elem()).Elem())
 				}
 			}

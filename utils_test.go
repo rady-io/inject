@@ -1,7 +1,7 @@
-package summer
+package rhapsody
 
 import (
-	"summer/types"
+	"rhapsody/types"
 	"testing"
 	"github.com/stretchr/testify/assert"
 	"reflect"

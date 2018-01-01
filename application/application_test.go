@@ -1,7 +1,7 @@
 package application
 
 import (
-	"summer/types"
+	"rhapsody/types"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )
