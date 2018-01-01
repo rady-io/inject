@@ -3,6 +3,8 @@ package summer
 import (
 	"reflect"
 	"summer/types"
+	"strings"
+	"summer/bean"
 )
 
 func ContainsField(Mother reflect.Type, field interface{}) bool {
@@ -40,3 +42,21 @@ func CheckComponents(field reflect.StructField) bool {
 	return CheckFieldPtr(field.Type) && (ok || field.Tag.Get("type") == "" && ContainsFields(field.Type.Elem(), types.COMPONENT_TYPES))
 }
 
+func GetBeanName(Type reflect.Type, tag reflect.StructTag) string {
+	if tag != *new(reflect.StructTag) {
+		if aliasName := tag.Get("name"); strings.Trim(aliasName, " ") != "" {
+			return aliasName
+		}
+	}
+	return Type.String()
+}
+
+// if return true, just go!
+func ConfirmAddBeanMap(BeanMap map[reflect.Type]map[string]*bean.Bean, fieldType reflect.Type, name string) bool {
+	if BeanMap[fieldType] == nil {
+		BeanMap[fieldType] = make(map[string]*bean.Bean)
+	} else if _, ok := BeanMap[fieldType][name]; ok {
+		return false
+	}
+	return true
+}

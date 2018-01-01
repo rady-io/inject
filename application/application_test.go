@@ -11,7 +11,15 @@ type RouterConfig struct {
 	*UserComponent `name:"*UserComponent"`
 }
 
+type HandlerConfig struct {
+	types.Configuration
+}
+
 func (rc *RouterConfig) GetUserComponent() *UserComponent {
+	return new(UserComponent)
+}
+
+func (hc *HandlerConfig) GetUserComponent() *UserComponent {
 	return new(UserComponent)
 }
 
@@ -22,6 +30,7 @@ type UserComponent struct {
 
 type App struct {
 	*RouterConfig
+	*HandlerConfig
 }
 
 func TestCreateApplication(t *testing.T) {

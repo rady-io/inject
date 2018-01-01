@@ -7,7 +7,6 @@ import (
 	"summer/types"
 	"summer"
 	"summer/logger"
-	"strings"
 	"fmt"
 )
 
@@ -47,23 +46,13 @@ func (a *Application) loadElem(elem interface{}, tag reflect.StructTag) *Applica
 	return a.load(Type, Value.Elem(), tag)
 }
 
-func (a *Application) load(Type reflect.Type, Value reflect.Value, tag reflect.StructTag) *Application {
-	name := Type.String()
-	if tag != *new(reflect.StructTag) {
-		if aliasName := tag.Get("name"); strings.Trim(aliasName, " ") != "" {
-			name = aliasName
-		}
+func (a *Application) load(fieldType reflect.Type, Value reflect.Value, tag reflect.StructTag) *Application {
+	a.Logger.Debug("%s", Value.Type())
+	name := summer.GetBeanName(fieldType, tag)
+	if summer.ConfirmAddBeanMap(a.BeanMap, fieldType, name) {
+		newBean := bean.NewBean(Value, tag)
+		a.BeanMap[fieldType][name] = newBean
 	}
-	a.Logger.Info("%s", Value.Type())
-
-	newBean := bean.NewBean(Value, tag)
-
-	if a.BeanMap[Type] == nil {
-		a.BeanMap[Type] = make(map[string]*bean.Bean)
-	} else if _, ok := a.BeanMap[Type][name]; ok {
-		return a
-	}
-	a.BeanMap[Type][name] = newBean
 	return a
 }
 
@@ -75,7 +64,6 @@ func (a *Application) Run() {
 		if summer.CheckConfiguration(field) {
 			fieldValue := reflect.New(field.Type.Elem()).Elem() // save Elem in Bean
 			a.loadField(field, fieldValue)
-			a.Logger.Info("NumMethod: %d", fieldValue.Addr().NumMethod())
 			for i := 0; i < fieldValue.Addr().NumMethod(); i++ {
 				name := fieldValue.Addr().Type().Method(i).Name
 				a.loadBeanMethod(fieldValue.Addr().MethodByName(name), name)
@@ -100,6 +88,13 @@ func (a *Application) loadBeanMethod(method reflect.Value, name string) {
 
 func (a *Application) loadMethodOut(Out reflect.Type, name string) {
 	if summer.ContainsFields(Out.Elem(), types.COMPONENT_TYPES) {
+		name := summer.GetBeanName(Out, *new(reflect.StructTag))
+		if a.BeanMap[Out] == nil {
+			a.BeanMap[Out] = make(map[string]*bean.Bean)
+		} else if _, ok := a.BeanMap[Out][name]; ok {
+			a.Logger.Errorf("There too many %s named %s in Application", Out, name)
+			return
+		}
 		a.load(Out, reflect.New(Out.Elem()).Elem(), (reflect.StructTag)(fmt.Sprintf(`name:"%s"`, name)))
 		a.recursionLoadField(Out)
 	}
