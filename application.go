@@ -37,7 +37,7 @@ func CreateApplication(app interface{}) *Application {
 }
 
 func (a *Application) init() *Application {
-	return a.loadElem(a.Logger, *new(reflect.StructTag)).loadElem(a, *new(reflect.StructTag))
+	return a.loadElem(a.Logger, *new(reflect.StructTag)).loadElem(a, *new(reflect.StructTag)).loadConfigFile()
 }
 
 func (a *Application) loadElem(elem interface{}, tag reflect.StructTag) *Application {
@@ -146,11 +146,17 @@ func (a *Application) loadConfigFile() *Application {
 				a.Logger.Info("Conf file path unexpected, use %s", DEFAULT_PATH)
 			}
 
+			if fileType != "" && fileType != JSON && fileType != YAML {
+				a.Logger.Info("Conf file suffix .%s unexpected, use default", fileType)
+			}
+
+			a.Logger.Debug("Load %s(%s)", path, fileType)
+
 			config, err := GetJSONFromAnyFile(path, fileType)
 			if err == nil {
 				a.ConfigFile = config
 			} else {
-				a.Logger.Error("File %s load failed", path)
+				a.Logger.Error("File %s load failed, %s", path, err.Error())
 			}
 		}
 	}
