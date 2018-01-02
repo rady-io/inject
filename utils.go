@@ -67,6 +67,28 @@ func ConfirmAddBeanMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType refl
 	return true
 }
 
+// for no named bean
+// may too many same typed bean
+func ConfirmSameTypeInMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType reflect.Type) bool {
+	if BeanMap[fieldType] == nil {
+		BeanMap[fieldType] = make(map[string]*Bean)
+	} else if len(BeanMap[fieldType]) > 0 {
+		return false
+	}
+	return true
+}
+
+// for named bean
+// named bean can only defined in configuration
+func ConfirmBeanInMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType reflect.Type, name string) bool {
+	if BeanMap[fieldType] != nil {
+		if _, ok := BeanMap[fieldType][name]; ok {
+			return true
+		}
+	}
+	return true
+}
+
 func GetJSONFromAnyFile(path string, fileType string) (string, error) {
 	fileBytes, err := ioutil.ReadFile(path)
 	if err != nil {

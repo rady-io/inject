@@ -83,7 +83,7 @@ func (a *Application) loadBeanMethod(method reflect.Value, name string) {
 	a.Logger.Debug("%s -> %s", name, methodType)
 	if methodType.NumOut() == 1 {
 		methodBean := NewBeanMethod(method, name)
-		a.loadMethodOut(methodType.Out(0), name)
+		a.loadPrimeField(methodType.Out(0), name)
 		for i := 0; i < methodType.NumIn(); i++ {
 			inType := methodType.In(i)
 			if CheckFieldPtr(inType) && ContainsFields(inType.Elem(), COMPONENT_TYPES) {
@@ -97,18 +97,17 @@ func (a *Application) loadBeanMethod(method reflect.Value, name string) {
 	}
 }
 
-func (a *Application) loadMethodOut(Out reflect.Type, name string) {
-	if ContainsFields(Out.Elem(), COMPONENT_TYPES) {
+// load field of configuration
+func (a *Application) loadPrimeField(fieldType reflect.Type, name string) {
+	if ContainsFields(fieldType.Elem(), COMPONENT_TYPES) {
 		tag := (reflect.StructTag)(fmt.Sprintf(`name:"%s"`, name))
-		name := GetBeanName(Out, tag)
-		if a.BeanMap[Out] == nil {
-			a.BeanMap[Out] = make(map[string]*Bean)
-		} else if _, ok := a.BeanMap[Out][name]; ok {
-			a.Logger.Errorf("There too many %s named %s in Application", Out, name)
-			return
+		name := GetBeanName(fieldType, tag)
+		if ConfirmAddBeanMap(a.BeanMap, fieldType, name) {
+			a.load(fieldType, reflect.New(fieldType.Elem()).Elem(), tag)
+			a.recursionLoadField(fieldType)
+		} else {
+			a.Logger.Errorf("There too many %s named %s in Application", fieldType, name)
 		}
-		a.load(Out, reflect.New(Out.Elem()).Elem(), tag)
-		a.recursionLoadField(Out)
 	}
 }
 
