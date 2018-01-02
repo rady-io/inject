@@ -1,4 +1,4 @@
-package types
+package rhapsody
 
 type Parameter struct {
 } 

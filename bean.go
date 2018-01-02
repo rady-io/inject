@@ -1,4 +1,4 @@
-package bean
+package rhapsody
 
 import "reflect"
 
@@ -14,12 +14,12 @@ type Method struct {
 	Name  string
 }
 
-type Controller struct {
+type CtrlBean struct {
 	Value reflect.Value
 	Tag   reflect.StructTag
 }
 
-type Middleware struct {
+type MdWareBean struct {
 	Value reflect.Value
 	Tag   reflect.StructTag
 }

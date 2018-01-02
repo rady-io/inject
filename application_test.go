@@ -1,22 +1,21 @@
-package application
+package rhapsody
 
 import (
-	"rhapsody/types"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )
 
 type RouterConfig struct {
-	types.Configuration
+	Configuration
 	*UserComponent `name:"*UserComponent"`
 }
 
 type HandlerConfig struct {
-	types.Configuration
+	Configuration
 }
 
 type GetUserParam struct {
-	types.Parameter
+	Parameter
 	*BookService
 }
 
@@ -26,16 +25,16 @@ func (rc *RouterConfig) GetUserComponent(BR *BookRepository, GP *GetUserParam) *
 }
 
 type UserComponent struct {
-	types.Component
+	Component
 	*RouterConfig
 }
 
 type BookService struct {
-	types.Service
+	Service
 }
 
 type BookRepository struct {
-	types.Repository
+	Repository
 } 
 
 type App struct {

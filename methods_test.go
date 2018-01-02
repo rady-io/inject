@@ -1,4 +1,4 @@
-package types
+package rhapsody
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-type Handler struct {
+type UserController struct {
 	Controller `prefix:"/api/v1/"`
 	GET    `method:"GetIds" path:"/:id"`
 	POST   `method:"PostIds" path:"/"`
@@ -15,7 +15,7 @@ type Handler struct {
 }
 
 func TestGetTags(t *testing.T) {
-	handlerValue := reflect.ValueOf(Handler{})
+	handlerValue := reflect.ValueOf(UserController{})
 	for i := 0; i < handlerValue.NumField(); i++ {
 		switch field := handlerValue.Type().Field(i); field.Type {
 		case reflect.TypeOf(Controller{}):

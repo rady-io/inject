@@ -1,6 +1,8 @@
-hash: 43ee9ec977ee6d1835ee20c00c8aad0c0cf8fec62d0e7a03825741edc5676e77
-updated: 2018-01-01T14:05:40.911781+08:00
+hash: 37a6c3ed18f265c0c5a836eb53a258bac3d322304679b8a3266d44df33526d14
+updated: 2018-01-02T13:28:56.554115+08:00
 imports:
+- name: github.com/ghodss/yaml
+  version: 0ca9ea5df5451ffdf184b4428c902747c2c11cd7
 - name: github.com/labstack/echo
   version: b338075a0fc6e1a0683dbf03d09b4957a289e26f
 - name: github.com/labstack/gommon
@@ -14,6 +16,8 @@ imports:
   version: 57fdcb988a5c543893cc61bce354a6e24ab70022
 - name: github.com/op/go-logging
   version: b2cb9fa56473e98db8caba80237377e83fe44db5
+- name: github.com/tidwall/gjson
+  version: e62d62a3e1e9f324346170bbc04333341f803dfb
 - name: github.com/valyala/bytebufferpool
   version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
 - name: github.com/valyala/fasttemplate

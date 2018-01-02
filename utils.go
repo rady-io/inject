@@ -2,9 +2,7 @@ package rhapsody
 
 import (
 	"reflect"
-	"rhapsody/types"
 	"strings"
-	"rhapsody/bean"
 )
 
 func ContainsField(Mother reflect.Type, field interface{}) bool {
@@ -34,12 +32,12 @@ func CheckFieldPtr(fieldType reflect.Type) bool {
 }
 
 func CheckConfiguration(field reflect.StructField) bool {
-	return CheckFieldPtr(field.Type) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), types.Configuration{}) || field.Tag.Get("type") == types.CONFIGURATION)
+	return CheckFieldPtr(field.Type) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), Configuration{}) || field.Tag.Get("type") == CONFIGURATION)
 }
 
 func CheckComponents(field reflect.StructField) bool {
-	_, ok := types.COMPONENTS[field.Tag.Get("type")]
-	return CheckFieldPtr(field.Type) && (ok || field.Tag.Get("type") == "" && ContainsFields(field.Type.Elem(), types.COMPONENT_TYPES))
+	_, ok := COMPONENTS[field.Tag.Get("type")]
+	return CheckFieldPtr(field.Type) && (ok || field.Tag.Get("type") == "" && ContainsFields(field.Type.Elem(), COMPONENT_TYPES))
 }
 
 func GetBeanName(Type reflect.Type, tag reflect.StructTag) string {
@@ -52,9 +50,9 @@ func GetBeanName(Type reflect.Type, tag reflect.StructTag) string {
 }
 
 // if return true, just go!
-func ConfirmAddBeanMap(BeanMap map[reflect.Type]map[string]*bean.Bean, fieldType reflect.Type, name string) bool {
+func ConfirmAddBeanMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType reflect.Type, name string) bool {
 	if BeanMap[fieldType] == nil {
-		BeanMap[fieldType] = make(map[string]*bean.Bean)
+		BeanMap[fieldType] = make(map[string]*Bean)
 	} else if _, ok := BeanMap[fieldType][name]; ok {
 		return false
 	}

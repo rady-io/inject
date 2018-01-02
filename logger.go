@@ -1,4 +1,4 @@
-package logger
+package rhapsody
 
 import (
 	"github.com/op/go-logging"
