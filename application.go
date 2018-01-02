@@ -3,8 +3,8 @@ package rhapsody
 import (
 	"reflect"
 	"github.com/labstack/echo"
-	"fmt"
 	"strings"
+	"os"
 )
 
 type Application struct {
@@ -43,16 +43,16 @@ func (a *Application) init() *Application {
 func (a *Application) loadElem(elem interface{}, tag reflect.StructTag) *Application {
 	Value := reflect.ValueOf(elem)
 	Type := reflect.TypeOf(elem)
-	return a.load(Type, Value.Elem(), tag)
+	return a.loadField(Type, Value.Elem(), tag)
 }
 
 func (a *Application) load(fieldType reflect.Type, Value reflect.Value, tag reflect.StructTag) *Application {
 	name := GetBeanName(fieldType, tag)
 	a.Logger.Debug("%s -> %s", name, Value.Type())
-	if ConfirmAddBeanMap(a.BeanMap, fieldType, name) {
-		newBean := NewBean(Value, tag)
-		a.BeanMap[fieldType][name] = newBean
-	}
+	//if ConfirmAddBeanMap(a.BeanMap, fieldType, name) {
+	newBean := NewBean(Value, tag)
+	a.BeanMap[fieldType][name] = newBean
+	//}
 	return a
 }
 
@@ -60,35 +60,58 @@ func (a *Application) Run() {
 	app := a.app
 	appType := reflect.TypeOf(app).Elem()
 	for i := 0; i < appType.NumField(); i++ {
-		field := appType.Field(i)
-		if CheckConfiguration(field) {
-			fieldValue := reflect.New(field.Type.Elem()).Elem() // save Elem in Bean
-			a.loadField(field, fieldValue)
-			for i := 0; i < fieldValue.Addr().NumMethod(); i++ {
-				name := fieldValue.Addr().Type().Method(i).Name
-				a.loadBeanMethod(fieldValue.Addr().MethodByName(name), name)
+		config := appType.Field(i)
+		if CheckConfiguration(config) {
+			configValue := reflect.New(config.Type.Elem()).Elem() // save Elem in Bean
+			a.loadField(config.Type, configValue, config.Tag)
+			for i := 0; i < configValue.NumField(); i++ {
+				fieldValue := configValue.Field(i)
+				field := config.Type.Elem().Field(i)
+				if CheckConfiguration(field) {
+					a.loadPrimeField(field.Type, fieldValue, field.Tag)
+				}
+			}
+			for i := 0; i < configValue.Addr().NumMethod(); i++ {
+				name := configValue.Addr().Type().Method(i).Name
+				a.loadBeanMethodOut(configValue.Addr().MethodByName(name), name)
 			}
 		}
 	}
 }
 
-func (a *Application) loadField(Field reflect.StructField, FieldValue reflect.Value) {
-	fieldType := Field.Type
-	a.load(fieldType, FieldValue, Field.Tag)
-	a.recursionLoadField(Field.Type)
+func (a *Application) loadField(fieldType reflect.Type, fieldValue reflect.Value, tag reflect.StructTag) *Application {
+	name := tag.Get("name")
+	if name == "" {
+		if ConfirmSameTypeInMap(a.BeanMap, fieldType) {
+			if len(a.BeanMap[fieldType]) > 1 {
+				a.Logger.Critical("There are more than one %s, please named it.", fieldType)
+				os.Exit(1)
+			}
+		} else {
+			a.load(fieldType, fieldValue, tag)
+			//a.recursionLoadField(fieldType)
+		}
+	} else {
+		if !ConfirmBeanInMap(a.BeanMap, fieldType, name) {
+			a.Logger.Critical("There are no %s named %s, please define it in config.", fieldType, name)
+			os.Exit(1)
+		}
+	}
+	return a
 }
 
-func (a *Application) loadBeanMethod(method reflect.Value, name string) {
+func (a *Application) loadBeanMethodOut(method reflect.Value, name string) {
 	methodType := method.Type()
 	a.Logger.Debug("%s -> %s", name, methodType)
 	if methodType.NumOut() == 1 {
 		methodBean := NewBeanMethod(method, name)
-		a.loadPrimeField(methodType.Out(0), name)
+		fieldType := methodType.Out(0)
+		a.loadPrimeField(fieldType, reflect.New(fieldType.Elem()).Elem(), GetTagFromName(name))
 		for i := 0; i < methodType.NumIn(); i++ {
 			inType := methodType.In(i)
 			if CheckFieldPtr(inType) && ContainsFields(inType.Elem(), COMPONENT_TYPES) {
 				methodBean.Ins = append(methodBean.Ins, inType)
-				a.loadMethodIn(inType)
+				//a.loadFieldAndRecursion(inType)
 			} else {
 				a.Logger.Errorf(`Param %s of %s isn't one of COMPONENT_TYPES`, inType, name)
 				return
@@ -98,21 +121,21 @@ func (a *Application) loadBeanMethod(method reflect.Value, name string) {
 }
 
 // load field of configuration
-func (a *Application) loadPrimeField(fieldType reflect.Type, name string) {
+func (a *Application) loadPrimeField(fieldType reflect.Type, fieldValue reflect.Value, tag reflect.StructTag) {
 	if ContainsFields(fieldType.Elem(), COMPONENT_TYPES) {
-		tag := (reflect.StructTag)(fmt.Sprintf(`name:"%s"`, name))
+		tag := tag
 		name := GetBeanName(fieldType, tag)
 		if ConfirmAddBeanMap(a.BeanMap, fieldType, name) {
-			a.load(fieldType, reflect.New(fieldType.Elem()).Elem(), tag)
-			a.recursionLoadField(fieldType)
+			a.load(fieldType, fieldValue, tag)
+			//a.recursionLoadField(fieldType)
 		} else {
 			a.Logger.Errorf("There too many %s named %s in Application", fieldType, name)
 		}
 	}
 }
 
-func (a *Application) loadMethodIn(inType reflect.Type) {
-	a.load(inType, reflect.New(inType.Elem()).Elem(), *new(reflect.StructTag))
+func (a *Application) loadFieldAndRecursion(inType reflect.Type) {
+	a.loadField(inType, reflect.New(inType.Elem()).Elem(), *new(reflect.StructTag))
 	a.recursionLoadField(inType)
 }
 
@@ -123,7 +146,7 @@ func (a *Application) recursionLoadField(fieldType reflect.Type) {
 			for i := 0; i < appType.NumField(); i++ {
 				field := appType.Field(i)
 				if CheckComponents(field) {
-					a.loadField(field, reflect.New(field.Type.Elem()).Elem())
+					a.loadField(field.Type, reflect.New(field.Type.Elem()).Elem(), field.Tag)
 				}
 			}
 		}

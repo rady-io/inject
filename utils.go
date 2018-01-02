@@ -5,6 +5,7 @@ import (
 	"strings"
 	"io/ioutil"
 	"github.com/ghodss/yaml"
+	"fmt"
 )
 
 func ContainsField(Mother reflect.Type, field interface{}) bool {
@@ -57,6 +58,10 @@ func GetBeanName(Type reflect.Type, tag reflect.StructTag) string {
 	return Type.String()
 }
 
+func GetTagFromName(name string) reflect.StructTag {
+	return (reflect.StructTag)(fmt.Sprintf(`name:"%s"`, name))
+}
+
 // if return true, just go!
 func ConfirmAddBeanMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType reflect.Type, name string) bool {
 	if BeanMap[fieldType] == nil {
@@ -73,9 +78,9 @@ func ConfirmSameTypeInMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType r
 	if BeanMap[fieldType] == nil {
 		BeanMap[fieldType] = make(map[string]*Bean)
 	} else if len(BeanMap[fieldType]) > 0 {
-		return false
+		return true
 	}
-	return true
+	return false
 }
 
 // for named bean
@@ -86,7 +91,7 @@ func ConfirmBeanInMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType refle
 			return true
 		}
 	}
-	return true
+	return false
 }
 
 func GetJSONFromAnyFile(path string, fileType string) (string, error) {
