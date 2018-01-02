@@ -20,7 +20,7 @@ func TestContainsField(t *testing.T) {
 }
 
 func TestContainsFields(t *testing.T) {
-	handler := Handler{}
+	handler := ComponentHandler{}
 	assert.True(t, ContainsFields(reflect.TypeOf(handler), COMPONENT_TYPES), "Handler should contain some field in COMPONENT_TYPES")
 
 	typesSet := make(map[reflect.Type]bool)

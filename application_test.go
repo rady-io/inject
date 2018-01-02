@@ -3,6 +3,7 @@ package rhapsody
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
+	"reflect"
 )
 
 type RouterConfig struct {
@@ -50,8 +51,8 @@ func TestCreateApplication(t *testing.T) {
 		for name, value := range valueMap {
 			t.Logf(" %s - Value canset: %s\n", name, value.Value.CanSet())
 			t.Logf(" %s - Field canset: %s\n", name, value.Value.Field(0).CanSet())
-			if Type.String() == "*application.Application" && Type.String() == name {
-				assert.False(t, value.Value.Field(0).CanSet(), "Field of *application.Application should not CanSet")
+			if Type == reflect.TypeOf(new(Application)) && Type.String() == name {
+				assert.False(t, value.Value.Field(0).CanSet(), "Field of *rhapsody.Application should not CanSet")
 			} else {
 				assert.True(t, value.Value.Field(0).CanSet(), "Field of %s should CanSet", name)
 			}
