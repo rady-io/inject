@@ -47,8 +47,8 @@ func (a *Application) loadElem(elem interface{}, tag reflect.StructTag) *Applica
 }
 
 func (a *Application) load(fieldType reflect.Type, Value reflect.Value, tag reflect.StructTag) *Application {
-	a.Logger.Debug("%s", Value.Type())
 	name := rhapsody.GetBeanName(fieldType, tag)
+	a.Logger.Debug("%s -> %s",name ,Value.Type())
 	if rhapsody.ConfirmAddBeanMap(a.BeanMap, fieldType, name) {
 		newBean := bean.NewBean(Value, tag)
 		a.BeanMap[fieldType][name] = newBean
