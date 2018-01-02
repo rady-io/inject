@@ -16,12 +16,12 @@ func ContainsField(Mother reflect.Type, field interface{}) bool {
 		}
 	}
 	return false
-	if innerField, ok := Mother.FieldByName(fieldType.Name()); ok {
-		if innerField.Type == fieldType {
-			return true
-		}
-	}
-	return false
+	//if innerField, ok := Mother.FieldByName(fieldType.Name()); ok {
+	//	if innerField.Type == fieldType {
+	//		return true
+	//	}
+	//}
+	//return false
 }
 
 func ContainsFields(Mother reflect.Type, Set map[reflect.Type]bool) bool {

@@ -1,5 +1,6 @@
 package rhapsody
 
+
 import (
 	"reflect"
 	"github.com/labstack/echo"
@@ -7,8 +8,33 @@ import (
 	"os"
 )
 
+/*
+Application is the bootstrap of a Rhapsody app
+
+Root is pointer of app for config, controller and handler registry
+
+BeanMap is map to find *Bean by `Type` and `Name`(when type is the same)
+
+	value in bean is Elem(), can get Addr() when set to other field
+
+BeanMethodMap is map to find *Method by `Type` and `Name`(when type is the same)
+
+	Value in method can be call later to set value to other filed
+
+ValueBeanMap is map to find / set value in config file, going to implement hot-reload
+
+CtrlBeanSlice is slice to store controller
+
+MdWareBeanSlice is slice to store middleware
+
+Server is the echo server
+
+Logger is the global logger
+
+ConfigFile is the string json value of config file
+*/
 type Application struct {
-	app             interface{}
+	Root            interface{}
 	BeanMap         map[reflect.Type]map[string]*Bean
 	BeanMethodMap   map[reflect.Type]map[string]*Method
 	ValueBeanMap    map[string]*ValueBean
@@ -19,10 +45,15 @@ type Application struct {
 	ConfigFile      string
 }
 
-func CreateApplication(app interface{}) *Application {
-	if CheckFieldPtr(reflect.TypeOf(app)) {
+/*
+CreateApplication can initial application with root
+
+if root is not kinds of Ptr, there will be an error
+ */
+func CreateApplication(root interface{}) *Application {
+	if CheckFieldPtr(reflect.TypeOf(root)) {
 		return (&Application{
-			app:             app,
+			Root:            root,
 			BeanMap:         make(map[reflect.Type]map[string]*Bean),
 			BeanMethodMap:   make(map[reflect.Type]map[string]*Method),
 			ValueBeanMap:    make(map[string]*ValueBean),
@@ -32,7 +63,7 @@ func CreateApplication(app interface{}) *Application {
 			Logger:          NewLogger(),
 		}).init()
 	}
-	NewLogger().Errorf("%s is not kind of Ptr!!!\n", reflect.TypeOf(app).Name)
+	NewLogger().Errorf("%s is not kind of Ptr!!!\n", reflect.TypeOf(root).Name())
 	return new(Application)
 }
 
@@ -56,11 +87,35 @@ func (a *Application) load(fieldType reflect.Type, Value reflect.Value, tag refl
 	return a
 }
 
+/*
+Run is the boot method of a whole Rhapsody app
+
+Start with the Root, Get Fields of Root
+
+First, we load "PrimeField", which mean field define in config, are basic of all Field
+
+	Prime Field include all component Fields in config, which can defined private name
+
+Then, we load BeanMethodOut, which mean result of "bean method", however, what's bean method
+
+	Bean method mean methods return only bean(component), and all parameters can init with dependency injection
+
+	returned value of Bean method is same as PrimeField
+
+	parameter value is same as normal field
+
+And then, we load normal field recursively
+
+TODO: Inject Value
+
+TODO: Load BeanMethod Args, Construct Link between Param and Value
+
+ */
 func (a *Application) Run() {
-	app := a.app
-	appType := reflect.TypeOf(app).Elem()
-	for i := 0; i < appType.NumField(); i++ {
-		config := appType.Field(i)
+	root := a.Root
+	rootType := reflect.TypeOf(root).Elem()
+	for i := 0; i < rootType.NumField(); i++ {
+		config := rootType.Field(i)
 		if CheckConfiguration(config) {
 			configValue := reflect.New(config.Type.Elem()).Elem() // save Elem in Bean
 			a.loadField(config.Type, configValue, config.Tag)
@@ -77,7 +132,22 @@ func (a *Application) Run() {
 			}
 		}
 	}
+	a.loadBeanChild()
 }
+
+func (a *Application) loadBeanChild() {
+	for fileType, beanMap := range a.BeanMap {
+		if beanMap != nil && len(beanMap) > 0 {
+			a.recursionLoadField(fileType)
+		}
+	}
+}
+
+//func (a *Application) loadMethodBeanIn() {
+//	for fileType, methodMap := range a.BeanMethodMap {
+//
+//	}
+//}
 
 func (a *Application) loadField(fieldType reflect.Type, fieldValue reflect.Value, tag reflect.StructTag) *Application {
 	name := tag.Get("name")
@@ -89,7 +159,6 @@ func (a *Application) loadField(fieldType reflect.Type, fieldValue reflect.Value
 			}
 		} else {
 			a.load(fieldType, fieldValue, tag)
-			//a.recursionLoadField(fieldType)
 		}
 	} else {
 		if !ConfirmBeanInMap(a.BeanMap, fieldType, name) {
@@ -127,7 +196,6 @@ func (a *Application) loadPrimeField(fieldType reflect.Type, fieldValue reflect.
 		name := GetBeanName(fieldType, tag)
 		if ConfirmAddBeanMap(a.BeanMap, fieldType, name) {
 			a.load(fieldType, fieldValue, tag)
-			//a.recursionLoadField(fieldType)
 		} else {
 			a.Logger.Errorf("There too many %s named %s in Application", fieldType, name)
 		}
@@ -140,7 +208,7 @@ func (a *Application) loadFieldAndRecursion(inType reflect.Type) {
 }
 
 func (a *Application) recursionLoadField(fieldType reflect.Type) {
-	if CheckFieldPtr(fieldType) {
+	if CheckFieldPtr(fieldType) && ContainsFields(fieldType.Elem(), COMPONENT_TYPES) {
 		appType := fieldType.Elem()
 		if appType.Kind() == reflect.Struct {
 			for i := 0; i < appType.NumField(); i++ {
@@ -154,7 +222,7 @@ func (a *Application) recursionLoadField(fieldType reflect.Type) {
 }
 
 func (a *Application) loadConfigFile() *Application {
-	appType := reflect.TypeOf(a.app).Elem()
+	appType := reflect.TypeOf(a.Root).Elem()
 	for i := 0; i < appType.NumField(); i++ {
 		field := appType.Field(i)
 		if field.Type == reflect.TypeOf(CONF{}) {

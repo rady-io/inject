@@ -3,7 +3,6 @@ package rhapsody
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
-	"reflect"
 )
 
 type RouterConfig struct {
@@ -20,7 +19,6 @@ type GetUserParam struct {
 	*BookService
 }
 
-
 func (rc *RouterConfig) GetUserComponent(BR *BookRepository, GP *GetUserParam) *UserComponent {
 	return new(UserComponent)
 }
@@ -36,7 +34,7 @@ type BookService struct {
 
 type BookRepository struct {
 	Repository
-} 
+}
 
 type App struct {
 	*RouterConfig
@@ -49,14 +47,9 @@ func TestCreateApplication(t *testing.T) {
 	for Type, valueMap := range app.BeanMap {
 		t.Logf("Type: %s\n", Type.String())
 		for name, value := range valueMap {
-			t.Logf(" %s - Value canset: %s\n", name, value.Value.CanSet())
-			t.Logf(" %s - Field canset: %s\n", name, value.Value.Field(0).CanSet())
-			if Type == reflect.TypeOf(new(Application)) && Type.String() == name {
-				assert.False(t, value.Value.Field(0).CanSet(), "Field of *rhapsody.Application should not CanSet")
-			} else {
-				assert.True(t, value.Value.Field(0).CanSet(), "Field of %s should CanSet", name)
-			}
-
+			t.Logf(" %s - Value canset: %t\n", name, value.Value.CanSet())
+			t.Logf(" %s - Field canset: %t\n", name, value.Value.Field(0).CanSet())
+			assert.True(t, value.Value.Field(0).CanSet(), "Field of %s should CanSet", name)
 			assert.True(t, value.Value.CanSet(), "%s should CanSet", name)
 		}
 	}
