@@ -3,10 +3,18 @@ package rhapsody
 import (
 	"reflect"
 	"strings"
+	"io/ioutil"
+	"github.com/ghodss/yaml"
 )
 
 func ContainsField(Mother reflect.Type, field interface{}) bool {
 	fieldType := reflect.TypeOf(field)
+	for i := 0; i < Mother.NumField(); i++ {
+		if Mother.Field(i).Type == fieldType {
+			return true
+		}
+	}
+	return false
 	if innerField, ok := Mother.FieldByName(fieldType.Name()); ok {
 		if innerField.Type == fieldType {
 			return true
@@ -57,4 +65,18 @@ func ConfirmAddBeanMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType refl
 		return false
 	}
 	return true
+}
+
+func GetJSONFromAnyFile(path string, fileType string) (string, error) {
+	fileBytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+
+	if fileType != JSON {
+		if fileType == YAML || strings.HasSuffix(path, ".yml") || strings.HasSuffix(path, ".yaml") {
+			fileBytes, err = yaml.YAMLToJSON(fileBytes)
+		}
+	}
+	return string(fileBytes), err
 }

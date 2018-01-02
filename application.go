@@ -4,16 +4,19 @@ import (
 	"reflect"
 	"github.com/labstack/echo"
 	"fmt"
+	"strings"
 )
 
 type Application struct {
 	app             interface{}
 	BeanMap         map[reflect.Type]map[string]*Bean
 	BeanMethodMap   map[reflect.Type]map[string]*Method
+	ValueBeanMap    map[string]*ValueBean
 	CtrlBeanSlice   []*CtrlBean
 	MdWareBeanSlice []*MdWareBean
 	Server          *echo.Echo
 	Logger          *Logger
+	ConfigFile      string
 }
 
 func CreateApplication(app interface{}) *Application {
@@ -22,6 +25,7 @@ func CreateApplication(app interface{}) *Application {
 			app:             app,
 			BeanMap:         make(map[reflect.Type]map[string]*Bean),
 			BeanMethodMap:   make(map[reflect.Type]map[string]*Method),
+			ValueBeanMap:    make(map[string]*ValueBean),
 			CtrlBeanSlice:   make([]*CtrlBean, 0),
 			MdWareBeanSlice: make([]*MdWareBean, 0),
 			Server:          echo.New(),
@@ -125,4 +129,30 @@ func (a *Application) recursionLoadField(fieldType reflect.Type) {
 			}
 		}
 	}
+}
+
+func (a *Application) loadConfigFile() *Application {
+	appType := reflect.TypeOf(a.app).Elem()
+	for i := 0; i < appType.NumField(); i++ {
+		field := appType.Field(i)
+		if field.Type == reflect.TypeOf(CONF{}) {
+			path := DEFAULT_PATH
+			tag := field.Tag
+			truePath := strings.Trim(tag.Get("path"), " ")
+			fileType := strings.Trim(tag.Get("type"), " ")
+			if truePath != "" {
+				path = truePath
+			} else {
+				a.Logger.Info("Conf file path unexpected, use %s", DEFAULT_PATH)
+			}
+
+			config, err := GetJSONFromAnyFile(path, fileType)
+			if err == nil {
+				a.ConfigFile = config
+			} else {
+				a.Logger.Error("File %s load failed", path)
+			}
+		}
+	}
+	return a
 }
