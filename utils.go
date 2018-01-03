@@ -8,6 +8,7 @@ import (
 	"fmt"
 )
 
+// ContainsField return true when Mother has a child as same type as filed
 func ContainsField(Mother reflect.Type, field interface{}) bool {
 	fieldType := reflect.TypeOf(field)
 	for i := 0; i < Mother.NumField(); i++ {
@@ -16,14 +17,9 @@ func ContainsField(Mother reflect.Type, field interface{}) bool {
 		}
 	}
 	return false
-	//if innerField, ok := Mother.FieldByName(fieldType.Name()); ok {
-	//	if innerField.Type == fieldType {
-	//		return true
-	//	}
-	//}
-	//return false
 }
 
+// ContainsFields return true when Mother has a child with a type Set contains
 func ContainsFields(Mother reflect.Type, Set map[reflect.Type]bool) bool {
 	for i := 0; i < Mother.NumField(); i++ {
 		if _, ok := Set[Mother.Field(i).Type]; ok {
@@ -33,22 +29,23 @@ func ContainsFields(Mother reflect.Type, Set map[reflect.Type]bool) bool {
 	return false
 }
 
+// CheckFieldPtr return true when fieldType is kind of Ptr
 func CheckFieldPtr(fieldType reflect.Type) bool {
-	if fieldType.Kind() != reflect.Ptr {
-		return false
-	}
-	return true
+	return fieldType.Kind() == reflect.Ptr
 }
 
+// CheckConfiguration return true when type in its tag is CONFIGURATION or ContainsField(field.Type.Elem(), Configuration{})
 func CheckConfiguration(field reflect.StructField) bool {
 	return CheckFieldPtr(field.Type) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), Configuration{}) || field.Tag.Get("type") == CONFIGURATION)
 }
 
+// CheckComponents return true when type in its tag is in COMPONENTS or ContainsFields(field.Type.Elem(), ComponentTypes)
 func CheckComponents(field reflect.StructField) bool {
 	_, ok := COMPONENTS[field.Tag.Get("type")]
-	return CheckFieldPtr(field.Type) && (ok || field.Tag.Get("type") == "" && ContainsFields(field.Type.Elem(), COMPONENT_TYPES))
+	return CheckFieldPtr(field.Type) && (ok || field.Tag.Get("type") == "" && ContainsFields(field.Type.Elem(), ComponentTypes))
 }
 
+// GetBeanName get name from tag or from Type
 func GetBeanName(Type reflect.Type, tag reflect.StructTag) string {
 	if tag != *new(reflect.StructTag) {
 		if aliasName := tag.Get("name"); strings.Trim(aliasName, " ") != "" {
@@ -58,11 +55,16 @@ func GetBeanName(Type reflect.Type, tag reflect.StructTag) string {
 	return Type.String()
 }
 
+// GetTagFromName generate tag from name
 func GetTagFromName(name string) reflect.StructTag {
 	return (reflect.StructTag)(fmt.Sprintf(`name:"%s"`, name))
 }
 
-// if return true, just go!
+/*
+ConfirmAddBeanMap return true when BeanMap[fieldType] == nil or BeanMap[fieldType][name] doesn't exist
+
+and this function will make a map if BeanMap[fieldType] == nil
+ */
 func ConfirmAddBeanMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType reflect.Type, name string) bool {
 	if BeanMap[fieldType] == nil {
 		BeanMap[fieldType] = make(map[string]*Bean)
@@ -72,8 +74,12 @@ func ConfirmAddBeanMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType refl
 	return true
 }
 
-// for no named bean
-// may too many same typed bean
+
+/*
+ConfirmSameTypeInMap return true when len(BeanMap[fieldType]) > 0
+
+and this function will also make a map if BeanMap[fieldType] == nil, but return false
+ */
 func ConfirmSameTypeInMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType reflect.Type) bool {
 	if BeanMap[fieldType] == nil {
 		BeanMap[fieldType] = make(map[string]*Bean)
@@ -83,8 +89,7 @@ func ConfirmSameTypeInMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType r
 	return false
 }
 
-// for named bean
-// named bean can only defined in configuration
+// ConfirmBeanInMap return true when BeanMap[fieldType][name] exist
 func ConfirmBeanInMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType reflect.Type, name string) bool {
 	if BeanMap[fieldType] != nil {
 		if _, ok := BeanMap[fieldType][name]; ok {
@@ -94,13 +99,21 @@ func ConfirmBeanInMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType refle
 	return false
 }
 
+/*
+GetJSONFromAnyFile can get json string from file
+
+This function work well only when:
+
+	1. fileType == "yaml" or (fileType != "json" and path end with ".yml" or ".yaml"), and content in file is yaml
+	2. content in file is json
+ */
 func GetJSONFromAnyFile(path string, fileType string) (string, error) {
 	fileBytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
 
-	if fileType != JSON {
+	if fileType != JSON{
 		if fileType == YAML || strings.HasSuffix(path, ".yml") || strings.HasSuffix(path, ".yaml") {
 			fileBytes, err = yaml.YAMLToJSON(fileBytes)
 		}

@@ -5,10 +5,12 @@ import (
 	"os"
 )
 
+// Logger is a logger base on `github.com/op/go-logging`
 type Logger struct {
 	*logging.Logger
 }
 
+// NewLogger is the factory function of Logger
 func NewLogger() *Logger {
 	log := logging.MustGetLogger("example")
 	format := logging.MustStringFormatter(

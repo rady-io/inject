@@ -10,11 +10,11 @@ func init() {
 	//COMPONENTS[ROUTER] = true
 	//COMPONENTS[MIDDLEWARE] = true
 
-	COMPONENT_TYPES[reflect.TypeOf(Component{})] = true
-	COMPONENT_TYPES[reflect.TypeOf(Service{})] = true
-	COMPONENT_TYPES[reflect.TypeOf(Repository{})] = true
-	COMPONENT_TYPES[reflect.TypeOf(Parameter{})] = true
-	//COMPONENT_TYPES[reflect.TypeOf(Controller{})] = true
-	//COMPONENT_TYPES[reflect.TypeOf(Router{})] = true
-	//COMPONENT_TYPES[reflect.TypeOf(Middleware{})] = true
+	ComponentTypes[reflect.TypeOf(Component{})] = true
+	ComponentTypes[reflect.TypeOf(Service{})] = true
+	ComponentTypes[reflect.TypeOf(Repository{})] = true
+	ComponentTypes[reflect.TypeOf(Parameter{})] = true
+	//ComponentTypes[reflect.TypeOf(Controller{})] = true
+	//ComponentTypes[reflect.TypeOf(Router{})] = true
+	//ComponentTypes[reflect.TypeOf(Middleware{})] = true
 }

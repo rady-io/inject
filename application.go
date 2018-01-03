@@ -74,16 +74,14 @@ func (a *Application) init() *Application {
 func (a *Application) loadElem(elem interface{}, tag reflect.StructTag) *Application {
 	Value := reflect.ValueOf(elem)
 	Type := reflect.TypeOf(elem)
-	return a.loadField(Type, Value.Elem(), tag)
+	return a.LoadBean(Type, Value.Elem(), tag)
 }
 
 func (a *Application) load(fieldType reflect.Type, Value reflect.Value, tag reflect.StructTag) *Application {
 	name := GetBeanName(fieldType, tag)
 	a.Logger.Debug("%s -> %s", name, Value.Type())
-	//if ConfirmAddBeanMap(a.BeanMap, fieldType, name) {
 	newBean := NewBean(Value, tag)
 	a.BeanMap[fieldType][name] = newBean
-	//}
 	return a
 }
 
@@ -92,23 +90,25 @@ Run is the boot method of a whole Rhapsody app
 
 Start with the Root, Get Fields of Root
 
-First, we load "PrimeField", which mean field define in config, are basic of all Field
+First, we load "PrimeBean", which mean field define in config, are basic of all bean
 
-	Prime Field include all component Fields in config, which can defined private name
+	PrimeBean include all component Fields in config, which can defined unique name
 
-Then, we load BeanMethodOut, which mean result of "bean method", however, what's bean method
+Then, we load BeanMethodOut, which mean result of "bean method", however, what's bean method?
 
-	Bean method mean methods return only bean(component), and all parameters can init with dependency injection
+	Bean method mean methods defined in config, return only bean(component), and all parameters can init with dependency injection
 
-	returned value of Bean method is same as PrimeField
+	returned value of Bean method is same as PrimeBean
 
 	parameter value is same as normal field
 
-And then, we load normal field recursively
+And then, we load normal bean recursively
 
 TODO: Inject Value
 
 TODO: Load BeanMethod Args, Construct Link between Param and Value
+
+TODO: Load Controller and Middleware and then register them
 
  */
 func (a *Application) Run() {
@@ -118,12 +118,12 @@ func (a *Application) Run() {
 		config := rootType.Field(i)
 		if CheckConfiguration(config) {
 			configValue := reflect.New(config.Type.Elem()).Elem() // save Elem in Bean
-			a.loadField(config.Type, configValue, config.Tag)
+			a.LoadBean(config.Type, configValue, config.Tag)
 			for i := 0; i < configValue.NumField(); i++ {
 				fieldValue := configValue.Field(i)
 				field := config.Type.Elem().Field(i)
 				if CheckConfiguration(field) {
-					a.loadPrimeField(field.Type, fieldValue, field.Tag)
+					a.LoadPrimeBean(field.Type, fieldValue, field.Tag)
 				}
 			}
 			for i := 0; i < configValue.Addr().NumMethod(); i++ {
@@ -135,10 +135,11 @@ func (a *Application) Run() {
 	a.loadBeanChild()
 }
 
+// load children of a Bean
 func (a *Application) loadBeanChild() {
 	for fileType, beanMap := range a.BeanMap {
-		if beanMap != nil && len(beanMap) > 0 {
-			a.recursionLoadField(fileType)
+		if len(beanMap) > 0 {
+			a.RecursivelyLoad(fileType)
 		}
 	}
 }
@@ -149,7 +150,20 @@ func (a *Application) loadBeanChild() {
 //	}
 //}
 
-func (a *Application) loadField(fieldType reflect.Type, fieldValue reflect.Value, tag reflect.StructTag) *Application {
+/*
+LoadBean can load normal bean
+
+normal bean can have a name, only if there is a prime bean with same name and type, and this method will do nothing
+
+if a normal bean doesn't a name
+
+	1. there is only one loaded bean with the same type, this method do nothing
+
+	2. there are more than one loaded bean with the same type, error and exit
+
+	3. there is no loaded bean with the same type, this method with initialize a new bean
+ */
+func (a *Application) LoadBean(fieldType reflect.Type, fieldValue reflect.Value, tag reflect.StructTag) *Application {
 	name := tag.Get("name")
 	if name == "" {
 		if ConfirmSameTypeInMap(a.BeanMap, fieldType) {
@@ -175,23 +189,26 @@ func (a *Application) loadBeanMethodOut(method reflect.Value, name string) {
 	if methodType.NumOut() == 1 {
 		methodBean := NewBeanMethod(method, name)
 		fieldType := methodType.Out(0)
-		a.loadPrimeField(fieldType, reflect.New(fieldType.Elem()).Elem(), GetTagFromName(name))
+		a.LoadPrimeBean(fieldType, reflect.New(fieldType.Elem()).Elem(), GetTagFromName(name))
 		for i := 0; i < methodType.NumIn(); i++ {
 			inType := methodType.In(i)
-			if CheckFieldPtr(inType) && ContainsFields(inType.Elem(), COMPONENT_TYPES) {
+			if CheckFieldPtr(inType) && ContainsFields(inType.Elem(), ComponentTypes) {
 				methodBean.Ins = append(methodBean.Ins, inType)
-				//a.loadFieldAndRecursion(inType)
 			} else {
-				a.Logger.Errorf(`Param %s of %s isn't one of COMPONENT_TYPES`, inType, name)
+				a.Logger.Errorf(`Param %s of %s isn't one of ComponentTypes`, inType, name)
 				return
 			}
 		}
 	}
 }
 
-// load field of configuration
-func (a *Application) loadPrimeField(fieldType reflect.Type, fieldValue reflect.Value, tag reflect.StructTag) {
-	if ContainsFields(fieldType.Elem(), COMPONENT_TYPES) {
+/*
+LoadPrimeBean as its name
+
+load field in configuration and out of beanMethod in configuration
+ */
+func (a *Application) LoadPrimeBean(fieldType reflect.Type, fieldValue reflect.Value, tag reflect.StructTag) {
+	if ContainsFields(fieldType.Elem(), ComponentTypes) {
 		tag := tag
 		name := GetBeanName(fieldType, tag)
 		if ConfirmAddBeanMap(a.BeanMap, fieldType, name) {
@@ -202,19 +219,29 @@ func (a *Application) loadPrimeField(fieldType reflect.Type, fieldValue reflect.
 	}
 }
 
-func (a *Application) loadFieldAndRecursion(inType reflect.Type) {
-	a.loadField(inType, reflect.New(inType.Elem()).Elem(), *new(reflect.StructTag))
-	a.recursionLoadField(inType)
+/*
+LoadBeanAndRecursion initialize a instance of a type and load it
+
+then recursively load children of this type
+ */
+func (a *Application) LoadBeanAndRecursion(fieldType reflect.Type) {
+	a.LoadBean(fieldType, reflect.New(fieldType.Elem()).Elem(), *new(reflect.StructTag))
+	a.RecursivelyLoad(fieldType)
 }
 
-func (a *Application) recursionLoadField(fieldType reflect.Type) {
-	if CheckFieldPtr(fieldType) && ContainsFields(fieldType.Elem(), COMPONENT_TYPES) {
+/*
+RecursivelyLoad recursively load children of a normal bean
+
+only if there is no prime bean among the children
+ */
+func (a *Application) RecursivelyLoad(fieldType reflect.Type) {
+	if CheckFieldPtr(fieldType) && ContainsFields(fieldType.Elem(), ComponentTypes) {
 		appType := fieldType.Elem()
 		if appType.Kind() == reflect.Struct {
 			for i := 0; i < appType.NumField(); i++ {
 				field := appType.Field(i)
 				if CheckComponents(field) {
-					a.loadField(field.Type, reflect.New(field.Type.Elem()).Elem(), field.Tag)
+					a.LoadBean(field.Type, reflect.New(field.Type.Elem()).Elem(), field.Tag)
 				}
 			}
 		}
@@ -226,14 +253,14 @@ func (a *Application) loadConfigFile() *Application {
 	for i := 0; i < appType.NumField(); i++ {
 		field := appType.Field(i)
 		if field.Type == reflect.TypeOf(CONF{}) {
-			path := DEFAULT_PATH
+			path := DefaultPath
 			tag := field.Tag
 			truePath := strings.Trim(tag.Get("path"), " ")
 			fileType := strings.Trim(tag.Get("type"), " ")
 			if truePath != "" {
 				path = truePath
 			} else {
-				a.Logger.Info("Conf file path unexpected, use %s", DEFAULT_PATH)
+				a.Logger.Info("Conf file path unexpected, use %s", DefaultPath)
 			}
 
 			if fileType != "" && fileType != JSON && fileType != YAML {

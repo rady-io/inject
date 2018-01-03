@@ -22,7 +22,7 @@ type ConfigTestTypeYAML struct {
 }
 
 var (
-	JSONConf, _ = GetJSONFromAnyFile(DEFAULT_PATH, JSON)
+	JSONConf, _ = GetJSONFromAnyFile(DefaultPath, JSON)
 	JSONFromYAML = "{\"rhapsody\":{\"db\":{\"type\":\"mysql\"},\"redis\":{\"host\":\"127.0.0.1\",\"port\":6937}}}"
 	YAMLConf, _ = GetJSONFromAnyFile("./resources/application.yaml", JSON)
 )
