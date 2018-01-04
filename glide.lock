@@ -1,8 +1,10 @@
-hash: 3a78a2bf23bfdaf3a500e9d47a2fb9590f35635dbce95fd8f3530623fac25d3d
-updated: 2018-01-02T15:26:05.274274+08:00
+hash: 5ce0cfd148b45a0772c4141556ab88e4d041ce07f5ce958a37c48607e94805f4
+updated: 2018-01-04T18:20:33.529356+08:00
 imports:
 - name: github.com/ghodss/yaml
   version: 0ca9ea5df5451ffdf184b4428c902747c2c11cd7
+- name: github.com/jinzhu/gorm
+  version: 5174cc5c242a728b435ea2be8a2f7f998e15429b
 - name: github.com/labstack/echo
   version: b338075a0fc6e1a0683dbf03d09b4957a289e26f
 - name: github.com/labstack/gommon
@@ -30,11 +32,11 @@ imports:
   - acme
   - acme/autocert
 - name: golang.org/x/sys
-  version: 83801418e1b59fb1880e363299581ee543af32ca
+  version: 28a7276518d399b9634904daad79e18b44d481bc
   subpackages:
   - unix
 - name: gopkg.in/yaml.v2
-  version: 287cf08546ab5e7e37d55a84f7ed3fd1db036de5
+  version: c95af922eae69f190717a0b7148960af8c55a072
 testImports:
 - name: github.com/davecgh/go-spew
   version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9

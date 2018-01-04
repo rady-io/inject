@@ -15,7 +15,7 @@ Usage:
 	}
 
 	type Root struct {
-		UserController
+		*UserController
 	}
 
 	func main() {

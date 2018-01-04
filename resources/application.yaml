@@ -1,6 +1,6 @@
 rhapsody:
-  db:
-    type: mysql
+  mysql:
+    host: localhost
   redis:
     host: 127.0.0.1
     port: 6937

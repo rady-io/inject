@@ -27,6 +27,8 @@ CtrlBeanSlice is slice to store controller
 
 MdWareBeanSlice is slice to store middleware
 
+Entities is slice to store type of entity
+
 Server is the echo server
 
 Logger is the global logger
@@ -40,6 +42,7 @@ type Application struct {
 	ValueBeanMap    map[string]*ValueBean
 	CtrlBeanSlice   []*CtrlBean
 	MdWareBeanSlice []*MdWareBean
+	Entities        []reflect.Type
 	Server          *echo.Echo
 	Logger          *Logger
 	ConfigFile      string
@@ -59,6 +62,7 @@ func CreateApplication(root interface{}) *Application {
 			ValueBeanMap:    make(map[string]*ValueBean),
 			CtrlBeanSlice:   make([]*CtrlBean, 0),
 			MdWareBeanSlice: make([]*MdWareBean, 0),
+			Entities:        make([]reflect.Type, 0),
 			Server:          echo.New(),
 			Logger:          NewLogger(),
 		}).init()
