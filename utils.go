@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"github.com/ghodss/yaml"
 	"fmt"
+	"unicode"
 )
 
 // ContainsField return true when Mother has a child as same type as filed
@@ -141,7 +142,7 @@ func GetNewPrefix(prefix string, path string) string {
 	return fmt.Sprintf("%s/%s", prefix, path)
 }
 
-func GetPrefixFromRouter(field reflect.StructField) string {
+func GetPathFromType(field reflect.StructField, Type interface{}) string {
 	prefix := field.Tag.Get("prefix")
 	if prefix != "" {
 		return prefix
@@ -149,39 +150,64 @@ func GetPrefixFromRouter(field reflect.StructField) string {
 
 	for i := 0; i < field.Type.Elem().NumField(); i ++ {
 		child := field.Type.Elem().Field(i)
-		if child.Type == reflect.TypeOf(Router{}) {
+		if child.Type == reflect.TypeOf(Type) {
 			return child.Tag.Get("prefix")
 		}
 	}
-	return "/"
+	return ""
 }
 
-func GetPrefixFromCtrl(field reflect.StructField) string {
-	prefix := field.Tag.Get("prefix")
-	if prefix != "" {
-		return prefix
-	}
-
-	for i := 0; i < field.Type.Elem().NumField(); i ++ {
-		child := field.Type.Elem().Field(i)
-		if child.Type == reflect.TypeOf(Controller{}) {
-			return child.Tag.Get("prefix")
+func ParseHandlerName(Name string) (ok bool, method interface{}, path string) {
+	result := SplitByUpper(Name)
+	if len(result) != 0 {
+		if method, ok = StrToMethod[result[0]]; ok {
+			return
 		}
 	}
-	return "/"
+
+	splitPath := func(r rune) bool { return r == '_' }
+	result = strings.FieldsFunc(Name, splitPath)
+	if len(result) == 1 { // no "_"
+		return
+	}
+
+	if method, ok = StrToMethod[result[0]]; !ok {
+		return
+	}
+
+	resultNoMethod := result[1:]
+	for i, value := range resultNoMethod {
+		if IsStringAllUpper(value) {
+			resultNoMethod[i] = GetDynamicPath(value)
+		}
+	}
+
+	path = strings.Join(result[1:], "/")
+	return
 }
 
-func GetPrefixFromMiddleware(field reflect.StructField) string {
-	prefix := field.Tag.Get("prefix")
-	if prefix != "" {
-		return prefix
-	}
-
-	for i := 0; i < field.Type.Elem().NumField(); i ++ {
-		child := field.Type.Elem().Field(i)
-		if child.Type == reflect.TypeOf(Middleware{}) {
-			return child.Tag.Get("prefix")
+func SplitByUpper(raw string) []string {
+	var start int
+	result := make([]string, 0)
+	runes := []rune(raw)
+	for i, r := range runes {
+		if unicode.IsUpper(r) && i != 0 {
+			result = append(result, string(runes[start: i]))
+			start = i
 		}
 	}
-	return "/"
+	return result
+}
+
+func IsStringAllUpper(str string) bool {
+	for _, u := range []rune(str) {
+		if unicode.IsLower(u) {
+			return false
+		}
+	}
+	return true
+}
+
+func GetDynamicPath(upper string) string {
+	return fmt.Sprintf(":%s", strings.ToLower(upper))
 }

@@ -127,12 +127,8 @@ func (a *Application) loadPrimes() {
 		field := rootType.Field(i)
 		if CheckConfiguration(field) {
 			a.loadConfiguration(field)
-		} else if CheckRouter(field) {
-			a.loadRouters(field)
-		} else if CheckController(field) {
-			a.loadCtrls(field)
-		} else if CheckMiddleware(field) {
-			a.loadMiddlewares(field)
+		} else {
+			a.loadWebField(field, "/")
 		}
 	}
 }
@@ -154,31 +150,49 @@ func (a *Application) loadMethodBeanIn() {
 	}
 }
 
-func (a *Application) loadRouters(router reflect.StructField) {
-	//Name := router.Name
+func (a *Application) loadWebField(field reflect.StructField, prefix string) {
+	if CheckRouter(field) {
+		a.loadRouter(field, prefix)
+	} else if CheckController(field) {
+		a.loadCtrl(field, prefix)
+	} else if CheckMiddleware(field) {
+		a.loadMiddleware(field, prefix)
+	}
+}
+
+func (a *Application) loadRouter(field reflect.StructField, prefix string) {
+	path := GetPathFromType(field, Router{})
+	prefix = GetNewPrefix(prefix, path)
+	fieldType := field.Type
+
+	for i := 0; i < fieldType.NumField(); i++ {
+		a.loadWebField(fieldType.Field(i), prefix)
+	}
+}
+
+func (a *Application) loadCtrl(field reflect.StructField, prefix string) {
+	//loadedMethod := make([]string, 0)
+	path := GetPathFromType(field, Controller{})
+	prefix = GetNewPrefix(prefix, path)
+	fieldType := field.Type
+	Name := field.Name
+	Value := reflect.New(fieldType.Elem()).Elem()
+	a.CtrlBeanSlice = append(a.CtrlBeanSlice, NewCtrlBean(Value, field.Tag, Name))
+	a.LoadPrimeBean(fieldType, Value, ``)
+
+	//for i := 0; i <
 
 }
 
-func (a *Application) loadRouter(router reflect.StructField, prefix string) {
-
+func (a *Application) loadMiddleware(field reflect.StructField, prefix string) {
+	path := GetPathFromType(field, Middleware{})
+	prefix = GetNewPrefix(prefix, path)
+	fieldType := field.Type
+	Name := field.Name
+	Value := reflect.New(fieldType.Elem()).Elem()
+	a.MdWareBeanSlice = append(a.MdWareBeanSlice, NewMdWareBean(Value, field.Tag, Name))
+	a.LoadPrimeBean(fieldType, Value, ``)
 }
-
-func (a *Application) loadCtrls(ctrl reflect.StructField) {
-
-}
-
-func (a *Application) loadCtrl(ctrl reflect.StructField, prefix string) {
-
-}
-
-func (a *Application) loadMiddlewares(ctrl reflect.StructField) {
-
-}
-
-func (a *Application) loadMiddleware(ctrl reflect.StructField, prefix string) {
-
-}
-
 
 func (a *Application) loadConfiguration(config reflect.StructField) {
 	configValue := reflect.New(config.Type.Elem()).Elem() // save Elem in Bean
@@ -330,4 +344,39 @@ func (a *Application) loadConfigFile() *Application {
 		}
 	}
 	return a
+}
+
+func (a *Application) logCtrlRegistry(method string, path, Name string) {
+	a.Logger.Debug("Register Controller: %s >>> %s %s", Name, method, path)
+}
+
+func (a *Application) registerCtrl(handlerFunc HandlerFunc, method reflect.Type, path string) {
+	switch method {
+	case reflect.TypeOf(GET{}):
+		a.Server.GET(path, handlerFunc)
+	case reflect.TypeOf(POST{}):
+		a.Server.POST(path, handlerFunc)
+	case reflect.TypeOf(PUT{}):
+		a.Server.PUT(path, handlerFunc)
+	case reflect.TypeOf(DELETE{}):
+		a.Server.DELETE(path, handlerFunc)
+	case reflect.TypeOf(OPTIONS{}):
+		a.Server.OPTIONS(path, handlerFunc)
+	case reflect.TypeOf(GET{}):
+		a.Server.GET(path, handlerFunc)
+	case reflect.TypeOf(HEAD{}):
+		a.Server.HEAD(path, handlerFunc)
+	case reflect.TypeOf(CONNECT{}):
+		a.Server.CONNECT(path, handlerFunc)
+	case reflect.TypeOf(TRACE{}):
+		a.Server.TRACE(path, handlerFunc)
+	case reflect.TypeOf(OPTIONS{}):
+		a.Server.OPTIONS(path, handlerFunc)
+	case reflect.TypeOf(PATCH{}):
+		a.Server.PATCH(path, handlerFunc)
+	}
+}
+
+func (a *Application) registerMiddleware(handlerFunc HandlerFunc, path, Name string) {
+
 }

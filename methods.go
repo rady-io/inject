@@ -29,13 +29,12 @@ type GET struct {
 type POST struct {
 }
 
-
 // PUT is a tag to mark a method with path and http PUT method
 type PUT struct {
 }
 
 // HEAD is a tag to mark a method with path and http HEAD method
-type HEAD struct{
+type HEAD struct {
 }
 
 // DELETE is a tag to mark a method with path and http DELETE method
@@ -56,4 +55,37 @@ type TRACE struct {
 
 // PATCH is a tag to mark a method with path and http PATCH method
 type PATCH struct {
+}
+
+const GetStr = "Get"
+const PostStr = "Post"
+const PutStr = "Put"
+const HeadStr = "Head"
+const DeleteStr = "Delete"
+const ConnectStr = "Connect"
+const OptionsStr = "Options"
+const TraceStr = "Trace"
+const PatchStr = "Patch"
+
+var StrToMethod = map[string]interface{}{
+	GetStr:     GET{},
+	PostStr:    POST{},
+	PutStr:     PUT{},
+	HeadStr:    HEAD{},
+	DeleteStr:  DELETE{},
+	ConnectStr: CONNECT{},
+	OptionsStr: OPTIONS{},
+	TraceStr:   TRACE{},
+	PatchStr:   PATCH{},
+}
+var MethodToStr = map[interface{}]string{
+	GET{}:     GetStr,
+	POST{}:    PostStr,
+	PUT{}:     PutStr,
+	HEAD{}:    HeadStr,
+	DELETE{}:  DeleteStr,
+	CONNECT{}: ConnectStr,
+	OPTIONS{}: OptionsStr,
+	TRACE{}:   TraceStr,
+	PATCH{}:   PatchStr,
 }

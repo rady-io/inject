@@ -68,7 +68,6 @@ CtrlBean contains value and tag of a controller
 type CtrlBean struct {
 	Name       string
 	Value      reflect.Value
-	RouteGroup *Group
 	Tag        reflect.StructTag
 }
 
@@ -127,10 +126,9 @@ func NewValueBean(Value gjson.Result) *ValueBean {
 /*
 NewCtrlBean is factory function of CtrlBean
  */
-func NewCtrlBean(Value reflect.Value, group *Group, Tag reflect.StructTag, Name string) *CtrlBean {
+func NewCtrlBean(Value reflect.Value, Tag reflect.StructTag, Name string) *CtrlBean {
 	return &CtrlBean{
 		Name:       Name,
-		RouteGroup: group,
 		Tag:        Tag,
 		Value:      Value,
 	}

@@ -33,3 +33,18 @@ func TestGetNewPrefix(t *testing.T) {
 	path := "/vote/:id/"
 	assert.Equal(t, GetNewPrefix(prefix, path), "/api/v1/vote/:id")
 }
+
+func TestParseHandlerName(t *testing.T) {
+	ok, _, _ := ParseHandlerName("Gett_my_name")
+	assert.False(t, ok)
+
+	ok, method, path := ParseHandlerName("GetMyName")
+	assert.True(t, ok)
+	assert.Equal(t, GET{}, method)
+	assert.Equal(t, "", path)
+
+	ok, method, path = ParseHandlerName("Put_name_ID")
+	assert.True(t, ok)
+	assert.Equal(t, PUT{}, method)
+	assert.Equal(t, "name/:id", path)
+}
