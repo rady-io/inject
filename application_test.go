@@ -41,6 +41,19 @@ type BookController struct {
 	GET        `path:"/:id" method:"GetBooks"`
 }
 
+type BookRouter struct {
+	Router `prefix:"/api"`
+	*AuthMiddleware
+}
+
+type AuthMiddleware struct {
+	Middleware
+}
+
+func (a *AuthMiddleware) Auth(next HandlerFunc) HandlerFunc {
+	return next
+}
+
 func (b *BookController) GetBooks(ctx Context) error {
 	return nil
 }
@@ -53,6 +66,7 @@ type App struct {
 	*RouterConfig
 	*HandlerConfig
 	*BookController
+	*BookRouter
 }
 
 func TestCreateApplication(t *testing.T) {

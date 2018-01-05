@@ -139,7 +139,7 @@ func GetJSONFromAnyFile(path string, fileType string) (string, error) {
 func GetNewPrefix(prefix string, path string) string {
 	prefix = strings.TrimRight(prefix, "/")
 	path = strings.Trim(path, "/")
-	return fmt.Sprintf("%s/%s", prefix, path)
+	return strings.TrimRight(fmt.Sprintf("%s/%s", prefix, path), "/")
 }
 
 func GetPathFromType(field reflect.StructField, Type interface{}) string {

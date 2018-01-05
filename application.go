@@ -165,8 +165,8 @@ func (a *Application) loadRouter(field reflect.StructField, prefix string) {
 	prefix = GetNewPrefix(prefix, path)
 	fieldType := field.Type
 
-	for i := 0; i < fieldType.NumField(); i++ {
-		a.loadWebField(fieldType.Field(i), prefix)
+	for i := 0; i < fieldType.Elem().NumField(); i++ {
+		a.loadWebField(fieldType.Elem().Field(i), prefix)
 	}
 }
 
@@ -222,6 +222,16 @@ func (a *Application) loadMiddleware(field reflect.StructField, prefix string) {
 	Value := reflect.New(fieldType.Elem()).Elem()
 	a.MdWareBeanSlice = append(a.MdWareBeanSlice, NewMdWareBean(Value, field.Tag, Name))
 	a.LoadPrimeBean(fieldType, Value, ``)
+
+	for i := 0; i < fieldType.NumMethod(); i++ {
+		method := Value.Addr().Method(i)
+		methodField := fieldType.Method(i)
+		handlerName := methodField.Name
+		if trueMethod, ok := method.Interface().(func(handlerFunc HandlerFunc) HandlerFunc); ok {
+			a.Server.Group(prefix, trueMethod)
+			a.logMiddlewareRegistry(prefix, handlerName)
+		}
+	}
 }
 
 func (a *Application) loadConfiguration(config reflect.StructField) {
@@ -378,6 +388,10 @@ func (a *Application) loadConfigFile() *Application {
 
 func (a *Application) logHandlerRegistry(method string, path, Name string) {
 	a.Logger.Debug("Register Handler: %s >>> %s %s", Name, method, path)
+}
+
+func (a *Application) logMiddlewareRegistry(path, Name string) {
+	a.Logger.Debug("Register Middleware: %s >>> %s", Name, path)
 }
 
 func (a *Application) registerCtrl(handlerFunc HandlerFunc, method reflect.Type, path string) {
