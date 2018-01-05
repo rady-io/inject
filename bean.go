@@ -21,7 +21,7 @@ type Method struct {
 	InValues []reflect.Value
 }
 
-func (m *Method) LoadIns(app *Application){
+func (m *Method) LoadIns(app *Application) {
 	for _, inType := range m.Ins {
 		if ConfirmSameTypeInMap(app.BeanMap, inType) {
 			if len(app.BeanMap[inType]) > 1 {
@@ -66,8 +66,10 @@ type ValueBean struct {
 CtrlBean contains value and tag of a controller
  */
 type CtrlBean struct {
-	Value reflect.Value
-	Tag   reflect.StructTag
+	Value           reflect.Value
+	RouteGroup      *Group
+	MiddlewareSlice []MiddlewareFunc
+	Tag             reflect.StructTag
 }
 
 /*
@@ -124,11 +126,12 @@ func NewValueBean(Value gjson.Result) *ValueBean {
 /*
 NewCtrlBean is factory function of CtrlBean
  */
-func NewCtrlBean(Value reflect.Value, Tag reflect.StructTag) *CtrlBean {
+func NewCtrlBean(Value reflect.Value, group *Group, Tag reflect.StructTag) *CtrlBean {
 	return &CtrlBean{
-		//Type:  Value.Type(),
-		Tag:   Tag,
-		Value: Value,
+		RouteGroup:      group,
+		Tag:             Tag,
+		Value:           Value,
+		MiddlewareSlice: make([]MiddlewareFunc, 0),
 	}
 }
 
