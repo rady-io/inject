@@ -36,9 +36,18 @@ type BookRepository struct {
 	Repository
 }
 
+type BookController struct {
+	Controller `prefix:"/api/v1"`
+}
+
+func (b *BookController) GetBooks(ctx *Context) error {
+	return nil
+}
+
 type App struct {
 	*RouterConfig
 	*HandlerConfig
+	*BookController
 }
 
 func TestCreateApplication(t *testing.T) {

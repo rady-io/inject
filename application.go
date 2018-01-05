@@ -115,28 +115,20 @@ TODO: Load Controller and Middleware and then register them
 
  */
 func (a *Application) Run() {
+	a.loadPrimes()
+	a.loadMethodBeanIn()
+	a.loadBeanChild()
+}
+
+func (a *Application) loadPrimes() {
 	root := a.Root
 	rootType := reflect.TypeOf(root).Elem()
 	for i := 0; i < rootType.NumField(); i++ {
-		config := rootType.Field(i)
-		if CheckConfiguration(config) {
-			configValue := reflect.New(config.Type.Elem()).Elem() // save Elem in Bean
-			a.LoadBean(config.Type, configValue, config.Tag)
-			for i := 0; i < configValue.NumField(); i++ {
-				fieldValue := configValue.Field(i)
-				field := config.Type.Elem().Field(i)
-				if CheckConfiguration(field) {
-					a.LoadPrimeBean(field.Type, fieldValue, field.Tag)
-				}
-			}
-			for i := 0; i < configValue.Addr().NumMethod(); i++ {
-				name := configValue.Addr().Type().Method(i).Name
-				a.loadBeanMethodOut(configValue.Addr().MethodByName(name), name)
-			}
+		field := rootType.Field(i)
+		if CheckConfiguration(field) {
+			a.loadConfiguration(field)
 		}
 	}
-	a.loadMethodBeanIn()
-	a.loadBeanChild()
 }
 
 // load children of a Bean
@@ -153,6 +145,22 @@ func (a *Application) loadMethodBeanIn() {
 		for _, method := range methodMap {
 			method.LoadIns(a)
 		}
+	}
+}
+
+func (a *Application) loadConfiguration(config reflect.StructField) {
+	configValue := reflect.New(config.Type.Elem()).Elem() // save Elem in Bean
+	a.LoadBean(config.Type, configValue, config.Tag)
+	for i := 0; i < configValue.NumField(); i++ {
+		fieldValue := configValue.Field(i)
+		field := config.Type.Elem().Field(i)
+		if CheckConfiguration(field) {
+			a.LoadPrimeBean(field.Type, fieldValue, field.Tag)
+		}
+	}
+	for i := 0; i < configValue.Addr().NumMethod(); i++ {
+		name := configValue.Addr().Type().Method(i).Name
+		a.loadBeanMethodOut(configValue.Addr().MethodByName(name), name)
 	}
 }
 
