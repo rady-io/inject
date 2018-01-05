@@ -66,16 +66,17 @@ type ValueBean struct {
 CtrlBean contains value and tag of a controller
  */
 type CtrlBean struct {
-	Value           reflect.Value
-	RouteGroup      *Group
-	MiddlewareSlice []MiddlewareFunc
-	Tag             reflect.StructTag
+	Name       string
+	Value      reflect.Value
+	RouteGroup *Group
+	Tag        reflect.StructTag
 }
 
 /*
 MdWareBean contains value and tag of a middleware
  */
 type MdWareBean struct {
+	Name  string
 	Value reflect.Value
 	Tag   reflect.StructTag
 }
@@ -126,21 +127,21 @@ func NewValueBean(Value gjson.Result) *ValueBean {
 /*
 NewCtrlBean is factory function of CtrlBean
  */
-func NewCtrlBean(Value reflect.Value, group *Group, Tag reflect.StructTag) *CtrlBean {
+func NewCtrlBean(Value reflect.Value, group *Group, Tag reflect.StructTag, Name string) *CtrlBean {
 	return &CtrlBean{
-		RouteGroup:      group,
-		Tag:             Tag,
-		Value:           Value,
-		MiddlewareSlice: make([]MiddlewareFunc, 0),
+		Name:       Name,
+		RouteGroup: group,
+		Tag:        Tag,
+		Value:      Value,
 	}
 }
 
 /*
 NewMdWareBean is factory function of MdwareBean
  */
-func NewMdWareBean(Value reflect.Value, Tag reflect.StructTag) *MdWareBean {
+func NewMdWareBean(Value reflect.Value, Tag reflect.StructTag, Name string) *MdWareBean {
 	return &MdWareBean{
-		//Type:  Value.Type(),
+		Name:  Name,
 		Tag:   Tag,
 		Value: Value,
 	}

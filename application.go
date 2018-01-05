@@ -127,6 +127,12 @@ func (a *Application) loadPrimes() {
 		field := rootType.Field(i)
 		if CheckConfiguration(field) {
 			a.loadConfiguration(field)
+		} else if CheckRouter(field) {
+			a.loadRouters(field)
+		} else if CheckController(field) {
+			a.loadCtrls(field)
+		} else if CheckMiddleware(field) {
+			a.loadMiddlewares(field)
 		}
 	}
 }
@@ -147,6 +153,31 @@ func (a *Application) loadMethodBeanIn() {
 		}
 	}
 }
+
+func (a *Application) loadRouters(router reflect.StructField) {
+
+}
+
+func (a *Application) loadRouter(router reflect.StructField, prefix string) {
+
+}
+
+func (a *Application) loadCtrls(ctrl reflect.StructField) {
+
+}
+
+func (a *Application) loadCtrl(ctrl reflect.StructField, prefix string) {
+
+}
+
+func (a *Application) loadMiddlewares(ctrl reflect.StructField) {
+
+}
+
+func (a *Application) loadMiddleware(ctrl reflect.StructField, prefix string) {
+
+}
+
 
 func (a *Application) loadConfiguration(config reflect.StructField) {
 	configValue := reflect.New(config.Type.Elem()).Elem() // save Elem in Bean
