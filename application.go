@@ -1,6 +1,5 @@
 package rady
 
-
 import (
 	"reflect"
 	"github.com/labstack/echo"
@@ -193,15 +192,17 @@ func (a *Application) loadBeanMethodOut(method reflect.Value, name string) {
 	if methodType.NumOut() == 1 {
 		methodBean := NewBeanMethod(method, name)
 		fieldType := methodType.Out(0)
-		a.LoadPrimeBean(fieldType, reflect.New(fieldType.Elem()).Elem(), GetTagFromName(name))
-		for i := 0; i < methodType.NumIn(); i++ {
-			inType := methodType.In(i)
-			if CheckFieldPtr(inType) && ContainsFields(inType.Elem(), ComponentTypes) {
-				methodBean.Ins = append(methodBean.Ins, inType)
-			} else {
-				a.Logger.Errorf(`Param %s of %s isn't one of ComponentTypes`, inType, name)
-				return
+		if a.LoadPrimeBean(fieldType, reflect.New(fieldType.Elem()).Elem(), GetTagFromName(name)) {
+			for i := 0; i < methodType.NumIn(); i++ {
+				inType := methodType.In(i)
+				if CheckFieldPtr(inType) && ContainsFields(inType.Elem(), ComponentTypes) {
+					methodBean.Ins = append(methodBean.Ins, inType)
+				} else {
+					a.Logger.Errorf(`Param %s of %s isn't one of ComponentTypes`, inType, name)
+					os.Exit(1)
+				}
 			}
+			a.BeanMethodMap[fieldType] = map[string]*Method{name: methodBean}
 		}
 	}
 }
@@ -211,16 +212,18 @@ LoadPrimeBean as its name
 
 load field in configuration and out of beanMethod in configuration
  */
-func (a *Application) LoadPrimeBean(fieldType reflect.Type, fieldValue reflect.Value, tag reflect.StructTag) {
+func (a *Application) LoadPrimeBean(fieldType reflect.Type, fieldValue reflect.Value, tag reflect.StructTag) bool {
 	if ContainsFields(fieldType.Elem(), ComponentTypes) {
 		tag := tag
 		name := GetBeanName(fieldType, tag)
 		if ConfirmAddBeanMap(a.BeanMap, fieldType, name) {
 			a.load(fieldType, fieldValue, tag)
+			return true
 		} else {
 			a.Logger.Errorf("There too many %s named %s in Application", fieldType, name)
 		}
 	}
+	return false
 }
 
 /*
