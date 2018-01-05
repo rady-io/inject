@@ -1,5 +1,7 @@
 package rady
 
+import "reflect"
+
 /*
 GET is a tag to mark a method with path and http GET method
 
@@ -89,3 +91,5 @@ var MethodToStr = map[interface{}]string{
 	TRACE{}:   TraceStr,
 	PATCH{}:   PatchStr,
 }
+
+var MethodsTypeSet = make(map[reflect.Type] string)

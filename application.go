@@ -171,7 +171,7 @@ func (a *Application) loadRouter(field reflect.StructField, prefix string) {
 }
 
 func (a *Application) loadCtrl(field reflect.StructField, prefix string) {
-	//loadedMethod := make([]string, 0)
+	loadedMethod := make(map[string]bool)
 	path := GetPathFromType(field, Controller{})
 	prefix = GetNewPrefix(prefix, path)
 	fieldType := field.Type
@@ -180,8 +180,38 @@ func (a *Application) loadCtrl(field reflect.StructField, prefix string) {
 	a.CtrlBeanSlice = append(a.CtrlBeanSlice, NewCtrlBean(Value, field.Tag, Name))
 	a.LoadPrimeBean(fieldType, Value, ``)
 
-	//for i := 0; i <
+	for i := 0; i < fieldType.Elem().NumField(); i++ {
+		child := fieldType.Elem().Field(i)
+		if httpMethod, ok := MethodsTypeSet[child.Type]; ok {
+			path := GetNewPrefix(prefix, child.Tag.Get("path"))
+			handlerName := child.Tag.Get("method")
+			if _, ok := loadedMethod[handlerName]; !ok && handlerName != "" {
+				if method := Value.Addr().MethodByName(handlerName); method.IsValid() {
+					if trueMethod, ok := method.Interface().(func(Context) error); ok {
+						a.registerCtrl(trueMethod, child.Type, path)
+						a.logHandlerRegistry(httpMethod, path, handlerName)
+						loadedMethod[handlerName] = true
+					}
+				}
+			}
+		}
+	}
 
+	for i := 0; i < fieldType.NumMethod(); i++ {
+		method := Value.Addr().Method(i)
+		methodField := fieldType.Method(i)
+		handlerName := methodField.Name
+		if _, ok := loadedMethod[handlerName]; !ok {
+			ok, httpMethod, path := ParseHandlerName(Name)
+			if ok {
+				if trueMethod, ok := method.Interface().(func(Context) error); ok {
+					a.registerCtrl(trueMethod, reflect.TypeOf(httpMethod), path)
+					a.logHandlerRegistry(MethodToStr[httpMethod], path, handlerName)
+					loadedMethod[handlerName] = true
+				}
+			}
+		}
+	}
 }
 
 func (a *Application) loadMiddleware(field reflect.StructField, prefix string) {
@@ -346,8 +376,8 @@ func (a *Application) loadConfigFile() *Application {
 	return a
 }
 
-func (a *Application) logCtrlRegistry(method string, path, Name string) {
-	a.Logger.Debug("Register Controller: %s >>> %s %s", Name, method, path)
+func (a *Application) logHandlerRegistry(method string, path, Name string) {
+	a.Logger.Debug("Register Handler: %s >>> %s %s", Name, method, path)
 }
 
 func (a *Application) registerCtrl(handlerFunc HandlerFunc, method reflect.Type, path string) {
@@ -374,6 +404,8 @@ func (a *Application) registerCtrl(handlerFunc HandlerFunc, method reflect.Type,
 		a.Server.OPTIONS(path, handlerFunc)
 	case reflect.TypeOf(PATCH{}):
 		a.Server.PATCH(path, handlerFunc)
+	default:
+		break
 	}
 }
 

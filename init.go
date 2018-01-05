@@ -17,4 +17,8 @@ func init() {
 	ComponentTypes[reflect.TypeOf(Controller{})] = true
 	ComponentTypes[reflect.TypeOf(Middleware{})] = true
 	//ComponentTypes[reflect.TypeOf(Router{})] = true
+
+	for value, str := range MethodToStr {
+		MethodsTypeSet[reflect.TypeOf(value)] = str
+	}
 }

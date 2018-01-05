@@ -38,11 +38,16 @@ type BookRepository struct {
 
 type BookController struct {
 	Controller `prefix:"/api/v1"`
+	GET        `path:"/:id" method:"GetBooks"`
 }
 
-func (b *BookController) GetBooks(ctx *Context) error {
+func (b *BookController) GetBooks(ctx Context) error {
 	return nil
 }
+
+//func (b *BookController) GetBookID(ctx Context) error {
+//	return nil
+//}
 
 type App struct {
 	*RouterConfig
