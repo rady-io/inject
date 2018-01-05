@@ -39,6 +39,7 @@ type BookRepository struct {
 type BookController struct {
 	Controller `prefix:"/api/v1"`
 	GET        `path:"/:id" method:"GetBooks"`
+	BookRepository *BookRepository
 }
 
 type BookRouter struct {

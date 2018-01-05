@@ -111,13 +111,12 @@ TODO: Inject Value
 
 TODO: Load BeanMethod Args, Construct Link between Param and Value
 
-TODO: Load Controller and Middleware and then register them
-
  */
 func (a *Application) Run() {
 	a.loadPrimes()
 	a.loadMethodBeanIn()
 	a.loadBeanChild()
+	a.assemble()
 }
 
 func (a *Application) loadPrimes() {
@@ -423,6 +422,51 @@ func (a *Application) registerCtrl(handlerFunc HandlerFunc, method reflect.Type,
 	}
 }
 
-func (a *Application) registerMiddleware(handlerFunc HandlerFunc, path, Name string) {
+func (a *Application) assemble() {
+	for beanType, nameMap := range a.BeanMap {
+		for name, bean := range nameMap {
+			Value := bean.Value
+			for i := 0; i < beanType.Elem().NumField(); i++ {
+				child := beanType.Elem().Field(i)
+				if CheckComponents(child) {
+					a.assembleBean(name, beanType.String(), Value.Field(i), child)
+				} else {
+					a.assembleValue(Value.Field(i), child)
+				}
+			}
+		}
+	}
+}
+
+func (a *Application) logAssembleBean(motherName, motherType, childName, childType, fieldName string) {
+	a.Logger.Debug("Field %s of [%s][%s] set [%s][%s]", fieldName, motherType, motherName, childType, childName)
+}
+
+func (a *Application) assembleBean(motherName, motherType string, value reflect.Value, field reflect.StructField) {
+	if len(a.BeanMap[field.Type]) == 0 {
+		a.Logger.Critical("Type %s doesn't exist in beanMap !!!", field.Type)
+		os.Exit(1)
+	}
+
+	if len(a.BeanMap[field.Type]) == 1 {
+		for name, bean := range a.BeanMap[field.Type] {
+			value.Set(bean.Value.Addr())
+			a.logAssembleBean(motherName, motherType, name, field.Type.String(), field.Name)
+		}
+	}
+
+	if len(a.BeanMap[field.Type]) > 1 {
+		name := GetBeanName(field.Type, field.Tag)
+		if bean, ok := a.BeanMap[field.Type][name]; ok {
+			value.Set(bean.Value.Addr())
+			a.logAssembleBean(motherName, motherType, name, field.Type.String(), field.Name)
+		} else {
+			a.Logger.Critical("Bean [%s][%s] doesn't exist in beanMap !!!", field.Type, name)
+			os.Exit(1)
+		}
+	}
+}
+
+func (a *Application) assembleValue(value reflect.Value, field reflect.StructField) {
 
 }
