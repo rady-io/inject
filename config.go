@@ -1,4 +1,4 @@
-package rhapsody
+package rady
 
 
 // DefaultPath is the path of config file for default

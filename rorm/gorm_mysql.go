@@ -6,19 +6,19 @@ import (
 	"reflect"
 	"os"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	ry "rhapsody"
+	ry "rady"
 )
 
 type GormMySQLParameter struct {
 	ry.Parameter
-	Host      *string `value:"rhapsody.mysql.host" default:"127.0.0.1"`
-	Port      *string `value:"rhapsody.mysql.port" default:"3306"`
-	Database  *string `value:"rhapsody.mysql.database"`
-	Username  *string `value:"rhapsody.mysql.username"`
-	Password  *string `value:"rhapsody.mysql.password"`
-	Charset   *string `value:"rhapsody.mysql.charset" default:"utf8"`
-	ParseTime *string `value:"rhapsody.mysql.parseTime" default:"True"`
-	Loc       *string `value:"rhapsody.mysql.loc" default:"Local"`
+	Host      *string `value:"rady.mysql.host" default:"127.0.0.1"`
+	Port      *string `value:"rady.mysql.port" default:"3306"`
+	Database  *string `value:"rady.mysql.database"`
+	Username  *string `value:"rady.mysql.username"`
+	Password  *string `value:"rady.mysql.password"`
+	Charset   *string `value:"rady.mysql.charset" default:"utf8"`
+	ParseTime *string `value:"rady.mysql.parseTime" default:"True"`
+	Loc       *string `value:"rady.mysql.loc" default:"Local"`
 }
 
 type GormMySQLRepo struct {

@@ -1,4 +1,4 @@
-package rhapsody
+package rady
 
 // Entities is a tag to mark a struct as a Entities
 type Entities struct {

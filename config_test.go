@@ -1,4 +1,4 @@
-package rhapsody
+package rady
 
 import (
 	"testing"
@@ -23,7 +23,7 @@ type ConfigTestTypeYAML struct {
 
 var (
 	JSONConf, _ = GetJSONFromAnyFile(DefaultPath, JSON)
-	JSONFromYAML = "{\"rhapsody\":{\"db\":{\"type\":\"mysql\"},\"redis\":{\"host\":\"127.0.0.1\",\"port\":6937}}}"
+	JSONFromYAML = "{\"rhapsody\":{\"mysql\":{\"host\":\"localhost\"},\"redis\":{\"host\":\"127.0.0.1\",\"port\":6937}}}"
 	YAMLConf, _ = GetJSONFromAnyFile("./resources/application.yaml", JSON)
 )
 

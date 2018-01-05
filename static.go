@@ -1,4 +1,4 @@
-package rhapsody
+package rady
 
 /*
 FILE is a tag to bind a path with a file

@@ -1,4 +1,4 @@
-package rhapsody
+package rady
 
 /*
 GET is a tag to mark a method with path and http GET method

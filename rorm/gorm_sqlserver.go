@@ -6,16 +6,16 @@ import (
 	"reflect"
 	"os"
 	_ "github.com/jinzhu/gorm/dialects/mssql"
-	ry "rhapsody"
+	ry "rady"
 )
 
 type GormSQLServerParameter struct {
 	ry.Parameter
-	Host      *string `value:"rhapsody.mssql.host" default:"127.0.0.1"`
-	Port      *string `value:"rhapsody.mssql.port" default:"1433"`
-	Database  *string `value:"rhapsody.mssql.database"`
-	Username  *string `value:"rhapsody.mssql.username"`
-	Password  *string `value:"rhapsody.mssql.password"`
+	Host      *string `value:"rady.mssql.host" default:"127.0.0.1"`
+	Port      *string `value:"rady.mssql.port" default:"1433"`
+	Database  *string `value:"rady.mssql.database"`
+	Username  *string `value:"rady.mssql.username"`
+	Password  *string `value:"rady.mssql.password"`
 }
 
 type GormSQLServerRepo struct {

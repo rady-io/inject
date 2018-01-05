@@ -1,4 +1,4 @@
-package rhapsody
+package rady
 
 import (
 	"testing"

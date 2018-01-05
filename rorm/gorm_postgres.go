@@ -6,17 +6,17 @@ import (
 	"reflect"
 	"os"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	ry "rhapsody"
+	ry "rady"
 )
 
 type GormPostgresParameter struct {
 	ry.Parameter
-	Host     *string `value:"rhapsody.postgres.host" default:"127.0.0.1"`
-	Port     *string `value:"rhapsody.postgres.port" default:"3306"`
-	Database *string `value:"rhapsody.postgres.database"`
-	Username *string `value:"rhapsody.postgres.username"`
-	Password *string `value:"rhapsody.postgres.password"`
-	SSLMode  *string `value:"rhapsody.postgres.sslmode" default:"disable"`
+	Host     *string `value:"rady.postgres.host" default:"127.0.0.1"`
+	Port     *string `value:"rady.postgres.port" default:"3306"`
+	Database *string `value:"rady.postgres.database"`
+	Username *string `value:"rady.postgres.username"`
+	Password *string `value:"rady.postgres.password"`
+	SSLMode  *string `value:"rady.postgres.sslmode" default:"disable"`
 }
 
 type GormPostgresRepo struct {

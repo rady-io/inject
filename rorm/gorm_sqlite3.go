@@ -5,12 +5,12 @@ import (
     _ "github.com/jinzhu/gorm/dialects/sqlite"
     "reflect"
 	"os"
-	ry "rhapsody"
+	ry "rady"
 )
 
 type GormSQLiteParameter struct {
 	ry.Parameter
-	Path *string `value:"rhapsody.sqlite3.path" default:"./rhapsody.db"`
+	Path *string `value:"rady.sqlite3.path" default:"./rady.db"`
 }
 
 type GormSQLiteRepo struct {

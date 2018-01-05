@@ -1,6 +1,6 @@
 package rorm
 
-import ry "rhapsody"
+import ry "rady"
 
 type GormConfig struct {
 	ry.Configuration
