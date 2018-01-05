@@ -135,6 +135,7 @@ func (a *Application) Run() {
 			}
 		}
 	}
+	a.loadMethodBeanIn()
 	a.loadBeanChild()
 }
 
@@ -147,11 +148,13 @@ func (a *Application) loadBeanChild() {
 	}
 }
 
-//func (a *Application) loadMethodBeanIn() {
-//	for fileType, methodMap := range a.BeanMethodMap {
-//
-//	}
-//}
+func (a *Application) loadMethodBeanIn() {
+	for _, methodMap := range a.BeanMethodMap {
+		for _, method := range methodMap {
+			method.LoadIns(a)
+		}
+	}
+}
 
 /*
 LoadBean can load normal bean
@@ -192,7 +195,8 @@ func (a *Application) loadBeanMethodOut(method reflect.Value, name string) {
 	if methodType.NumOut() == 1 {
 		methodBean := NewBeanMethod(method, name)
 		fieldType := methodType.Out(0)
-		if a.LoadPrimeBean(fieldType, reflect.New(fieldType.Elem()).Elem(), GetTagFromName(name)) {
+		OutValue := reflect.New(fieldType.Elem()).Elem()
+		if a.LoadPrimeBean(fieldType, OutValue, GetTagFromName(name)) {
 			for i := 0; i < methodType.NumIn(); i++ {
 				inType := methodType.In(i)
 				if CheckFieldPtr(inType) && ContainsFields(inType.Elem(), ComponentTypes) {
@@ -202,6 +206,7 @@ func (a *Application) loadBeanMethodOut(method reflect.Value, name string) {
 					os.Exit(1)
 				}
 			}
+			methodBean.OutValue = OutValue
 			a.BeanMethodMap[fieldType] = map[string]*Method{name: methodBean}
 		}
 	}

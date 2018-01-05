@@ -3,6 +3,7 @@ package rady
 import (
 	"reflect"
 	"github.com/tidwall/gjson"
+	"os"
 )
 
 // Bean contains the value and tag of a type
@@ -17,6 +18,25 @@ type Method struct {
 	Ins      []reflect.Type
 	Name     string
 	OutValue reflect.Value
+	InValues []reflect.Value
+}
+
+func (m *Method) LoadIns(app *Application){
+	for _, inType := range m.Ins {
+		if ConfirmSameTypeInMap(app.BeanMap, inType) {
+			if len(app.BeanMap[inType]) > 1 {
+				app.Logger.Critical("There are more than one %s, please named it.", inType)
+				os.Exit(1)
+			}
+			for _, bean := range app.BeanMap[inType] {
+				m.InValues = append(m.InValues, bean.Value)
+			}
+		} else {
+			newValue := reflect.New(inType.Elem()).Elem()
+			app.load(inType, newValue, GetTagFromName(""))
+			m.InValues = append(m.InValues, newValue)
+		}
+	}
 }
 
 ///*
@@ -73,9 +93,10 @@ NewBeanMethod is factory function of Method
 */
 func NewBeanMethod(Value reflect.Value, Name string) *Method {
 	return &Method{
-		Value: Value,
-		Ins:   make([]reflect.Type, 0),
-		Name:  Name,
+		Value:    Value,
+		Ins:      make([]reflect.Type, 0),
+		InValues: make([]reflect.Value, 0),
+		Name:     Name,
 	}
 }
 
