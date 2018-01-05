@@ -155,6 +155,7 @@ func (a *Application) loadMethodBeanIn() {
 }
 
 func (a *Application) loadRouters(router reflect.StructField) {
+	//Name := router.Name
 
 }
 

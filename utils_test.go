@@ -27,3 +27,9 @@ func TestContainsFields(t *testing.T) {
 	typesSet[reflect.TypeOf(Service{})] = true
 	assert.False(t, ContainsFields(reflect.TypeOf(handler), typesSet), "Handler should not contain some field in typesSet")
 }
+
+func TestGetNewPrefix(t *testing.T) {
+	prefix := "/api/v1/"
+	path := "/vote/:id/"
+	assert.Equal(t, GetNewPrefix(prefix, path), "/api/v1/vote/:id")
+}

@@ -89,7 +89,6 @@ func ConfirmAddBeanMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType refl
 	return true
 }
 
-
 /*
 ConfirmSameTypeInMap return true when len(BeanMap[fieldType]) > 0
 
@@ -128,10 +127,61 @@ func GetJSONFromAnyFile(path string, fileType string) (string, error) {
 		return "", err
 	}
 
-	if fileType != JSON{
+	if fileType != JSON {
 		if fileType == YAML || strings.HasSuffix(path, ".yml") || strings.HasSuffix(path, ".yaml") {
 			fileBytes, err = yaml.YAMLToJSON(fileBytes)
 		}
 	}
 	return string(fileBytes), err
+}
+
+func GetNewPrefix(prefix string, path string) string {
+	prefix = strings.TrimRight(prefix, "/")
+	path = strings.Trim(path, "/")
+	return fmt.Sprintf("%s/%s", prefix, path)
+}
+
+func GetPrefixFromRouter(field reflect.StructField) string {
+	prefix := field.Tag.Get("prefix")
+	if prefix != "" {
+		return prefix
+	}
+
+	for i := 0; i < field.Type.Elem().NumField(); i ++ {
+		child := field.Type.Elem().Field(i)
+		if child.Type == reflect.TypeOf(Router{}) {
+			return child.Tag.Get("prefix")
+		}
+	}
+	return "/"
+}
+
+func GetPrefixFromCtrl(field reflect.StructField) string {
+	prefix := field.Tag.Get("prefix")
+	if prefix != "" {
+		return prefix
+	}
+
+	for i := 0; i < field.Type.Elem().NumField(); i ++ {
+		child := field.Type.Elem().Field(i)
+		if child.Type == reflect.TypeOf(Controller{}) {
+			return child.Tag.Get("prefix")
+		}
+	}
+	return "/"
+}
+
+func GetPrefixFromMiddleware(field reflect.StructField) string {
+	prefix := field.Tag.Get("prefix")
+	if prefix != "" {
+		return prefix
+	}
+
+	for i := 0; i < field.Type.Elem().NumField(); i ++ {
+		child := field.Type.Elem().Field(i)
+		if child.Type == reflect.TypeOf(Middleware{}) {
+			return child.Tag.Get("prefix")
+		}
+	}
+	return "/"
 }
