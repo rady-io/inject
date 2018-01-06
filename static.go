@@ -1,5 +1,7 @@
 package rady
 
+import "reflect"
+
 /*
 FILE is a tag to bind a path with a file
 
@@ -24,3 +26,8 @@ type FILE struct {
 // STATIC is a tag bind a prefix with a directory
 type STATIC struct {
 }
+
+var (
+	FileType = reflect.TypeOf(FILE{})
+	StaticType = reflect.TypeOf(STATIC{})
+)

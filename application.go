@@ -205,6 +205,10 @@ func (a *Application) loadCtrl(field reflect.StructField, prefix string) {
 					}
 				}
 			}
+		} else if child.Type == StaticType {
+			a.loadStatic(child, prefix)
+		} else if child.Type == FileType {
+			a.loadFile(child, prefix)
 		}
 	}
 
@@ -244,6 +248,26 @@ func (a *Application) loadMiddleware(field reflect.StructField, prefix string) {
 			a.logMiddlewareRegistry(prefix, handlerName)
 		}
 	}
+}
+
+func (a *Application) loadStatic(field reflect.StructField, prefix string) {
+	tag := field.Tag
+	prefix = GetNewPrefix(prefix, tag.Get("prefix"))
+	root := tag.Get("root")
+	a.Server.Static(prefix, root)
+	a.Logger.Debug("Register Static >>> %s <- %s", prefix, root)
+}
+
+func (a *Application) loadFile(field reflect.StructField, prefix string) {
+	tag := field.Tag
+	prefix = GetNewPrefix(prefix, tag.Get("path"))
+	file := strings.Trim(tag.Get("file"), " ")
+	if !CheckFilenameValid(file) {
+		a.Logger.Error("File name '%s' invalid", file)
+		return
+	}
+	a.Server.File(prefix, file)
+	a.Logger.Debug("Register Static >>> %s <- %s", prefix, file)
 }
 
 func (a *Application) loadConfiguration(config reflect.StructField) {

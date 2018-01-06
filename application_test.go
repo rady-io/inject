@@ -41,6 +41,7 @@ type BookRepository struct {
 type BookController struct {
 	Controller `prefix:"/api/v1"`
 	GET        `path:"/:id" method:"GetBooks"`
+	FILE       `path:"/config" file:"./resources/application.conf"`
 	BookRepository *BookRepository
 }
 

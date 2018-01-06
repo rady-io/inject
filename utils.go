@@ -239,3 +239,7 @@ func IsStringAllUpper(str string) bool {
 func GetDynamicPath(upper string) string {
 	return fmt.Sprintf(":%s", strings.ToLower(upper))
 }
+
+func CheckFilenameValid(Name string) bool {
+	return Name != ""
+}
