@@ -49,6 +49,7 @@ type Application struct {
 	Server          *echo.Echo
 	Logger          *Logger
 	ConfigFile      string
+	Addr            *string `value:"rhapsody.server.addr" default:":8081"`
 }
 
 /*
@@ -120,17 +121,8 @@ func (a *Application) Run() {
 	a.assemble()
 	a.CallFactory()
 	a.bindFactoryWithValue()
-	a.Server.Start(a.getAddr())
+	a.Server.Start(*a.Addr)
 }
-
-func (a *Application) getAddr() string {
-	result := gjson.Get(a.ConfigFile, "rhapsody.server.addr")
-	if result.Exists() {
-		return result.String()
-	}
-	return ":8081"
-}
-
 func (a *Application) loadPrimes() {
 	root := a.Root
 	rootType := reflect.TypeOf(root).Elem()
