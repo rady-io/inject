@@ -37,28 +37,37 @@ func CheckFieldPtr(fieldType reflect.Type) bool {
 
 // CheckConfiguration return true when type in its tag is CONFIGURATION or ContainsField(field.Type.Elem(), Configuration{})
 func CheckConfiguration(field reflect.StructField) bool {
-	return CheckFieldPtr(field.Type) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), Configuration{}) || field.Tag.Get("type") == CONFIGURATION)
+	return CheckFieldPtr(field.Type) && CheckStruct(field.Type.Elem()) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), Configuration{}) || field.Tag.Get("type") == CONFIGURATION)
 }
 
 // CheckController return true when type in its tag is CONTROLLER or ContainsField(field.Type.Elem(), Controller{})
 func CheckController(field reflect.StructField) bool {
-	return CheckFieldPtr(field.Type) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), Controller{}) || field.Tag.Get("type") == CONTROLLER)
+	return CheckFieldPtr(field.Type) && CheckStruct(field.Type.Elem()) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), Controller{}) || field.Tag.Get("type") == CONTROLLER)
 }
 
 // CheckMiddleware return true when type in its tag is MIDDLEWARE or ContainsField(field.Type.Elem(), Middleware{})
 func CheckMiddleware(field reflect.StructField) bool {
-	return CheckFieldPtr(field.Type) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), Middleware{}) || field.Tag.Get("type") == MIDDLEWARE)
+	return CheckFieldPtr(field.Type) && CheckStruct(field.Type.Elem()) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), Middleware{}) || field.Tag.Get("type") == MIDDLEWARE)
 }
 
 // CheckRouter return true when type in its tag is ROUTER or ContainsField(field.Type.Elem(), Router{})
 func CheckRouter(field reflect.StructField) bool {
-	return CheckFieldPtr(field.Type) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), Router{}) || field.Tag.Get("type") == ROUTER)
+	return CheckFieldPtr(field.Type) && CheckStruct(field.Type.Elem()) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), Router{}) || field.Tag.Get("type") == ROUTER)
 }
 
 // CheckComponents return true when type in its tag is in COMPONENTS or ContainsFields(field.Type.Elem(), ComponentTypes)
 func CheckComponents(field reflect.StructField) bool {
 	_, ok := COMPONENTS[field.Tag.Get("type")]
-	return CheckFieldPtr(field.Type) && (ok || field.Tag.Get("type") == "" && ContainsFields(field.Type.Elem(), ComponentTypes))
+	return CheckFieldPtr(field.Type) && CheckStruct(field.Type.Elem()) && (ok || field.Tag.Get("type") == "" && ContainsFields(field.Type.Elem(), ComponentTypes))
+}
+
+func CheckStruct(fieldType reflect.Type) bool {
+	return fieldType.Kind() == reflect.Struct
+}
+
+func CheckValues(field reflect.StructField) bool {
+	_, ok := GJsonTypesSet[field.Type]
+	return ok
 }
 
 // GetBeanName get name from tag or from Type

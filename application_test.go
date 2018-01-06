@@ -49,6 +49,7 @@ type BookRouter struct {
 
 type AuthMiddleware struct {
 	Middleware
+	RedisHost *string `value:"rhapsody.redis.host"`
 }
 
 func (a *AuthMiddleware) Auth(next HandlerFunc) HandlerFunc {

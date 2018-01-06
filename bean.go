@@ -60,15 +60,58 @@ type ValueBean struct {
 	Value       gjson.Result
 	ValueMap    map[reflect.Type]reflect.Value
 	MethodSlice []*Method
+	Key         string
+}
+
+func (v *ValueBean) SetValue(value reflect.Value, Type reflect.Type) bool {
+	confValue, ok := v.ValueMap[Type]
+	if ok {
+		value.Set(confValue.Addr())
+		return true
+	}
+	switch Type {
+	case IntPtrType:
+		result := v.Value.Int()
+		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
+	case UintPtrType:
+		result := v.Value.Uint()
+		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
+	case FloatPtrType:
+		result := v.Value.Float()
+		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
+	case StringPtrType:
+		result := v.Value.String()
+		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
+	case BoolPtrType:
+		result := v.Value.Bool()
+		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
+	case TimePtrType:
+		result := v.Value.Time()
+		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
+	case ArrayPtrType:
+		result := v.Value.Array()
+		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
+	case MapPtrType:
+		result := v.Value.Map()
+		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
+	}
+
+	confValue, ok = v.ValueMap[Type]
+	if ok {
+		value.Set(confValue.Addr())
+		return true
+	}
+
+	return false
 }
 
 /*
 CtrlBean contains value and tag of a controller
  */
 type CtrlBean struct {
-	Name       string
-	Value      reflect.Value
-	Tag        reflect.StructTag
+	Name  string
+	Value reflect.Value
+	Tag   reflect.StructTag
 }
 
 /*
@@ -115,11 +158,12 @@ func NewBeanMethod(Value reflect.Value, Name string) *Method {
 /*
 NewValueBean is factory function of ValueBean
  */
-func NewValueBean(Value gjson.Result) *ValueBean {
+func NewValueBean(Value gjson.Result, key string) *ValueBean {
 	return &ValueBean{
 		Value:       Value,
 		ValueMap:    make(map[reflect.Type]reflect.Value),
 		MethodSlice: make([]*Method, 0),
+		Key:         key,
 	}
 }
 
@@ -128,9 +172,9 @@ NewCtrlBean is factory function of CtrlBean
  */
 func NewCtrlBean(Value reflect.Value, Tag reflect.StructTag, Name string) *CtrlBean {
 	return &CtrlBean{
-		Name:       Name,
-		Tag:        Tag,
-		Value:      Value,
+		Name:  Name,
+		Tag:   Tag,
+		Value: Value,
 	}
 }
 

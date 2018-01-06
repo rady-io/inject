@@ -5,6 +5,8 @@ import (
 	"github.com/labstack/echo"
 	"strings"
 	"os"
+	"github.com/tidwall/gjson"
+	"fmt"
 )
 
 /*
@@ -117,6 +119,7 @@ func (a *Application) Run() {
 	a.loadMethodBeanIn()
 	a.loadBeanChild()
 	a.assemble()
+	//a.Server.Start(":8081")
 }
 
 func (a *Application) loadPrimes() {
@@ -430,8 +433,8 @@ func (a *Application) assemble() {
 				child := beanType.Elem().Field(i)
 				if CheckComponents(child) {
 					a.assembleBean(name, beanType.String(), Value.Field(i), child)
-				} else {
-					a.assembleValue(Value.Field(i), child)
+				} else if CheckValues(child) {
+					a.assembleValue(name, beanType.String(), Value.Field(i), child)
 				}
 			}
 		}
@@ -440,6 +443,10 @@ func (a *Application) assemble() {
 
 func (a *Application) logAssembleBean(motherName, motherType, childName, childType, fieldName string) {
 	a.Logger.Debug("Field %s of [%s][%s] set [%s][%s]", fieldName, motherType, motherName, childType, childName)
+}
+
+func (a *Application) logAssembleValue(motherName, motherType, value, fieldName string) {
+	a.Logger.Debug("Field %s of [%s][%s] set value &(%s)", fieldName, motherType, motherName, value)
 }
 
 func (a *Application) assembleBean(motherName, motherType string, value reflect.Value, field reflect.StructField) {
@@ -467,6 +474,26 @@ func (a *Application) assembleBean(motherName, motherType string, value reflect.
 	}
 }
 
-func (a *Application) assembleValue(value reflect.Value, field reflect.StructField) {
+func (a *Application) assembleValue(motherName, motherType string, value reflect.Value, field reflect.StructField) {
+	key := strings.Trim(field.Tag.Get("value"), " ")
+	defaultValue := field.Tag.Get("default")
+	if valueBean, ok := a.ValueBeanMap[key]; ok {
+		if !valueBean.SetValue(value, field.Type) {
+			a.Logger.Error("Unknow Type: %s", field.Type)
+		}
+		a.logAssembleValue(motherName, motherType, valueBean.Value.String(), field.Name)
+		return
+	}
 
+	newValue := gjson.Get(a.ConfigFile, key)
+	if !newValue.Exists() {
+		newValue = gjson.Get(fmt.Sprintf(`{"default": "%s"}`, defaultValue), "default")
+	}
+
+	valueBean := NewValueBean(newValue, key)
+	if !valueBean.SetValue(value, field.Type) {
+		a.Logger.Error("Unknow Type: %s", field.Type)
+	}
+	a.ValueBeanMap[key] = valueBean
+	a.logAssembleValue(motherName, motherType, valueBean.Value.String(), field.Name)
 }
