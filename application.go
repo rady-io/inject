@@ -49,7 +49,15 @@ type Application struct {
 	Server          *echo.Echo
 	Logger          *Logger
 	ConfigFile      string
+	LifeChan        chan int
+	Addr            *string `value:"rhapsody.server.addr" default:"8081"`
 }
+
+const (
+	Start   = iota
+	Kill
+	Restart
+)
 
 /*
 CreateApplication can initial application with root
@@ -69,6 +77,7 @@ func CreateApplication(root interface{}) *Application {
 			Entities:        make([]reflect.Type, 0),
 			Server:          echo.New(),
 			Logger:          NewLogger(),
+			LifeChan:        make(chan int, 1),
 		}).init()
 	}
 	NewLogger().Errorf("%s is not kind of Ptr!!!\n", reflect.TypeOf(root).Name())
@@ -120,15 +129,24 @@ func (a *Application) Run() {
 	a.assemble()
 	a.CallFactory()
 	a.bindFactoryWithValue()
-	a.Server.Start(a.getAddr())
+	a.LifeChan <- Start
+Life:
+	for {
+		signal := <-a.LifeChan
+		switch signal {
+		case Start:
+			go a.Start()
+		case Restart:
+			go a.Start()
+			a.Server.Close()
+		case Kill:
+			break Life
+		}
+	}
 }
 
-func (a *Application) getAddr() string {
-	result := gjson.Get(a.ConfigFile, "rhapsody.server.addr")
-	if result.Exists() {
-		return result.String()
-	}
-	return ":8081"
+func (a *Application) Start() {
+	a.Server.Start(*a.Addr)
 }
 
 func (a *Application) loadPrimes() {
@@ -594,6 +612,7 @@ func (a *Application) recursivelyBind(fieldType reflect.Type, method *Method, ch
 }
 
 func (a *Application) ReloadValues() {
+	Addr := *a.Addr
 	a.loadConfigFile()
 	a.FactoryToRecall = make(map[*Method]bool)
 	for _, valueBean := range a.ValueBeanMap {
@@ -603,4 +622,12 @@ func (a *Application) ReloadValues() {
 	for recallFactory := range a.FactoryToRecall {
 		recallFactory.Call(a)
 	}
+
+	if Addr != *a.Addr {
+		a.Restart()
+	}
+}
+
+func (a *Application) Restart() {
+	a.LifeChan <- Restart
 }
