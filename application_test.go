@@ -22,13 +22,21 @@ type GetUserParam struct {
 }
 
 func (rc *RouterConfig) GetUserComponent(BR *BookRepository, GP *GetUserParam) *UserComponent {
-	return new(UserComponent)
+	return &UserComponent{
+		RedisHost: GP.RedisHost,
+		RedisPort: BR.RedisPort,
+	}
 }
 
 type UserComponent struct {
 	Component
 	*RouterConfig
-	RedisPort *int64 `value:"rhapsody.redis.port"`
+	RedisPort *int64
+	RedisHost *string
+}
+
+func (u *UserComponent) GetHost() string {
+	return *u.RedisHost
 }
 
 type BookService struct {
@@ -38,6 +46,7 @@ type BookService struct {
 
 type BookRepository struct {
 	Repository
+	RedisPort *int64 `value:"rhapsody.redis.port"`
 }
 
 type BookController struct {
@@ -46,6 +55,8 @@ type BookController struct {
 	FILE       `path:"/config" file:"./resources/application.conf"`
 	STATIC     `prefix:"/assets" root:"./"`
 	BookRepository *BookRepository
+	UserComponent *UserComponent
+	App *Application
 }
 
 type BookRouter struct {
@@ -68,6 +79,15 @@ func (b *BookController) GetBooks(ctx Context) error {
 
 func (b *BookController) Get0UserUUID(ctx Context) error {
 	return ctx.String(200, fmt.Sprintf(`{"uuid": "%s"}`, ctx.Param("uuid")))
+}
+
+func (b *BookController) Get0RedisHost(ctx Context) error {
+	return ctx.String(200, fmt.Sprintf(`{"host": "%s"}`, b.UserComponent.GetHost()))
+}
+
+func (b *BookController) Get0ConfReload(ctx Context) error {
+	b.App.ReloadValues()
+	return ctx.String(200, fmt.Sprintf(`{"host": "%s"}`, b.UserComponent.GetHost()))
 }
 
 type App struct {

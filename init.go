@@ -10,6 +10,7 @@ func init() {
 	COMPONENTS[MIDDLEWARE] = true
 	//COMPONENTS[ROUTER] = true
 
+	ComponentTypes[reflect.TypeOf(BootStrap{})] = true
 	ComponentTypes[reflect.TypeOf(Component{})] = true
 	ComponentTypes[reflect.TypeOf(Service{})] = true
 	ComponentTypes[reflect.TypeOf(Repository{})] = true

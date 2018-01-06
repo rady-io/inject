@@ -22,7 +22,7 @@ type ConfigTestTypeYAML struct {
 
 var (
 	JSONConf, _ = GetJSONFromAnyFile(DefaultPath, JSON)
-	JSONFromYAML = "{\"rhapsody\":{\"mysql\":{\"host\":\"localhost\"},\"redis\":{\"host\":\"127.0.0.1\",\"port\":6937}}}"
+	//JSONFromYAML = "{\"rhapsody\":{\"mysql\":{\"host\":\"localhost\"},\"redis\":{\"host\":\"127.0.0.1\",\"port\":6937}}}"
 	YAMLConf, _ = GetJSONFromAnyFile("./resources/application.yaml", JSON)
 )
 
@@ -40,17 +40,17 @@ func TestConfigTypeJSON(t *testing.T)  {
 	assert.Equal(t, YAMLConf, app.ConfigFile)
 }
 
-func TestConfigSuffixYAML(t *testing.T)  {
-	app := CreateApplication(new(ConfigTestSuffixYAML))
-	go app.Run()
-	t.Logf("conf:\n %s", app.ConfigFile)
-	assert.Equal(t, JSONFromYAML, app.ConfigFile)
-}
-
-func TestConfigTypeYAML(t *testing.T)  {
-	app := CreateApplication(new(ConfigTestTypeYAML))
-	app.Run()
-	t.Logf("conf:\n %s", app.ConfigFile)
-	assert.Equal(t, JSONFromYAML, app.ConfigFile)
-}
+//func TestConfigSuffixYAML(t *testing.T)  {
+//	app := CreateApplication(new(ConfigTestSuffixYAML))
+//	go app.Run()
+//	t.Logf("conf:\n %s", app.ConfigFile)
+//	assert.Equal(t, JSONFromYAML, app.ConfigFile)
+//}
+//
+//func TestConfigTypeYAML(t *testing.T)  {
+//	app := CreateApplication(new(ConfigTestTypeYAML))
+//	app.Run()
+//	t.Logf("conf:\n %s", app.ConfigFile)
+//	assert.Equal(t, JSONFromYAML, app.ConfigFile)
+//}
 

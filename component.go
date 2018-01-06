@@ -2,6 +2,10 @@ package rady
 
 import "reflect"
 
+// BootStrap is a tag to mark a struct as a Bootstrap
+type BootStrap struct {
+}
+
 // Component is a tag to mark a struct as a Component
 type Component struct {
 }
@@ -32,7 +36,7 @@ type Handler struct {
 
 // Repository is a tag to mark a struct as a Repository
 type Repository struct {
-} 
+}
 
 // COMPONENT is a tag to mark a field as a Component
 const COMPONENT = "component"

@@ -86,7 +86,7 @@ func (v *ValueBean) Reload(a *Application) {
 			newResult = v.Default
 		}
 		v.Value = newResult
-		a.Logger.Debug("Reset Value '%s' to %s", v.Key, v.Default.String())
+		a.Logger.Debug("Reset Value '%s' to %s", v.Key, v.Value.String())
 		v.resetValue()
 		v.recallFactory(a)
 	}

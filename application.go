@@ -37,6 +37,7 @@ Logger is the global logger
 ConfigFile is the string json value of config file
 */
 type Application struct {
+	BootStrap
 	Root            interface{}
 	BeanMap         map[reflect.Type]map[string]*Bean
 	BeanMethodMap   map[reflect.Type]map[string]*Method
@@ -279,6 +280,8 @@ func (a *Application) loadConfiguration(config reflect.StructField) {
 			a.LoadPrimeBean(field.Type, fieldValue, field.Tag)
 		}
 	}
+
+	a.Logger.Debug("Load Configuration: %s", config.Type)
 	for i := 0; i < configValue.Addr().NumMethod(); i++ {
 		name := configValue.Addr().Type().Method(i).Name
 		a.loadBeanMethodOut(configValue.Addr().MethodByName(name), name)
@@ -320,23 +323,26 @@ func (a *Application) LoadBean(fieldType reflect.Type, fieldValue reflect.Value,
 
 func (a *Application) loadBeanMethodOut(method reflect.Value, name string) {
 	methodType := method.Type()
-	a.Logger.Debug("%s -> %s", name, methodType)
 	if methodType.NumOut() == 1 {
-		methodBean := NewBeanMethod(method, name)
 		fieldType := methodType.Out(0)
-		OutValue := reflect.New(fieldType.Elem()).Elem()
-		if a.LoadPrimeBean(fieldType, OutValue, GetTagFromName(name)) {
-			for i := 0; i < methodType.NumIn(); i++ {
-				inType := methodType.In(i)
-				if CheckFieldPtr(inType) && ContainsFields(inType.Elem(), ComponentTypes) {
-					methodBean.Ins = append(methodBean.Ins, inType)
-				} else {
-					a.Logger.Errorf(`Param %s of %s isn't one of ComponentTypes`, inType, name)
-					os.Exit(1)
+		if fieldType.Kind() == reflect.Ptr && ContainsFields(fieldType.Elem(), ComponentTypes) {
+			a.Logger.Debug("%s -> %s", name, methodType)
+			methodBean := NewBeanMethod(method, name)
+			a.Logger.Debug("Method: %s", name)
+			OutValue := reflect.New(fieldType.Elem()).Elem()
+			if a.LoadPrimeBean(fieldType, OutValue, GetTagFromName(name)) {
+				for i := 0; i < methodType.NumIn(); i++ {
+					inType := methodType.In(i)
+					if CheckFieldPtr(inType) && ContainsFields(inType.Elem(), ComponentTypes) {
+						methodBean.Ins = append(methodBean.Ins, inType)
+					} else {
+						a.Logger.Errorf(`Param %s of %s isn't one of ComponentTypes`, inType, name)
+						os.Exit(1)
+					}
 				}
+				methodBean.OutValue = OutValue
+				a.BeanMethodMap[fieldType] = map[string]*Method{name: methodBean}
 			}
-			methodBean.OutValue = OutValue
-			a.BeanMethodMap[fieldType] = map[string]*Method{name: methodBean}
 		}
 	}
 }
@@ -516,6 +522,9 @@ func (a *Application) assembleBean(motherName, motherType string, value reflect.
 
 func (a *Application) assembleValue(motherName, motherType string, value reflect.Value, field reflect.StructField) {
 	key := strings.Trim(field.Tag.Get("value"), " ")
+	if key == "" {
+		return
+	}
 	defaultValue := field.Tag.Get("default")
 	if valueBean, ok := a.ValueBeanMap[key]; ok {
 		if !valueBean.SetValue(value, field.Type) {
@@ -593,6 +602,5 @@ func (a *Application) ReloadValues() {
 
 	for recallFactory := range a.FactoryToRecall {
 		recallFactory.Call(a)
-		a.Logger.Debug("Factory %s reload", recallFactory.Name)
 	}
 }
