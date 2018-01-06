@@ -38,13 +38,28 @@ func TestParseHandlerName(t *testing.T) {
 	ok, _, _ := ParseHandlerName("Gett_my_name")
 	assert.False(t, ok)
 
-	ok, method, path := ParseHandlerName("GetMyName")
+	ok, method, path := ParseHandlerName("Post")
+	assert.True(t, ok)
+	assert.Equal(t, POST{}, method)
+	assert.Equal(t, "", path)
+
+	ok, method, path = ParseHandlerName("GetMyName")
 	assert.True(t, ok)
 	assert.Equal(t, GET{}, method)
 	assert.Equal(t, "", path)
 
-	ok, method, path = ParseHandlerName("Put_name_ID")
+	ok, method, path = ParseHandlerName("Get0UserUUID")
 	assert.True(t, ok)
-	assert.Equal(t, PUT{}, method)
-	assert.Equal(t, "name/:id", path)
+	assert.Equal(t, GET{}, method)
+	assert.Equal(t, "user/:uuid", path)
+}
+
+func TestGetHttpMethodAndPath(t *testing.T) {
+	method, path := GetHttpMethodAndPath("GetMyName")
+	assert.Equal(t, method, GET{})
+	assert.Equal(t, path, "")
+
+	method, path = GetHttpMethodAndPath("Get0MyName")
+	assert.Equal(t, method, GET{})
+	assert.Equal(t, path, "MyName")
 }

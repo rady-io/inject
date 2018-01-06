@@ -62,9 +62,9 @@ func (b *BookController) GetBooks(ctx Context) error {
 	return ctx.String(200, fmt.Sprintf(`{"id": "%s"}`, ctx.Param("id")))
 }
 
-//func (b *BookController) GetBookID(ctx Context) error {
-//	return nil
-//}
+func (b *BookController) Get0UserUUID(ctx Context) error {
+	return ctx.String(200, fmt.Sprintf(`{"uuid": "%s"}`, ctx.Param("uuid")))
+}
 
 type App struct {
 	*RouterConfig
@@ -75,7 +75,7 @@ type App struct {
 
 func TestCreateApplication(t *testing.T) {
 	app := CreateApplication(new(App))
-	go app.Run()
+	app.Run()
 	for Type, valueMap := range app.BeanMap {
 		t.Logf("Type: %s\n", Type.String())
 		for name, value := range valueMap {

@@ -167,31 +167,25 @@ func GetPathFromType(field reflect.StructField, Type interface{}) string {
 }
 
 func ParseHandlerName(Name string) (ok bool, method interface{}, path string) {
-	result := SplitByUpper(Name)
-	if len(result) != 0 {
-		if method, ok = StrToMethod[result[0]]; ok {
-			return
-		}
-	}
-
-	splitPath := func(r rune) bool { return r == '_' }
-	result = strings.FieldsFunc(Name, splitPath)
-	if len(result) == 1 { // no "_"
+	if method, ok = StrToMethod[Name]; ok {
 		return
 	}
 
-	if method, ok = StrToMethod[result[0]]; !ok {
-		return
-	}
-
-	resultNoMethod := result[1:]
-	for i, value := range resultNoMethod {
-		if IsStringAllUpper(value) {
-			resultNoMethod[i] = GetDynamicPath(value)
+	method, path = GetHttpMethodAndPath(Name)
+	if method != nil {
+		if path == "" {
+			return true, method, path
 		}
+		pathSlice := SplitByUpper(path)
+		for i, slot := range pathSlice {
+			if IsStringAllUpper(slot) {
+				pathSlice[i] = GetDynamicPath(slot)
+			} else {
+				pathSlice[i] = strings.ToLower(slot)
+			}
+		}
+		return true, method, strings.Join(pathSlice, "/")
 	}
-
-	path = strings.Join(result[1:], "/")
 	return
 }
 
@@ -200,12 +194,37 @@ func SplitByUpper(raw string) []string {
 	result := make([]string, 0)
 	runes := []rune(raw)
 	for i, r := range runes {
-		if unicode.IsUpper(r) && i != 0 {
+		if unicode.IsUpper(r) && i != 0 && (i != len(runes) - 1 && unicode.IsLower(runes[i+1]) || unicode.IsLower(runes[i-1]) ) {
 			result = append(result, string(runes[start: i]))
 			start = i
 		}
+
+		if i == len(runes) - 1 && unicode.IsUpper(r) {
+			result = append(result, string(runes[start: i+1]))
+		}
 	}
 	return result
+}
+
+func GetHttpMethodAndPath(Name string) (interface{}, string) {
+	splitMethod := func(r rune) bool { return r == '0' }
+	result := strings.FieldsFunc(Name, splitMethod)
+	if len(result) == 1 { // no "_"
+		value := result[0]
+		newResult := SplitByUpper(value)
+		if len(newResult) > 0 {
+			methodStr := newResult[0]
+			if method, ok := StrToMethod[methodStr]; ok {
+				return method, ""
+			}
+		}
+	} else if len(result) == 2 {
+		methodStr := result[0]
+		if method, ok := StrToMethod[methodStr]; ok {
+			return method, result[1]
+		}
+	}
+	return nil, ""
 }
 
 func IsStringAllUpper(str string) bool {

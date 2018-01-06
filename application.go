@@ -213,9 +213,10 @@ func (a *Application) loadCtrl(field reflect.StructField, prefix string) {
 		methodField := fieldType.Method(i)
 		handlerName := methodField.Name
 		if _, ok := loadedMethod[handlerName]; !ok {
-			ok, httpMethod, path := ParseHandlerName(Name)
+			ok, httpMethod, path := ParseHandlerName(handlerName)
 			if ok {
 				if trueMethod, ok := method.Interface().(func(Context) error); ok {
+					path := GetNewPrefix(prefix, path)
 					a.registerCtrl(trueMethod, reflect.TypeOf(httpMethod), path)
 					a.logHandlerRegistry(MethodToStr[httpMethod], path, handlerName)
 					loadedMethod[handlerName] = true
