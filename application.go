@@ -109,10 +109,6 @@ Then, we load BeanMethodOut, which mean result of "bean method", however, what's
 
 And then, we load normal bean recursively
 
-TODO: Inject Value
-
-TODO: Load BeanMethod Args, Construct Link between Param and Value
-
  */
 func (a *Application) Run() {
 	a.loadPrimes()
@@ -120,6 +116,7 @@ func (a *Application) Run() {
 	a.loadBeanChild()
 	a.assemble()
 	a.CallFactory()
+	a.bindFactoryWithValue()
 	a.Server.Start(a.getAddr())
 }
 
@@ -545,6 +542,42 @@ func (a *Application) CallFactory() {
 		for name, method := range methodMap {
 			method.Call(a)
 			a.Logger.Debug("Call factory %s -> %s", name, outType)
+		}
+	}
+}
+
+func (a *Application) bindFactoryWithValue() {
+	checkedMap := make(map[reflect.Type]bool)
+	for _, methodMap := range a.BeanMethodMap {
+		for _, method := range methodMap {
+			for _, inType := range method.Ins {
+				a.recursivelyBind(inType, method, checkedMap)
+			}
+		}
+	}
+}
+
+func (a *Application) recursivelyBind(fieldType reflect.Type, method *Method, checkedMap map[reflect.Type]bool) {
+	checkedMap[fieldType] = true
+	for i := 0; i < fieldType.Elem().NumField(); i++ {
+		child := fieldType.Elem().Field(i)
+		if CheckComponents(child) {
+			if _, ok := checkedMap[child.Type]; !ok {
+				a.recursivelyBind(child.Type, method, checkedMap)
+			}
+		} else if CheckValues(child) {
+			key := strings.Trim(child.Tag.Get("value"), " ")
+			valueBean, ok := a.ValueBeanMap[key]
+			if !ok {
+				a.Logger.Critical("Ignored value '%s' !!!", key)
+				os.Exit(1)
+			}
+
+			if _, ok = valueBean.MethodSet[method]; ok {
+				continue
+			}
+			a.Logger.Debug("Bind value '%s' with factory %s", key, method.Name)
+			valueBean.MethodSet[method] = true
 		}
 	}
 }

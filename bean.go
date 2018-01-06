@@ -53,7 +53,6 @@ func (m *Method) Call(app *Application) {
 	m.OutValue.Set(result[0].Elem())
 }
 
-
 ///*
 //ParamBean contains value of a bean which is parameter of a bean method
 //
@@ -72,10 +71,10 @@ ValueMap is different types the value converted to
 ParamSlice is the param list contain this value
  */
 type ValueBean struct {
-	Value       gjson.Result
-	ValueMap    map[reflect.Type]reflect.Value
-	MethodSlice []*Method
-	Key         string
+	Value     gjson.Result
+	ValueMap  map[reflect.Type]reflect.Value
+	MethodSet map[*Method]bool
+	Key       string
 }
 
 func (v *ValueBean) SetValue(value reflect.Value, Type reflect.Type) bool {
@@ -175,10 +174,10 @@ NewValueBean is factory function of ValueBean
  */
 func NewValueBean(Value gjson.Result, key string) *ValueBean {
 	return &ValueBean{
-		Value:       Value,
-		ValueMap:    make(map[reflect.Type]reflect.Value),
-		MethodSlice: make([]*Method, 0),
-		Key:         key,
+		Value:     Value,
+		ValueMap:  make(map[reflect.Type]reflect.Value),
+		MethodSet: make(map[*Method]bool),
+		Key:       key,
 	}
 }
 

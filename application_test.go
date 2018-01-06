@@ -18,6 +18,7 @@ type HandlerConfig struct {
 type GetUserParam struct {
 	Parameter
 	*BookService
+	RedisHost *string `value:"rhapsody.redis.host"`
 }
 
 func (rc *RouterConfig) GetUserComponent(BR *BookRepository, GP *GetUserParam) *UserComponent {
@@ -32,6 +33,7 @@ type UserComponent struct {
 
 type BookService struct {
 	Service
+	RedisPort *int64 `value:"rhapsody.redis.port"`
 }
 
 type BookRepository struct {
@@ -42,6 +44,7 @@ type BookController struct {
 	Controller `prefix:"/api/v1"`
 	GET        `path:"/:id" method:"GetBooks"`
 	FILE       `path:"/config" file:"./resources/application.conf"`
+	STATIC     `prefix:"/assets" root:"./"`
 	BookRepository *BookRepository
 }
 
