@@ -39,6 +39,21 @@ func (m *Method) LoadIns(app *Application) {
 	}
 }
 
+func (m *Method) Call(app *Application) {
+	params := make([]reflect.Value, 0)
+	for _, value := range m.InValues {
+		params = append(params, value.Addr())
+	}
+	result := m.Value.Call(params)
+	if len(result) != 1 {
+		app.Logger.Error("Result of %s is not a Component!!!", m.Name)
+		os.Exit(1)
+	}
+	app.Logger.Debug("Result of %s set %s", m.Name, result[0].Elem())
+	m.OutValue.Set(result[0].Elem())
+}
+
+
 ///*
 //ParamBean contains value of a bean which is parameter of a bean method
 //

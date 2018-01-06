@@ -3,6 +3,7 @@ package rady
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
+	"fmt"
 )
 
 type RouterConfig struct {
@@ -26,6 +27,7 @@ func (rc *RouterConfig) GetUserComponent(BR *BookRepository, GP *GetUserParam) *
 type UserComponent struct {
 	Component
 	*RouterConfig
+	RedisPort *int64 `value:"rhapsody.redis.port"`
 }
 
 type BookService struct {
@@ -57,7 +59,7 @@ func (a *AuthMiddleware) Auth(next HandlerFunc) HandlerFunc {
 }
 
 func (b *BookController) GetBooks(ctx Context) error {
-	return nil
+	return ctx.String(200, fmt.Sprintf(`{"id": "%s"}`, ctx.Param("id")))
 }
 
 //func (b *BookController) GetBookID(ctx Context) error {
@@ -73,7 +75,7 @@ type App struct {
 
 func TestCreateApplication(t *testing.T) {
 	app := CreateApplication(new(App))
-	app.Run()
+	go app.Run()
 	for Type, valueMap := range app.BeanMap {
 		t.Logf("Type: %s\n", Type.String())
 		for name, value := range valueMap {

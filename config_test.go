@@ -6,7 +6,6 @@ import (
 )
 
 type ConfigTestDefault struct {
-	CONF
 }
 
 type ConfigTestTypeJSON struct {
@@ -29,21 +28,21 @@ var (
 
 func TestConfigDefault(t *testing.T)  {
 	app := CreateApplication(new(ConfigTestDefault))
-	app.Run()
+	go app.Run()
 	t.Logf("conf:\n %s", app.ConfigFile)
 	assert.Equal(t, JSONConf, app.ConfigFile)
 }
 
 func TestConfigTypeJSON(t *testing.T)  {
 	app := CreateApplication(new(ConfigTestTypeJSON))
-	app.Run()
+	go app.Run()
 	t.Logf("conf:\n %s", app.ConfigFile)
 	assert.Equal(t, YAMLConf, app.ConfigFile)
 }
 
 func TestConfigSuffixYAML(t *testing.T)  {
 	app := CreateApplication(new(ConfigTestSuffixYAML))
-	app.Run()
+	go app.Run()
 	t.Logf("conf:\n %s", app.ConfigFile)
 	assert.Equal(t, JSONFromYAML, app.ConfigFile)
 }

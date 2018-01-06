@@ -119,7 +119,16 @@ func (a *Application) Run() {
 	a.loadMethodBeanIn()
 	a.loadBeanChild()
 	a.assemble()
-	//a.Server.Start(":8081")
+	a.CallFactory()
+	a.Server.Start(a.getAddr())
+}
+
+func (a *Application) getAddr() string {
+	result := gjson.Get(a.ConfigFile, "rhapsody.server.addr")
+	if result.Exists() {
+		return result.String()
+	}
+	return ":8081"
 }
 
 func (a *Application) loadPrimes() {
@@ -493,8 +502,6 @@ func (a *Application) assembleValue(motherName, motherType string, value reflect
 	}
 
 	newValue := gjson.Get(a.ConfigFile, key)
-	a.Logger.Debug("configFile: %s", a.ConfigFile)
-
 	if !newValue.Exists() {
 		newValue = gjson.Get(fmt.Sprintf(`{"default": "%s"}`, defaultValue), "default")
 	}
@@ -506,4 +513,13 @@ func (a *Application) assembleValue(motherName, motherType string, value reflect
 
 	a.ValueBeanMap[key] = valueBean
 	a.logAssembleValue(motherName, motherType, valueBean.Value.String(), field.Name)
+}
+
+func (a *Application) CallFactory() {
+	for outType, methodMap := range a.BeanMethodMap {
+		for name, method := range methodMap {
+			method.Call(a)
+			a.Logger.Debug("Call factory %s -> %s", name, outType)
+		}
+	}
 }
