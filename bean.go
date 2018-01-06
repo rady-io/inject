@@ -75,6 +75,52 @@ type ValueBean struct {
 	ValueMap  map[reflect.Type]reflect.Value
 	MethodSet map[*Method]bool
 	Key       string
+	Default   gjson.Result
+}
+
+func (v *ValueBean) Reload(a *Application) {
+	newResult := gjson.Get(a.ConfigFile, v.Key)
+	if newResult != v.Value {
+		if !newResult.Exists() {
+			a.Logger.Info("Key %s doesn't exist, use default value %s", v.Key, v.Default.String())
+			newResult = v.Default
+		}
+		v.Value = newResult
+		a.Logger.Debug("Reset Value '%s' to %s", v.Key, v.Default.String())
+		v.resetValue()
+		v.recallFactory(a)
+	}
+}
+
+func (v *ValueBean) resetValue() {
+	for Type, Value := range v.ValueMap {
+		switch Type {
+		case IntPtrType:
+			Value.SetInt(v.Value.Int())
+		case UintPtrType:
+			Value.SetUint(v.Value.Uint())
+		case FloatPtrType:
+			Value.SetFloat(v.Value.Float())
+		case StringPtrType:
+			Value.SetString(v.Value.String())
+		case BoolPtrType:
+			Value.SetBool(v.Value.Bool())
+		case TimePtrType:
+			Value.Set(reflect.ValueOf(v.Value.Time()))
+		case ArrayPtrType:
+			Value.Set(reflect.ValueOf(v.Value.Array()))
+		case MapPtrType:
+			Value.Set(reflect.ValueOf(v.Value.Map()))
+		}
+	}
+}
+
+func (v *ValueBean) recallFactory(a *Application) {
+	for Method := range v.MethodSet {
+		if _, ok := a.FactoryToRecall[Method]; !ok {
+			a.FactoryToRecall[Method] = true
+		}
+	}
 }
 
 func (v *ValueBean) SetValue(value reflect.Value, Type reflect.Type) bool {
@@ -172,12 +218,13 @@ func NewBeanMethod(Value reflect.Value, Name string) *Method {
 /*
 NewValueBean is factory function of ValueBean
  */
-func NewValueBean(Value gjson.Result, key string) *ValueBean {
+func NewValueBean(Value gjson.Result, key string, defaultValue gjson.Result) *ValueBean {
 	return &ValueBean{
 		Value:     Value,
 		ValueMap:  make(map[reflect.Type]reflect.Value),
 		MethodSet: make(map[*Method]bool),
 		Key:       key,
+		Default:   defaultValue,
 	}
 }
 

@@ -41,6 +41,7 @@ type Application struct {
 	BeanMap         map[reflect.Type]map[string]*Bean
 	BeanMethodMap   map[reflect.Type]map[string]*Method
 	ValueBeanMap    map[string]*ValueBean
+	FactoryToRecall map[*Method]bool
 	CtrlBeanSlice   []*CtrlBean
 	MdWareBeanSlice []*MdWareBean
 	Entities        []reflect.Type
@@ -61,6 +62,7 @@ func CreateApplication(root interface{}) *Application {
 			BeanMap:         make(map[reflect.Type]map[string]*Bean),
 			BeanMethodMap:   make(map[reflect.Type]map[string]*Method),
 			ValueBeanMap:    make(map[string]*ValueBean),
+			FactoryToRecall: make(map[*Method]bool),
 			CtrlBeanSlice:   make([]*CtrlBean, 0),
 			MdWareBeanSlice: make([]*MdWareBean, 0),
 			Entities:        make([]reflect.Type, 0),
@@ -524,11 +526,11 @@ func (a *Application) assembleValue(motherName, motherType string, value reflect
 	}
 
 	newValue := gjson.Get(a.ConfigFile, key)
+	trueDefault := gjson.Get(fmt.Sprintf(`{"default": "%s"}`, defaultValue), "default")
 	if !newValue.Exists() {
-		newValue = gjson.Get(fmt.Sprintf(`{"default": "%s"}`, defaultValue), "default")
+		newValue = trueDefault
 	}
-
-	valueBean := NewValueBean(newValue, key)
+	valueBean := NewValueBean(newValue, key, trueDefault)
 	if !valueBean.SetValue(value, field.Type) {
 		a.Logger.Error("Unknow Type: %s", field.Type)
 	}
@@ -579,5 +581,18 @@ func (a *Application) recursivelyBind(fieldType reflect.Type, method *Method, ch
 			a.Logger.Debug("Bind value '%s' with factory %s", key, method.Name)
 			valueBean.MethodSet[method] = true
 		}
+	}
+}
+
+func (a *Application) ReloadValues() {
+	a.loadConfigFile()
+	a.FactoryToRecall = make(map[*Method]bool)
+	for _, valueBean := range a.ValueBeanMap {
+		valueBean.Reload(a)
+	}
+
+	for recallFactory := range a.FactoryToRecall {
+		recallFactory.Call(a)
+		a.Logger.Debug("Factory %s reload", recallFactory.Name)
 	}
 }
