@@ -380,10 +380,17 @@ func (a *Application) loadConfigFile() *Application {
 			config, err := GetJSONFromAnyFile(path, fileType)
 			if err == nil {
 				a.ConfigFile = config
+				return a
 			} else {
 				a.Logger.Error("File %s load failed, %s", path, err.Error())
 			}
 		}
+	}
+
+	config, err := GetJSONFromAnyFile(DefaultPath, JSON)
+	if err == nil {
+		a.Logger.Debug("Load %s(%s)", DefaultPath, JSON)
+		a.ConfigFile = config
 	}
 	return a
 }
@@ -486,6 +493,8 @@ func (a *Application) assembleValue(motherName, motherType string, value reflect
 	}
 
 	newValue := gjson.Get(a.ConfigFile, key)
+	a.Logger.Debug("configFile: %s", a.ConfigFile)
+
 	if !newValue.Exists() {
 		newValue = gjson.Get(fmt.Sprintf(`{"default": "%s"}`, defaultValue), "default")
 	}
@@ -494,6 +503,7 @@ func (a *Application) assembleValue(motherName, motherType string, value reflect
 	if !valueBean.SetValue(value, field.Type) {
 		a.Logger.Error("Unknow Type: %s", field.Type)
 	}
+
 	a.ValueBeanMap[key] = valueBean
 	a.logAssembleValue(motherName, motherType, valueBean.Value.String(), field.Name)
 }
