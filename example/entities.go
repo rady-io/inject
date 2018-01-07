@@ -27,7 +27,8 @@ type User struct {
 
 type File struct {
 	rorm.Model
-	Hash   string `gorm:"size:32"`
+	Hash   string `gorm:"type:char(36);unique_index"`
 	OrgID  uint
 	UserID uint
+	Data   string `gorm:"size:1000"`
 }
