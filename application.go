@@ -49,7 +49,7 @@ type Application struct {
 	Server          *echo.Echo
 	Logger          *Logger
 	ConfigFile      string
-	Addr            *string `value:"rhapsody.server.addr" default:":8081"`
+	Addr            *string `value:"rady.server.addr" default:":8081"`
 }
 
 /*
@@ -123,6 +123,7 @@ func (a *Application) Run() {
 	a.bindFactoryWithValue()
 	a.Server.Start(*a.Addr)
 }
+
 func (a *Application) loadPrimes() {
 	root := a.Root
 	rootType := reflect.TypeOf(root).Elem()
@@ -130,6 +131,8 @@ func (a *Application) loadPrimes() {
 		field := rootType.Field(i)
 		if CheckConfiguration(field) {
 			a.loadConfiguration(field)
+		} else if CheckEntities(field) {
+			a.loadEntities(field)
 		} else {
 			a.loadWebField(field, "/")
 		}
@@ -277,6 +280,16 @@ func (a *Application) loadConfiguration(config reflect.StructField) {
 	for i := 0; i < configValue.Addr().NumMethod(); i++ {
 		name := configValue.Addr().Type().Method(i).Name
 		a.loadBeanMethodOut(configValue.Addr().MethodByName(name), name)
+	}
+}
+
+func (a *Application) loadEntities(field reflect.StructField) {
+	valueType := field.Type.Elem()
+	for i := 0; i < valueType.NumField(); i++ {
+		childType := valueType.Field(i).Type
+		if childType.Kind() == reflect.Ptr && childType.Elem().Kind() == reflect.Struct {
+			a.Entities = append(a.Entities, childType)
+		}
 	}
 }
 

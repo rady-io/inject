@@ -40,6 +40,11 @@ func CheckConfiguration(field reflect.StructField) bool {
 	return CheckFieldPtr(field.Type) && CheckStruct(field.Type.Elem()) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), Configuration{}) || field.Tag.Get("type") == CONFIGURATION)
 }
 
+// CheckEntities return true when type in its tag is entities or ContainsField(field.Type.Elem(), Entities{})
+func CheckEntities(field reflect.StructField) bool {
+	return CheckFieldPtr(field.Type) && CheckStruct(field.Type.Elem()) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), Entities{}) || field.Tag.Get("type") == ENTITIES)
+}
+
 // CheckController return true when type in its tag is CONTROLLER or ContainsField(field.Type.Elem(), Controller{})
 func CheckController(field reflect.StructField) bool {
 	return CheckFieldPtr(field.Type) && CheckStruct(field.Type.Elem()) && (field.Tag.Get("type") == "" && ContainsField(field.Type.Elem(), Controller{}) || field.Tag.Get("type") == CONTROLLER)

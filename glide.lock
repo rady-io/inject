@@ -1,21 +1,45 @@
-hash: 5ce0cfd148b45a0772c4141556ab88e4d041ce07f5ce958a37c48607e94805f4
-updated: 2018-01-04T18:20:33.529356+08:00
+hash: d8e61390247dc26ec1702dd3424f8f8c34ab39383f366cc865a25aa2c8f55a48
+updated: 2018-01-07T01:00:36.268681+08:00
 imports:
+- name: github.com/denisenkom/go-mssqldb
+  version: 8a15d1bb0c8eaa4b870c016b312de5b50b493b4e
+- name: github.com/dgrijalva/jwt-go
+  version: dbeaa9332f19a944acb5736b4456cfcc02140e29
 - name: github.com/ghodss/yaml
   version: 0ca9ea5df5451ffdf184b4428c902747c2c11cd7
+- name: github.com/go-sql-driver/mysql
+  version: 3955978caca48c1658a4bb7a9c6a0f084e326af3
 - name: github.com/jinzhu/gorm
   version: 5174cc5c242a728b435ea2be8a2f7f998e15429b
+  subpackages:
+  - dialects/mssql
+  - dialects/mysql
+  - dialects/postgres
+  - dialects/sqlite
+- name: github.com/jinzhu/inflection
+  version: 1c35d901db3da928c72a72d8458480cc9ade058f
 - name: github.com/labstack/echo
   version: b338075a0fc6e1a0683dbf03d09b4957a289e26f
+  subpackages:
+  - middleware
 - name: github.com/labstack/gommon
   version: 57409ada9da0f2afad6664c49502f8c50fbd8476
   subpackages:
+  - bytes
   - color
   - log
+  - random
+- name: github.com/lib/pq
+  version: 83612a56d3dd153a94a629cd64925371c9adad78
+  subpackages:
+  - hstore
+  - oid
 - name: github.com/mattn/go-colorable
   version: 5411d3eea5978e6cdc258b30de592b60df6aba96
 - name: github.com/mattn/go-isatty
   version: 57fdcb988a5c543893cc61bce354a6e24ab70022
+- name: github.com/mattn/go-sqlite3
+  version: d5ffb5c0cca8778699a929b236766f4a7af674e8
 - name: github.com/op/go-logging
   version: b2cb9fa56473e98db8caba80237377e83fe44db5
 - name: github.com/tidwall/gjson
@@ -31,12 +55,17 @@ imports:
   subpackages:
   - acme
   - acme/autocert
+  - md4
+- name: golang.org/x/net
+  version: 42fe2e1c20de1054d3d30f82cc9fb5b41e2e3767
+  subpackages:
+  - context
 - name: golang.org/x/sys
-  version: 28a7276518d399b9634904daad79e18b44d481bc
+  version: dd9ec17814d5b1de388ebe438ec013d57d8b3779
   subpackages:
   - unix
 - name: gopkg.in/yaml.v2
-  version: c95af922eae69f190717a0b7148960af8c55a072
+  version: 0e4404da71227dcc02fb1deee803d93e86d08f72
 testImports:
 - name: github.com/davecgh/go-spew
   version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9
