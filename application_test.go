@@ -77,15 +77,16 @@ func (b *BookController) GetBooks(ctx Context) error {
 	return ctx.String(200, fmt.Sprintf(`{"id": "%s"}`, ctx.Param("id")))
 }
 
-func (b *BookController) Get0UserUUID(ctx Context) error {
+func (b *BookController) GetUserUUID(ctx Context) error {
 	return ctx.String(200, fmt.Sprintf(`{"uuid": "%s"}`, ctx.Param("uuid")))
 }
 
-func (b *BookController) Get0RedisHost(ctx Context) error {
+
+func (b *BookController) GetRedisHost(ctx Context) error {
 	return ctx.String(200, fmt.Sprintf(`{"host": "%s"}`, b.UserComponent.GetHost()))
 }
 
-func (b *BookController) Get0ConfReload(ctx Context) error {
+func (b *BookController) GetConfReload(ctx Context) error {
 	b.App.ReloadValues()
 	return ctx.String(200, fmt.Sprintf(`{"host": "%s"}`, b.UserComponent.GetHost()))
 }

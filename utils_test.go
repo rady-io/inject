@@ -4,6 +4,7 @@ import (
 	"testing"
 	"github.com/stretchr/testify/assert"
 	"reflect"
+	"strings"
 )
 
 type ComponentHandler struct {
@@ -46,20 +47,29 @@ func TestParseHandlerName(t *testing.T) {
 	ok, method, path = ParseHandlerName("GetMyName")
 	assert.True(t, ok)
 	assert.Equal(t, GET{}, method)
-	assert.Equal(t, "", path)
+	assert.Equal(t, "my/name", path)
 
-	ok, method, path = ParseHandlerName("Get0UserUUID")
+	ok, method, path = ParseHandlerName("GetUserUUID")
 	assert.True(t, ok)
 	assert.Equal(t, GET{}, method)
 	assert.Equal(t, "user/:uuid", path)
+
+	ok, method, path = ParseHandlerName("GetUserUUIDGo")
+	assert.True(t, ok)
+	assert.Equal(t, GET{}, method)
+	assert.Equal(t, "user/:uuid/go", path)
 }
 
-func TestGetHttpMethodAndPath(t *testing.T) {
-	method, path := GetHttpMethodAndPath("GetMyName")
-	assert.Equal(t, method, GET{})
-	assert.Equal(t, path, "")
+func TestSplitByUpper(t *testing.T) {
+	result := SplitByUpper("GetMyName")
+	assert.Equal(t, strings.Join(result, "/"), "Get/My/Name")
 
-	method, path = GetHttpMethodAndPath("Get0MyName")
-	assert.Equal(t, method, GET{})
-	assert.Equal(t, path, "MyName")
+	result = SplitByUpper("GetMyNameID")
+	assert.Equal(t, strings.Join(result, "/"), "Get/My/Name/ID")
+
+	result = SplitByUpper("GetMyNameIDSid")
+	assert.Equal(t, strings.Join(result, "/"), "Get/My/Name/ID/Sid")
+
+	result = SplitByUpper("Get")
+	assert.Equal(t, strings.Join(result, "/"), "Get")
 }

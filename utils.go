@@ -175,13 +175,10 @@ func ParseHandlerName(Name string) (ok bool, method interface{}, path string) {
 	if method, ok = StrToMethod[Name]; ok {
 		return
 	}
-
-	method, path = GetHttpMethodAndPath(Name)
-	if method != nil {
-		if path == "" {
-			return true, method, path
-		}
-		pathSlice := SplitByUpper(path)
+	result := SplitByUpper(Name)
+	methodStr := result[0]
+	if method, ok = StrToMethod[methodStr]; ok {
+		pathSlice := result[1:]
 		for i, slot := range pathSlice {
 			if IsStringAllUpper(slot) {
 				pathSlice[i] = GetDynamicPath(slot)
@@ -191,7 +188,7 @@ func ParseHandlerName(Name string) (ok bool, method interface{}, path string) {
 		}
 		return true, method, strings.Join(pathSlice, "/")
 	}
-	return
+	return false, method, ""
 }
 
 func SplitByUpper(raw string) []string {
@@ -199,38 +196,40 @@ func SplitByUpper(raw string) []string {
 	result := make([]string, 0)
 	runes := []rune(raw)
 	for i, r := range runes {
-		if unicode.IsUpper(r) && i != 0 && (i != len(runes) - 1 && unicode.IsLower(runes[i+1]) || unicode.IsLower(runes[i-1]) ) {
+		if unicode.IsUpper(r) && i != 0 && (i != len(runes)-1 && unicode.IsLower(runes[i+1]) || unicode.IsLower(runes[i-1]) ) {
 			result = append(result, string(runes[start: i]))
 			start = i
 		}
 
-		if i == len(runes) - 1 && unicode.IsUpper(r) {
-			result = append(result, string(runes[start: i+1]))
+		if i == len(runes)-1 {
+			result = append(result, string(runes[start:]))
 		}
 	}
 	return result
 }
 
-func GetHttpMethodAndPath(Name string) (interface{}, string) {
-	splitMethod := func(r rune) bool { return r == '0' }
-	result := strings.FieldsFunc(Name, splitMethod)
-	if len(result) == 1 { // no "_"
-		value := result[0]
-		newResult := SplitByUpper(value)
-		if len(newResult) > 0 {
-			methodStr := newResult[0]
-			if method, ok := StrToMethod[methodStr]; ok {
-				return method, ""
-			}
-		}
-	} else if len(result) == 2 {
-		methodStr := result[0]
-		if method, ok := StrToMethod[methodStr]; ok {
-			return method, result[1]
-		}
-	}
-	return nil, ""
-}
+//func GetHttpMethodAndPath(Name string) (interface{}, string) {
+//	splitMethod := func(r rune) bool { return r == '0' }
+//	result := strings.FieldsFunc(Name, splitMethod)
+//	if len(result) == 1 { // no "_"
+//		value := result[0]
+//		newResult := SplitByUpper(value)
+//		if len(newResult) > 0 {
+//			methodStr := newResult[0]
+//			if method, ok := StrToMethod[methodStr]; ok {
+//				return method, ""
+//			}
+//		}
+//	} else if len(result) == 2 {
+//		methodStr := result[0]
+//		if method, ok := StrToMethod[methodStr]; ok {
+//			return method, result[1]
+//		}
+//	}
+//	return nil, ""
+//	result := SplitByUpper(Name)
+//
+//}
 
 func IsStringAllUpper(str string) bool {
 	for _, u := range []rune(str) {
