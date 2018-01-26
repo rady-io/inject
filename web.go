@@ -2,10 +2,12 @@ package rady
 
 import "github.com/labstack/echo"
 
-type Context = echo.Context
+type (
+	Context = echo.Context
 
-type HandlerFunc = echo.HandlerFunc
+	HandlerFunc = echo.HandlerFunc
 
-type MiddlewareFunc = echo.MiddlewareFunc
+	MiddlewareFunc = echo.MiddlewareFunc
 
-type Group = echo.Group
+	Group = echo.Group
+)

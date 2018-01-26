@@ -247,3 +247,22 @@ func GetDynamicPath(upper string) string {
 func CheckFilenameValid(Name string) bool {
 	return Name != ""
 }
+
+type MiddlewareStack struct {
+	Stack []MiddlewareFunc
+}
+
+func NewMiddlewareStack() *MiddlewareStack {
+	return &MiddlewareStack{
+		Stack: make([]MiddlewareFunc, 0),
+	}
+}
+
+func (stack *MiddlewareStack) Push(middleware MiddlewareFunc) *MiddlewareStack {
+	newStack := make([]MiddlewareFunc, len(stack.Stack)+1)
+	newStack[0] = middleware
+	copy(newStack[1:], stack.Stack)
+	return &MiddlewareStack{
+		Stack: newStack,
+	}
+}

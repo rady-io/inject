@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"strings"
+	"github.com/labstack/echo/middleware"
 )
 
 type ComponentHandler struct {
@@ -72,4 +73,15 @@ func TestSplitByUpper(t *testing.T) {
 
 	result = SplitByUpper("Get")
 	assert.Equal(t, strings.Join(result, "/"), "Get")
+}
+
+func TestMiddlewareStack(t *testing.T) {
+	cors := middleware.CORS()
+	logger := middleware.Logger()
+	stack := NewMiddlewareStack()
+	stack = stack.Push(cors)
+	newStack := stack.Push(logger)
+
+	assert.Equal(t, len(stack.Stack), 1)
+	assert.Equal(t, len(newStack.Stack), 2)
 }
