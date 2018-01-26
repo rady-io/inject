@@ -24,9 +24,9 @@ BeanMethodMap is map to find *Method by `Type` and `Name`(when type is the same)
 
 ValueBeanMap is map to find / set value in config file, going to implement hot-reload
 
-CtrlBeanSlice is slice to store controller
+CtrlBeanMap is slice to store controller
 
-MdWareBeanSlice is slice to store middleware
+MdWareBeanMap is slice to store middleware
 
 Entities is slice to store type of entity
 
@@ -38,18 +38,19 @@ ConfigFile is the string json value of config file
 */
 type Application struct {
 	BootStrap
-	Root            interface{}
-	BeanMap         map[reflect.Type]map[string]*Bean
-	BeanMethodMap   map[reflect.Type]map[string]*Method
-	ValueBeanMap    map[string]*ValueBean
-	FactoryToRecall map[*Method]bool
-	CtrlBeanSlice   []*CtrlBean
-	MdWareBeanSlice []*MdWareBean
-	Entities        []reflect.Type
-	Server          *echo.Echo
-	Logger          *Logger
-	ConfigFile      string
-	Addr            *string `value:"rady.server.addr" default:":8081"`
+	Root               interface{}
+	BeanMap            map[reflect.Type]map[string]*Bean
+	BeanMethodMap      map[reflect.Type]map[string]*Method
+	ValueBeanMap       map[string]*ValueBean
+	FactoryToRecall    map[*Method]bool
+	CtrlBeanMap        map[string]*CtrlBean
+	MdWareBeanMap      map[string]*MdWareBean
+	MiddlewareStackMap map[string]*MiddlewareStack
+	Entities           []reflect.Type
+	Server             *echo.Echo
+	Logger             *Logger
+	ConfigFile         string
+	Addr               *string `value:"rady.server.addr" default:":8081"`
 }
 
 /*
@@ -60,16 +61,17 @@ if root is not kinds of Ptr, there will be an error
 func CreateApplication(root interface{}) *Application {
 	if CheckFieldPtr(reflect.TypeOf(root)) {
 		return (&Application{
-			Root:            root,
-			BeanMap:         make(map[reflect.Type]map[string]*Bean),
-			BeanMethodMap:   make(map[reflect.Type]map[string]*Method),
-			ValueBeanMap:    make(map[string]*ValueBean),
-			FactoryToRecall: make(map[*Method]bool),
-			CtrlBeanSlice:   make([]*CtrlBean, 0),
-			MdWareBeanSlice: make([]*MdWareBean, 0),
-			Entities:        make([]reflect.Type, 0),
-			Server:          echo.New(),
-			Logger:          NewLogger(),
+			Root:               root,
+			BeanMap:            make(map[reflect.Type]map[string]*Bean),
+			BeanMethodMap:      make(map[reflect.Type]map[string]*Method),
+			ValueBeanMap:       make(map[string]*ValueBean),
+			FactoryToRecall:    make(map[*Method]bool),
+			CtrlBeanMap:        make(map[string]*CtrlBean),
+			MdWareBeanMap:      make(map[string]*MdWareBean),
+			MiddlewareStackMap: make(map[string]*MiddlewareStack),
+			Entities:           make([]reflect.Type, 0),
+			Server:             echo.New(),
+			Logger:             NewLogger(),
 		}).init()
 	}
 	NewLogger().Errorf("%s is not kind of Ptr!!!\n", reflect.TypeOf(root).Name())
@@ -183,7 +185,7 @@ func (a *Application) loadCtrl(field reflect.StructField, prefix string) {
 	fieldType := field.Type
 	Name := field.Name
 	Value := reflect.New(fieldType.Elem()).Elem()
-	a.CtrlBeanSlice = append(a.CtrlBeanSlice, NewCtrlBean(Value, field.Tag, Name))
+	a.CtrlBeanMap[prefix] = NewCtrlBean(Value, field.Tag, Name)
 	a.LoadPrimeBean(fieldType, Value, ``)
 
 	for i := 0; i < fieldType.Elem().NumField(); i++ {
@@ -231,7 +233,7 @@ func (a *Application) loadMiddleware(field reflect.StructField, prefix string) {
 	fieldType := field.Type
 	Name := field.Name
 	Value := reflect.New(fieldType.Elem()).Elem()
-	a.MdWareBeanSlice = append(a.MdWareBeanSlice, NewMdWareBean(Value, field.Tag, Name))
+	a.MdWareBeanMap[prefix] = NewMdWareBean(Value, field.Tag, Name)
 	a.LoadPrimeBean(fieldType, Value, ``)
 
 	for i := 0; i < fieldType.NumMethod(); i++ {
