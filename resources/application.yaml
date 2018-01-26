@@ -1,4 +1,4 @@
-rhapsody:
+rady:
   mysql:
     host: localhost
   redis:

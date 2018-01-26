@@ -10,7 +10,7 @@ import (
 )
 
 /*
-Application is the bootstrap of a Rhapsody app
+Application is the bootstrap of a Rady app
 
 Root is pointer of app for config, controller and handler registry
 

@@ -18,7 +18,7 @@ type HandlerConfig struct {
 type GetUserParam struct {
 	Parameter
 	*BookService
-	RedisHost *string `value:"rhapsody.redis.host"`
+	RedisHost *string `value:"rady.redis.host"`
 }
 
 func (rc *RouterConfig) GetUserComponent(BR *BookRepository, GP *GetUserParam) *UserComponent {
@@ -41,12 +41,12 @@ func (u *UserComponent) GetHost() string {
 
 type BookService struct {
 	Service
-	RedisPort *int64 `value:"rhapsody.redis.port"`
+	RedisPort *int64 `value:"rady.redis.port"`
 }
 
 type BookRepository struct {
 	Repository
-	RedisPort *int64 `value:"rhapsody.redis.port"`
+	RedisPort *int64 `value:"rady.redis.port"`
 }
 
 type BookController struct {
@@ -66,7 +66,7 @@ type BookRouter struct {
 
 type AuthMiddleware struct {
 	Middleware
-	RedisHost *string `value:"rhapsody.redis.host"`
+	RedisHost *string `value:"rady.redis.host"`
 }
 
 func (a *AuthMiddleware) Auth(next HandlerFunc) HandlerFunc {
