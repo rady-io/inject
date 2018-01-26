@@ -266,3 +266,12 @@ func (stack *MiddlewareStack) Push(middleware MiddlewareFunc) *MiddlewareStack {
 		Stack: newStack,
 	}
 }
+
+func (stack *MiddlewareStack) PushStack(frontStack *MiddlewareStack) *MiddlewareStack {
+	newStack := make([]MiddlewareFunc, len(stack.Stack)+len(frontStack.Stack))
+	copy(newStack, frontStack.Stack)
+	copy(newStack[len(frontStack.Stack):], stack.Stack)
+	return &MiddlewareStack{
+		Stack: newStack,
+	}
+}
