@@ -128,7 +128,7 @@ func (a *Application) setTests(testType reflect.Type, testValue reflect.Value, T
 func (a *Application) setTest(testType reflect.Type, testValue reflect.Value, Tag reflect.StructTag) {
 	a.LoadBean(testType, testValue, Tag)
 	a.TestingBeans = append(a.TestingBeans, NewTestingBean(testType, testValue))
-	a.Logger.Info("SetTest: %s", testType)
+	a.Logger.Debug("SetTest: %s", testType)
 }
 
 /*

@@ -81,7 +81,6 @@ func (b *BookController) GetUserUUID(ctx Context) error {
 	return ctx.String(200, fmt.Sprintf(`{"uuid": "%s"}`, ctx.Param("uuid")))
 }
 
-
 func (b *BookController) GetRedisHost(ctx Context) error {
 	return ctx.String(200, fmt.Sprintf(`{"host": "%s"}`, b.UserComponent.GetHost()))
 }
@@ -98,16 +97,25 @@ type App struct {
 	*BookRouter
 }
 
+type AppTest struct {
+	Testing
+	*OtherTest
+	RedisPort *int64 `value:"rady.redis.port"`
+}
+
+type OtherTest struct {
+	Testing
+	RedisHost *string `value:"rady.redis.host"`
+}
+
+func (a *AppTest) TestRedisPort(t *testing.T) {
+	assert.Equal(t, int64(6937), *a.RedisPort)
+}
+
+func (o *OtherTest) TestRedisHost(t *testing.T) {
+	assert.Equal(t, "127.0.0.1", *o.RedisHost)
+}
+
 func TestCreateApplication(t *testing.T) {
-	app := CreateApplication(new(App))
-	app.Run()
-	for Type, valueMap := range app.BeanMap {
-		t.Logf("Type: %s\n", Type.String())
-		for name, value := range valueMap {
-			t.Logf(" %s - Value canset: %t\n", name, value.Value.CanSet())
-			t.Logf(" %s - Field canset: %t\n", name, value.Value.Field(0).CanSet())
-			assert.True(t, value.Value.Field(0).CanSet(), "Field of %s should CanSet", name)
-			assert.True(t, value.Value.CanSet(), "%s should CanSet", name)
-		}
-	}
+	CreateApplication(new(App)).RunTest(t, new(AppTest))
 }
