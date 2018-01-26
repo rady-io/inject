@@ -7,6 +7,7 @@ import (
 	"os"
 	"github.com/tidwall/gjson"
 	"fmt"
+	"testing"
 )
 
 /*
@@ -47,6 +48,7 @@ type Application struct {
 	MdWareBeanMap      map[string]*MdWareBean
 	MiddlewareStackMap map[string]*MiddlewareStack
 	Entities           []reflect.Type
+	TestingBeans       []*TestingBean
 	Server             *echo.Echo
 	Logger             *Logger
 	ConfigFile         string
@@ -70,6 +72,7 @@ func CreateApplication(root interface{}) *Application {
 			MdWareBeanMap:      make(map[string]*MdWareBean),
 			MiddlewareStackMap: make(map[string]*MiddlewareStack),
 			Entities:           make([]reflect.Type, 0),
+			TestingBeans:       make([]*TestingBean, 0),
 			Server:             echo.New(),
 			Logger:             NewLogger(),
 		}).init()
@@ -96,6 +99,38 @@ func (a *Application) load(fieldType reflect.Type, Value reflect.Value, tag refl
 	return a
 }
 
+func (a *Application) prepare() {
+	a.loadPrimes()
+	a.loadMethodBeanIn()
+	a.loadBeanChild()
+	a.assemble()
+	a.CallFactory()
+	a.bindFactoryWithValue()
+}
+
+func (a *Application) prepareTest(testType reflect.Type, testValue reflect.Value) {
+	ComponentTypes[reflect.TypeOf(Testing{})] = true
+	COMPONENTS[TESTING] = true
+	a.setTests(testType, testValue, "")
+}
+
+func (a *Application) setTests(testType reflect.Type, testValue reflect.Value, Tag reflect.StructTag) {
+	a.setTest(testType, testValue, Tag)
+	for i := 0; i < testValue.NumField(); i ++ {
+		field := testType.Elem().Field(i)
+		if CheckTesting(field) {
+			fieldValue := reflect.New(field.Type.Elem()).Elem()
+			a.setTests(field.Type, fieldValue, field.Tag)
+		}
+	}
+}
+
+func (a *Application) setTest(testType reflect.Type, testValue reflect.Value, Tag reflect.StructTag) {
+	a.LoadBean(testType, testValue, Tag)
+	a.TestingBeans = append(a.TestingBeans, NewTestingBean(testType, testValue))
+	a.Logger.Info("SetTest: %s", testType)
+}
+
 /*
 Run is the boot method of a whole Rhapsody app
 
@@ -117,13 +152,37 @@ And then, we load normal bean recursively
 
  */
 func (a *Application) Run() {
+	a.prepare()
+	a.Server.Start(*a.Addr)
+}
+
+func (a *Application) RunTest(t *testing.T, testPointer interface{}) {
+	testType := reflect.TypeOf(testPointer)
+	if !CheckPtrOfStruct(testType) {
+		return
+	}
+	testValue := reflect.New(testType.Elem()).Elem()
 	a.loadPrimes()
 	a.loadMethodBeanIn()
+	a.prepareTest(testType, testValue)
 	a.loadBeanChild()
 	a.assemble()
 	a.CallFactory()
 	a.bindFactoryWithValue()
-	a.Server.Start(*a.Addr)
+	a.runTestCase(t)
+}
+
+func (a *Application) runTestCase(t *testing.T) {
+	for _, testingBean := range a.TestingBeans {
+		for i := 0; i < testingBean.Type.NumMethod(); i++ {
+			method := testingBean.Type.Method(i)
+			methodValue := testingBean.Value.Addr().Method(i)
+			TestCase, ok := methodValue.Interface().(func(t *testing.T))
+			if strings.HasPrefix(method.Name, "Test") && ok {
+				TestCase(t)
+			}
+		}
+	}
 }
 
 func (a *Application) loadPrimes() {
