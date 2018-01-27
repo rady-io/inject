@@ -6,20 +6,55 @@ import (
 	"os"
 )
 
-// Bean contains the value and tag of a type
-type Bean struct {
-	Tag   reflect.StructTag
-	Value reflect.Value
-}
+type (
+	/*
+	CtrlBean contains value and tag of a controller
+	 */
+	CtrlBean struct {
+		Name  string
+		Value reflect.Value
+		Tag   reflect.StructTag
+	}
 
-// Method contains value, param list and name of a 'BeanMethod'
-type Method struct {
-	Value    reflect.Value
-	Ins      []reflect.Type
-	Name     string
-	OutValue reflect.Value
-	InValues []reflect.Value
-}
+	/*
+	MdWareBean contains value and tag of a middleware
+	 */
+	MdWareBean struct {
+		Name  string
+		Value reflect.Value
+		Tag   reflect.StructTag
+	}
+
+	// Method contains value, param list and name of a 'BeanMethod'
+	Method struct {
+		Value    reflect.Value
+		Ins      []reflect.Type
+		Name     string
+		OutValue reflect.Value
+		InValues []reflect.Value
+	}
+
+	/*
+	ValueBean contains value from config file parsed by 'gjson'
+
+	ValueMap is different types the value converted to
+
+	ParamSlice is the param list contain this value
+	 */
+	ValueBean struct {
+		Value     gjson.Result
+		ValueMap  map[reflect.Type]reflect.Value
+		MethodSet map[*Method]bool
+		Key       string
+		Default   gjson.Result
+	}
+
+	// Bean contains the value and tag of a type
+	Bean struct {
+		Tag   reflect.StructTag
+		Value reflect.Value
+	}
+)
 
 func (m *Method) LoadIns(app *Application) {
 	for _, inType := range m.Ins {
@@ -51,31 +86,6 @@ func (m *Method) Call(app *Application) {
 	}
 	app.Logger.Debug("Result of %s set %s", m.Name, result[0].Elem())
 	m.OutValue.Set(result[0].Elem())
-}
-
-///*
-//ParamBean contains value of a bean which is parameter of a bean method
-//
-//contains also the bean of method it belongs to
-// */
-//type ParamBean struct {
-//	Value      reflect.Value
-//	MethodBean *Method
-//}
-
-/*
-ValueBean contains value from config file parsed by 'gjson'
-
-ValueMap is different types the value converted to
-
-ParamSlice is the param list contain this value
- */
-type ValueBean struct {
-	Value     gjson.Result
-	ValueMap  map[reflect.Type]reflect.Value
-	MethodSet map[*Method]bool
-	Key       string
-	Default   gjson.Result
 }
 
 func (v *ValueBean) Reload(a *Application) {
@@ -163,24 +173,6 @@ func (v *ValueBean) SetValue(value reflect.Value, Type reflect.Type) bool {
 	}
 
 	return false
-}
-
-/*
-CtrlBean contains value and tag of a controller
- */
-type CtrlBean struct {
-	Name  string
-	Value reflect.Value
-	Tag   reflect.StructTag
-}
-
-/*
-MdWareBean contains value and tag of a middleware
- */
-type MdWareBean struct {
-	Name  string
-	Value reflect.Value
-	Tag   reflect.StructTag
 }
 
 /*
