@@ -1,27 +1,29 @@
 package sqlite3
 
 import (
-    "github.com/jinzhu/gorm"
-    _ "github.com/jinzhu/gorm/dialects/sqlite"
-    "reflect"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"reflect"
 	"os"
 	ry "rady"
 )
 
-type GormSQLiteConfig struct {
-	ry.Configuration
-	App *ry.Application
-}
+type (
+	GormSQLiteConfig struct {
+		ry.Configuration
+		App *ry.Application
+	}
 
-type GormSQLiteParameter struct {
-	ry.Parameter
-	Path *string `value:"rady.sqlite3.path" default:"./rady.db"`
-}
+	GormSQLiteParameter struct {
+		ry.Parameter
+		Path *string `value:"rady.sqlite3.path" default:"./rady.db"`
+	}
 
-type GormSQLiteRepo struct {
-	ry.Repository
-	Db *gorm.DB
-}
+	GormSQLiteRepo struct {
+		ry.Repository
+		Db *gorm.DB
+	}
+)
 
 func (g *GormSQLiteConfig) GetAutoMigrateSQLiteDB(params *GormSQLiteParameter) *GormSQLiteRepo {
 	db, err := gorm.Open("sqlite3", *params.Path)
@@ -37,4 +39,3 @@ func (g *GormSQLiteConfig) GetAutoMigrateSQLiteDB(params *GormSQLiteParameter) *
 	}
 	return &GormSQLiteRepo{Db: db}
 }
-
