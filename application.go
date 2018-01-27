@@ -156,10 +156,10 @@ func (a *Application) Run() {
 	a.Server.Start(*a.Addr)
 }
 
-func (a *Application) RunTest(t *testing.T, testPointer interface{}) {
+func (a *Application) RunTest(t *testing.T, testPointer interface{}) *Application {
 	testType := reflect.TypeOf(testPointer)
 	if !CheckPtrOfStruct(testType) {
-		return
+		return a
 	}
 	testValue := reflect.New(testType.Elem()).Elem()
 	a.loadPrimes()
@@ -170,6 +170,7 @@ func (a *Application) RunTest(t *testing.T, testPointer interface{}) {
 	a.CallFactory()
 	a.bindFactoryWithValue()
 	a.runTestCase(t)
+	return a
 }
 
 func (a *Application) runTestCase(t *testing.T) {
