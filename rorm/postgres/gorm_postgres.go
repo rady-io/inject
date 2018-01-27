@@ -27,7 +27,7 @@ type (
 
 	GormPostgresRepo struct {
 		ry.Repository
-		Db *gorm.DB
+		*gorm.DB
 	}
 )
 
@@ -43,5 +43,5 @@ func (g *GormPostgresConfig) GetAutoMigratePostgresDB(params *GormPostgresParame
 			db.AutoMigrate(reflect.New(entityType.Elem()).Interface())
 		}
 	}
-	return &GormPostgresRepo{Db: db}
+	return &GormPostgresRepo{DB: db}
 }

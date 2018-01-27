@@ -26,7 +26,7 @@ type (
 
 	GormSQLServerRepo struct {
 		ry.Repository
-		Db *gorm.DB
+		*gorm.DB
 	}
 )
 
@@ -42,5 +42,5 @@ func (g *GormSQLServerConfig) GetAutoMigrateSQLServerDB(params *GormSQLServerPar
 			db.AutoMigrate(reflect.New(entityType.Elem()).Interface())
 		}
 	}
-	return &GormSQLServerRepo{Db: db}
+	return &GormSQLServerRepo{DB: db}
 }

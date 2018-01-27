@@ -29,7 +29,7 @@ type (
 
 	GormMySQLRepo struct {
 		ry.Repository
-		Db *gorm.DB
+		*gorm.DB
 	}
 )
 
@@ -45,5 +45,5 @@ func (g *GormMySQLConfig) GetAutoMigrateMySQLDB(params *GormMySQLParameter) *Gor
 			db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(reflect.New(entityType.Elem()).Interface())
 		}
 	}
-	return &GormMySQLRepo{Db: db}
+	return &GormMySQLRepo{DB: db}
 }

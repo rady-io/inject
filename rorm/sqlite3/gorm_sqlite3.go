@@ -21,7 +21,7 @@ type (
 
 	GormSQLiteRepo struct {
 		ry.Repository
-		Db *gorm.DB
+		*gorm.DB
 	}
 )
 
@@ -37,5 +37,5 @@ func (g *GormSQLiteConfig) GetAutoMigrateSQLiteDB(params *GormSQLiteParameter) *
 			db.AutoMigrate(reflect.New(entityType.Elem()).Interface())
 		}
 	}
-	return &GormSQLiteRepo{Db: db}
+	return &GormSQLiteRepo{DB: db}
 }
