@@ -24,13 +24,13 @@ type (
 		Password *string `value:"rady.mssql.password"`
 	}
 
-	GormSQLServerRepo struct {
-		ry.Repository
+	GormSQLServer struct {
+		ry.Database
 		*gorm.DB
 	}
 )
 
-func (g *GormSQLServerConfig) GetAutoMigrateSQLServerDB(params *GormSQLServerParameter) *GormSQLServerRepo {
+func (g *GormSQLServerConfig) GetAutoMigrateSQLServerDB(params *GormSQLServerParameter) *GormSQLServer {
 	db, err := gorm.Open("mssql", fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s", *params.Username, *params.Password, *params.Host, *params.Port, *params.Database))
 	if err != nil {
 		g.App.Logger.Critical("Cannot connect to mssql \nError:\n%s", err.Error())
@@ -42,5 +42,5 @@ func (g *GormSQLServerConfig) GetAutoMigrateSQLServerDB(params *GormSQLServerPar
 			db.AutoMigrate(reflect.New(entityType.Elem()).Interface())
 		}
 	}
-	return &GormSQLServerRepo{DB: db}
+	return &GormSQLServer{DB: db}
 }

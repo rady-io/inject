@@ -25,13 +25,13 @@ type (
 		SSLMode  *string `value:"rady.postgres.sslmode" default:"disable"`
 	}
 
-	GormPostgresRepo struct {
-		ry.Repository
+	GormPostgres struct {
+		ry.Database
 		*gorm.DB
 	}
 )
 
-func (g *GormPostgresConfig) GetAutoMigratePostgresDB(params *GormPostgresParameter) *GormPostgresRepo {
+func (g *GormPostgresConfig) GetAutoMigratePostgresDB(params *GormPostgresParameter) *GormPostgres {
 	db, err := gorm.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s", *params.Host, *params.Port, *params.Username, *params.SSLMode, *params.Database, *params.Password))
 	if err != nil {
 		g.App.Logger.Critical("Cannot connect to postgres \nError:\n%s", err.Error())
@@ -43,5 +43,5 @@ func (g *GormPostgresConfig) GetAutoMigratePostgresDB(params *GormPostgresParame
 			db.AutoMigrate(reflect.New(entityType.Elem()).Interface())
 		}
 	}
-	return &GormPostgresRepo{DB: db}
+	return &GormPostgres{DB: db}
 }

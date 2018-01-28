@@ -27,13 +27,13 @@ type (
 		Loc       *string `value:"rady.mysql.loc" default:"Local"`
 	}
 
-	GormMySQLRepo struct {
-		ry.Repository
+	GormMySQL struct {
+		ry.Database
 		*gorm.DB
 	}
 )
 
-func (g *GormMySQLConfig) GetAutoMigrateMySQLDB(params *GormMySQLParameter) *GormMySQLRepo {
+func (g *GormMySQLConfig) GetAutoMigrateMySQLDB(params *GormMySQLParameter) *GormMySQL {
 	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=%s&loc=%s", *params.Username, *params.Password, *params.Host, *params.Port, *params.Database, *params.Charset, *params.ParseTime, *params.Loc))
 	if err != nil {
 		g.App.Logger.Critical("Cannot connect to mysql \nError:\n%s", err.Error())
@@ -45,5 +45,5 @@ func (g *GormMySQLConfig) GetAutoMigrateMySQLDB(params *GormMySQLParameter) *Gor
 			db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(reflect.New(entityType.Elem()).Interface())
 		}
 	}
-	return &GormMySQLRepo{DB: db}
+	return &GormMySQL{DB: db}
 }

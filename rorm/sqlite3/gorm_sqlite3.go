@@ -19,13 +19,13 @@ type (
 		Path *string `value:"rady.sqlite3.path" default:"./rady.db"`
 	}
 
-	GormSQLiteRepo struct {
-		ry.Repository
+	GormSQLite struct {
+		ry.Database
 		*gorm.DB
 	}
 )
 
-func (g *GormSQLiteConfig) GetAutoMigrateSQLiteDB(params *GormSQLiteParameter) *GormSQLiteRepo {
+func (g *GormSQLiteConfig) GetAutoMigrateSQLiteDB(params *GormSQLiteParameter) *GormSQLite {
 	db, err := gorm.Open("sqlite3", *params.Path)
 	if err != nil {
 		g.App.Logger.Critical("Cannot access to sqlite \nError:\n%s", err.Error())
@@ -37,5 +37,5 @@ func (g *GormSQLiteConfig) GetAutoMigrateSQLiteDB(params *GormSQLiteParameter) *
 			db.AutoMigrate(reflect.New(entityType.Elem()).Interface())
 		}
 	}
-	return &GormSQLiteRepo{DB: db}
+	return &GormSQLite{DB: db}
 }

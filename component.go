@@ -68,7 +68,7 @@ const (
 
 	// REPOSITORY is a tag to mark a field as a Repository
 	REPOSITORY = "repository"
-	
+
 	// DATABASE is a tag to mark a field as a Database
 	DATABASE = "database"
 )
