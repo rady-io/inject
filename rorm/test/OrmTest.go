@@ -9,11 +9,11 @@ import (
 
 type OrmTest struct {
 	rady.Testing
-	Repo *sqlite3.GormSQLiteRepo
+	SQLiteRepo *sqlite3.GormSQLiteRepo
 }
 
-func (orm *OrmTest) TestCRUD(t *testing.T) {
-	DB := orm.Repo.Begin()
+func (orm *OrmTest) TestSQLiteRepo(t *testing.T) {
+	DB := orm.SQLiteRepo.Begin()
 	DB.Create(&User{Name:"xixi", Age: 18})
 	NewUser := new(User)
 	DB.Where(&User{Name:"xixi"}).Find(&NewUser)
