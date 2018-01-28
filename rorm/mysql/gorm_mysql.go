@@ -3,10 +3,10 @@ package mysql
 import (
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"reflect"
-	"os"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"os"
 	ry "rady"
+	"reflect"
 )
 
 type (

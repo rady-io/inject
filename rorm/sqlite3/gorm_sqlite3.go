@@ -3,9 +3,9 @@ package sqlite3
 import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"reflect"
 	"os"
 	ry "rady"
+	"reflect"
 )
 
 type (
