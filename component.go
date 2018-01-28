@@ -38,6 +38,10 @@ type (
 	// Repository is a tag to mark a struct as a Repository
 	Repository struct {
 	}
+
+	// Database is a tag to mark a struct as a Database
+	Database struct {
+	}
 )
 
 const (
@@ -64,6 +68,9 @@ const (
 
 	// REPOSITORY is a tag to mark a field as a Repository
 	REPOSITORY = "repository"
+	
+	// DATABASE is a tag to mark a field as a Database
+	DATABASE = "database"
 )
 
 var (
