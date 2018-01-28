@@ -4,27 +4,27 @@ import "reflect"
 
 type (
 	/*
-	GET is a tag to mark a method with path and http GET method
+		GET is a tag to mark a method with path and http GET method
 
-	Usage:
+		Usage:
 
-		type UserController struct {
-			Controller 	`prefix:"api/v1"`
-			GET 		`path:":id" method:"GetUserInfo"`
-		}
+			type UserController struct {
+				Controller 	`prefix:"api/v1"`
+				GET 		`path:":id" method:"GetUserInfo"`
+			}
 
-		func (u *UserController) GetUserInfo(ctx echo.Context) error {
-			// do something
-		}
+			func (u *UserController) GetUserInfo(ctx echo.Context) error {
+				// do something
+			}
 
-		type Root struct {
-			*UserController
-		}
+			type Root struct {
+				*UserController
+			}
 
-		func main() {
-			CreateApplication(new(Root)).Run()
-		}
-	 */
+			func main() {
+				CreateApplication(new(Root)).Run()
+			}
+	*/
 	GET struct {
 	}
 

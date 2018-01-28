@@ -1,9 +1,9 @@
 package rady
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"github.com/labstack/echo/middleware"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestMiddlewareStack(t *testing.T) {

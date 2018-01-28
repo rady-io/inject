@@ -1,15 +1,15 @@
 package rady
 
 import (
-	"reflect"
 	"github.com/tidwall/gjson"
 	"os"
+	"reflect"
 )
 
 type (
 	/*
-	CtrlBean contains value and tag of a controller
-	 */
+		CtrlBean contains value and tag of a controller
+	*/
 	CtrlBean struct {
 		Name  string
 		Value reflect.Value
@@ -17,8 +17,8 @@ type (
 	}
 
 	/*
-	MdWareBean contains value and tag of a middleware
-	 */
+		MdWareBean contains value and tag of a middleware
+	*/
 	MdWareBean struct {
 		Name  string
 		Value reflect.Value
@@ -35,12 +35,12 @@ type (
 	}
 
 	/*
-	ValueBean contains value from config file parsed by 'gjson'
+		ValueBean contains value from config file parsed by 'gjson'
 
-	ValueMap is different types the value converted to
+		ValueMap is different types the value converted to
 
-	ParamSlice is the param list contain this value
-	 */
+		ParamSlice is the param list contain this value
+	*/
 	ValueBean struct {
 		Value     gjson.Result
 		ValueMap  map[reflect.Type]reflect.Value
@@ -209,7 +209,7 @@ func NewBeanMethod(Value reflect.Value, Name string) *Method {
 
 /*
 NewValueBean is factory function of ValueBean
- */
+*/
 func NewValueBean(Value gjson.Result, key string, defaultValue gjson.Result) *ValueBean {
 	return &ValueBean{
 		Value:     Value,
@@ -222,7 +222,7 @@ func NewValueBean(Value gjson.Result, key string, defaultValue gjson.Result) *Va
 
 /*
 NewCtrlBean is factory function of CtrlBean
- */
+*/
 func NewCtrlBean(Value reflect.Value, Tag reflect.StructTag, Name string) *CtrlBean {
 	return &CtrlBean{
 		Name:  Name,
@@ -233,7 +233,7 @@ func NewCtrlBean(Value reflect.Value, Tag reflect.StructTag, Name string) *CtrlB
 
 /*
 NewMdWareBean is factory function of MdwareBean
- */
+*/
 func NewMdWareBean(Value reflect.Value, Tag reflect.StructTag, Name string) *MdWareBean {
 	return &MdWareBean{
 		Name:  Name,

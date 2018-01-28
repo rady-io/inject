@@ -1,16 +1,16 @@
 package rady
 
 import (
-	"testing"
-	"reflect"
-	"github.com/stretchr/testify/assert"
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"reflect"
+	"testing"
 )
 
 type UserController struct {
 	Controller `prefix:"/api/v1/"`
-	GET    `method:"GetIds" path:"/:id"`
-	POST   `method:"PostIds" path:"/"`
+	GET        `method:"GetIds" path:"/:id"`
+	POST       `method:"PostIds" path:"/"`
 	PUT
 }
 

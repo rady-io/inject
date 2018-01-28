@@ -1,12 +1,12 @@
 package rady
 
 import (
-	"reflect"
-	"github.com/labstack/echo"
-	"strings"
-	"os"
-	"github.com/tidwall/gjson"
 	"fmt"
+	"github.com/labstack/echo"
+	"github.com/tidwall/gjson"
+	"os"
+	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -59,7 +59,7 @@ type Application struct {
 CreateApplication can initial application with root
 
 if root is not kinds of Ptr, there will be an error
- */
+*/
 func CreateApplication(root interface{}) *Application {
 	if CheckFieldPtr(reflect.TypeOf(root)) {
 		return (&Application{
@@ -116,7 +116,7 @@ func (a *Application) prepareTest(testType reflect.Type, testValue reflect.Value
 
 func (a *Application) setTests(testType reflect.Type, testValue reflect.Value, Tag reflect.StructTag) {
 	a.setTest(testType, testValue, Tag)
-	for i := 0; i < testValue.NumField(); i ++ {
+	for i := 0; i < testValue.NumField(); i++ {
 		field := testType.Elem().Field(i)
 		if CheckTesting(field) {
 			fieldValue := reflect.New(field.Type.Elem()).Elem()
@@ -150,7 +150,7 @@ Then, we load BeanMethodOut, which mean result of "bean method", however, what's
 
 And then, we load normal bean recursively
 
- */
+*/
 func (a *Application) Run() {
 	a.prepare()
 	a.Server.Start(*a.Addr)
@@ -367,7 +367,7 @@ if a normal bean doesn't a name
 	2. there are more than one loaded bean with the same type, error and exit
 
 	3. there is no loaded bean with the same type, this method with initialize a new bean
- */
+*/
 func (a *Application) LoadBean(fieldType reflect.Type, fieldValue reflect.Value, tag reflect.StructTag) *Application {
 	name := tag.Get("name")
 	if name == "" {
@@ -418,7 +418,7 @@ func (a *Application) loadBeanMethodOut(method reflect.Value, name string) {
 LoadPrimeBean as its name
 
 load field in configuration and out of beanMethod in configuration
- */
+*/
 func (a *Application) LoadPrimeBean(fieldType reflect.Type, fieldValue reflect.Value, tag reflect.StructTag) bool {
 	if ContainsFields(fieldType.Elem(), ComponentTypes) {
 		tag := tag
@@ -428,6 +428,7 @@ func (a *Application) LoadPrimeBean(fieldType reflect.Type, fieldValue reflect.V
 			return true
 		} else {
 			a.Logger.Errorf("There too many %s named %s in Application", fieldType, name)
+			os.Exit(1)
 		}
 	}
 	return false
@@ -437,7 +438,7 @@ func (a *Application) LoadPrimeBean(fieldType reflect.Type, fieldValue reflect.V
 LoadBeanAndRecursion initialize a instance of a type and load it
 
 then recursively load children of this type
- */
+*/
 func (a *Application) LoadBeanAndRecursion(fieldType reflect.Type) {
 	a.LoadBean(fieldType, reflect.New(fieldType.Elem()).Elem(), *new(reflect.StructTag))
 	a.RecursivelyLoad(fieldType)
@@ -447,7 +448,7 @@ func (a *Application) LoadBeanAndRecursion(fieldType reflect.Type) {
 RecursivelyLoad recursively load children of a normal bean
 
 only if there is no prime bean among the children
- */
+*/
 func (a *Application) RecursivelyLoad(fieldType reflect.Type) {
 	if CheckFieldPtr(fieldType) && ContainsFields(fieldType.Elem(), ComponentTypes) {
 		appType := fieldType.Elem()

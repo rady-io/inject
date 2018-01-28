@@ -1,11 +1,11 @@
 package rady
 
 import (
+	"fmt"
+	"github.com/ghodss/yaml"
+	"io/ioutil"
 	"reflect"
 	"strings"
-	"io/ioutil"
-	"github.com/ghodss/yaml"
-	"fmt"
 	"unicode"
 )
 
@@ -103,7 +103,7 @@ func GetTagFromName(name string) reflect.StructTag {
 ConfirmAddBeanMap return true when BeanMap[fieldType] == nil or BeanMap[fieldType][name] doesn't exist
 
 and this function will make a map if BeanMap[fieldType] == nil
- */
+*/
 func ConfirmAddBeanMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType reflect.Type, name string) bool {
 	if BeanMap[fieldType] == nil {
 		BeanMap[fieldType] = make(map[string]*Bean)
@@ -117,7 +117,7 @@ func ConfirmAddBeanMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType refl
 ConfirmSameTypeInMap return true when len(BeanMap[fieldType]) > 0
 
 and this function will also make a map if BeanMap[fieldType] == nil, but return false
- */
+*/
 func ConfirmSameTypeInMap(BeanMap map[reflect.Type]map[string]*Bean, fieldType reflect.Type) bool {
 	if BeanMap[fieldType] == nil {
 		BeanMap[fieldType] = make(map[string]*Bean)
@@ -144,7 +144,7 @@ This function work well only when:
 
 	1. fileType == "yaml" or (fileType != "json" and path end with ".yml" or ".yaml"), and content in file is yaml
 	2. content in file is json
- */
+*/
 func GetJSONFromAnyFile(path string, fileType string) (string, error) {
 	fileBytes, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -171,7 +171,7 @@ func GetPathFromType(field reflect.StructField, Type interface{}) string {
 		return prefix
 	}
 
-	for i := 0; i < field.Type.Elem().NumField(); i ++ {
+	for i := 0; i < field.Type.Elem().NumField(); i++ {
 		child := field.Type.Elem().Field(i)
 		if child.Type == reflect.TypeOf(Type) {
 			return child.Tag.Get("prefix")
@@ -205,8 +205,8 @@ func SplitByUpper(raw string) []string {
 	result := make([]string, 0)
 	runes := []rune(raw)
 	for i, r := range runes {
-		if unicode.IsUpper(r) && i != 0 && (i != len(runes)-1 && unicode.IsLower(runes[i+1]) || unicode.IsLower(runes[i-1]) ) {
-			result = append(result, string(runes[start: i]))
+		if unicode.IsUpper(r) && i != 0 && (i != len(runes)-1 && unicode.IsLower(runes[i+1]) || unicode.IsLower(runes[i-1])) {
+			result = append(result, string(runes[start:i]))
 			start = i
 		}
 

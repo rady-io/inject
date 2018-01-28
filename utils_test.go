@@ -1,10 +1,10 @@
 package rady
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"strings"
+	"testing"
 )
 
 type ComponentHandler struct {

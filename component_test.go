@@ -1,12 +1,12 @@
 package rady
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
 	"reflect"
+	"testing"
 )
 
-func TestComponents(t *testing.T)  {
+func TestComponents(t *testing.T) {
 	_, ok := COMPONENTS[COMPONENT]
 	assert.True(t, ok, "COMPONENTS[COMPONENT] should be true")
 

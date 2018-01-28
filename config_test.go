@@ -1,8 +1,8 @@
 package rady
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 type ConfigTestDefault struct {

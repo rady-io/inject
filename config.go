@@ -23,6 +23,6 @@ Usage:
 	func main() {
 		CreateApplication(new(Root)).Run()
 	}
- */
+*/
 type CONF struct {
 }

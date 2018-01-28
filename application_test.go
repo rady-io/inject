@@ -1,9 +1,9 @@
 package rady
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 type RouterConfig struct {
@@ -50,10 +50,10 @@ type BookRepository struct {
 }
 
 type BookController struct {
-	Controller `prefix:"/api/v1"`
-	GET        `path:"/:id" method:"GetBooks"`
-	FILE       `path:"/config" file:"./resources/application.conf"`
-	STATIC     `prefix:"/assets" root:"./"`
+	Controller     `prefix:"/api/v1"`
+	GET            `path:"/:id" method:"GetBooks"`
+	FILE           `path:"/config" file:"./resources/application.conf"`
+	STATIC         `prefix:"/assets" root:"./"`
 	BookRepository *BookRepository
 	UserComponent  *UserComponent
 	App            *Application

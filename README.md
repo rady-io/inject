@@ -1,5 +1,7 @@
 # Welcome to Rady-framework!
 
+[![Coverage Status](https://coveralls.io/repos/github/Hexilee/rady/badge.svg)](https://coveralls.io/github/Hexilee/rady)
+
 #### [Example](https://github.com/Hexilee/rady/tree/master/example) and Docs are under updating
 
 ## What can rady do now?
