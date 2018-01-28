@@ -19,16 +19,13 @@ install:
   - cd $HOME/gopath/src/rady
   - go get -u github.com/Masterminds/glide
   - glide install
-  - go get github.com/go-playground/overalls #overalls能够支持到各级子目录
-  - go get github.com/mattn/goveralls #goveralls是coveralls 对golang的测试覆盖率支持命令
-  - go get github.com/smartystreets/goconvey #很好用的测试工具
+  - go get github.com/mattn/goveralls
 
 script: # 集成脚本
-  - overalls -project=rady -covermode=count -ignore='.git,_vendor'
-  - goveralls -coverprofile=overalls.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
-  - go test -race -coverprofile=coverage.txt -covermode=atomic
-  - go test -v -cover
+  - go test -v -cover -coverprofile=coverage.txt
   - go test -v -cover rady/rorm/test
+  - goveralls -coverprofile=coverage.txt -service=travis-ci -repotoken $COVERALLS_TOKEN
+  - go test -race -coverprofile=coverage.txt -covermode=atomic
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
