@@ -13,6 +13,7 @@ go:
 
 before_install:
   - mysql -e 'CREATE DATABASE IF NOT EXISTS rady_test;'
+  - go get github.com/Masterminds/glide
   - glide install
 
 install:

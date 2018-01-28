@@ -1,8 +1,8 @@
 package rorm
 
 import (
-	ry "rady"
 	"github.com/jinzhu/gorm"
+	ry "rady"
 )
 
 type (

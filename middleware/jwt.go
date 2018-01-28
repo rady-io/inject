@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"rady"
 	"github.com/labstack/echo/middleware"
+	"rady"
 )
 
 const (
