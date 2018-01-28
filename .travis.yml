@@ -15,6 +15,8 @@ before_install:
   - mysql -e 'CREATE DATABASE IF NOT EXISTS rady_test;'
 
 install:
+  - mv $HOME/gopath/src/github.com/Hexilee/rady $HOME/gopath/src/rady
+  - cd $HOME/gopath/src/rady
   - go get -u github.com/golang/dep/cmd/dep
   - dep ensure
   - go get github.com/go-playground/overalls #overalls能够支持到各级子目录
@@ -26,7 +28,7 @@ script: # 集成脚本
   - goveralls -coverprofile=overalls.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
   - go test -race -coverprofile=coverage.txt -covermode=atomic
   - go test -v -cover
-  - go test -v -cover github.com/Hexilee/rady/rorm/test
+  - go test -v -cover rady/rorm/test
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
