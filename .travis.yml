@@ -24,7 +24,7 @@ install:
   - go get github.com/smartystreets/goconvey #很好用的测试工具
 
 script: # 集成脚本
-  - overalls -project=github.com/Hexilee/rady -covermode=count -ignore='.git,_vendor'
+  - overalls -project=rady -covermode=count -ignore='.git,_vendor'
   - goveralls -coverprofile=overalls.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
   - go test -race -coverprofile=coverage.txt -covermode=atomic
   - go test -v -cover
