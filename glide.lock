@@ -1,5 +1,5 @@
-hash: 0d629c4cb1104064c0509ea3c045e076e272be45a68d10d22d6bbc880523c060
-updated: 2018-01-28T19:27:17.05791+08:00
+hash: 382cba9e6ddd8dc7ef7842adfd5c302cfdbad422d6e52f632caddceafa388fe0
+updated: 2018-01-28T19:38:03.966676+08:00
 imports:
 - name: github.com/davecgh/go-spew
   version: ecdeabc65495df2dec95d7c4a4c3e021903035e5
@@ -9,6 +9,8 @@ imports:
   version: ee492709d4324cdcb051d2ac266b77ddc380f5c5
 - name: github.com/dgrijalva/jwt-go
   version: dbeaa9332f19a944acb5736b4456cfcc02140e29
+- name: github.com/erikstmartin/go-testdb
+  version: 8d10e4a1bae52cd8b81ffdec3445890d6dccab3d
 - name: github.com/ghodss/yaml
   version: 0ca9ea5df5451ffdf184b4428c902747c2c11cd7
 - name: github.com/go-sql-driver/mysql

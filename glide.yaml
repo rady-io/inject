@@ -21,3 +21,4 @@ import:
   - assert
 - package: github.com/tidwall/gjson
   version: ~1.0.6
+- package: github.com/erikstmartin/go-testdb
