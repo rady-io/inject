@@ -14,6 +14,6 @@ type (
 	User struct {
 		rorm.Model
 		Name string `gorm:"size:50"`
-		Age int
+		Age  int
 	}
 )

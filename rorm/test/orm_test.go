@@ -1,10 +1,10 @@
 package test_orm
 
 import (
-	"testing"
 	"rady"
+	"testing"
 )
 
-func TestOrm(t *testing.T)  {
+func TestOrm(t *testing.T) {
 	rady.CreateApplication(new(OrmRoot)).RunTest(t, new(OrmTest))
 }
