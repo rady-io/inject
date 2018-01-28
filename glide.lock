@@ -1,5 +1,5 @@
-hash: 382cba9e6ddd8dc7ef7842adfd5c302cfdbad422d6e52f632caddceafa388fe0
-updated: 2018-01-28T19:38:03.966676+08:00
+hash: 459ba5eae505c50badb407c5f7845efc9c5a3988034f537a56f596bbcbe7be7d
+updated: 2018-01-28T19:44:30.660147+08:00
 imports:
 - name: github.com/davecgh/go-spew
   version: ecdeabc65495df2dec95d7c4a4c3e021903035e5
@@ -24,6 +24,8 @@ imports:
   - dialects/sqlite
 - name: github.com/jinzhu/inflection
   version: 1c35d901db3da928c72a72d8458480cc9ade058f
+- name: github.com/jinzhu/now
+  version: d939ba741945c047cac69c329c5fb0d6b4a06520
 - name: github.com/labstack/echo
   version: b338075a0fc6e1a0683dbf03d09b4957a289e26f
   subpackages:
