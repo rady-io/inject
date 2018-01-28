@@ -25,6 +25,7 @@ install:
 script: # 集成脚本
   - go test -v -cover -coverprofile=rady.coverprofile
   - go test -v -cover rady/rorm -coverprofile=rorm.coverprofile
+  - gover
   - goveralls -coverprofile=gover.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
   - go test -race -coverprofile=gover.coverprofile -covermode=atomic
 
