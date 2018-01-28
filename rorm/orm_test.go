@@ -1,10 +1,10 @@
-package test_orm
+package rorm
 
 import (
-	"github.com/stretchr/testify/assert"
 	"rady"
-	"rady/rorm/sqlite3"
 	"testing"
+	"github.com/stretchr/testify/assert"
+	"rady/rorm/sqlite3"
 )
 
 type OrmTest struct {
@@ -20,4 +20,9 @@ func (orm *OrmTest) TestSQLite(t *testing.T) {
 
 	assert.Equal(t, NewUser.Age, 18)
 	DB.Rollback()
+}
+
+
+func TestOrm(t *testing.T) {
+	rady.CreateApplication(new(OrmRoot)).RunTest(t, new(OrmTest))
 }

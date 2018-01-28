@@ -1,8 +1,7 @@
-package test_orm
+package rorm
 
 import (
 	"rady"
-	"rady/rorm"
 )
 
 type (
@@ -12,7 +11,7 @@ type (
 	}
 
 	User struct {
-		rorm.Model
+		Model
 		Name string `gorm:"size:50"`
 		Age  int
 	}

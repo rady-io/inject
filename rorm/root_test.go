@@ -1,4 +1,4 @@
-package test_orm
+package rorm
 
 import "rady/rorm/sqlite3"
 
