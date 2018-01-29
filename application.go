@@ -475,8 +475,10 @@ func (a *Application) loadConfigFile() *Application {
 			if truePath != "" {
 				path = truePath
 			} else {
-				a.Logger.Info("Conf file path unexpected, use %s", DefaultPath)
+				a.Logger.Info("Conf file path unexpected, use %s", truePath)
 			}
+
+			path = GetConfigFileByMode(path)
 
 			if fileType != "" && fileType != JSON && fileType != YAML {
 				a.Logger.Info("Conf file suffix .%s unexpected, use default", fileType)

@@ -217,29 +217,6 @@ func SplitByUpper(raw string) []string {
 	return result
 }
 
-//func GetHttpMethodAndPath(Name string) (interface{}, string) {
-//	splitMethod := func(r rune) bool { return r == '0' }
-//	result := strings.FieldsFunc(Name, splitMethod)
-//	if len(result) == 1 { // no "_"
-//		value := result[0]
-//		newResult := SplitByUpper(value)
-//		if len(newResult) > 0 {
-//			methodStr := newResult[0]
-//			if method, ok := StrToMethod[methodStr]; ok {
-//				return method, ""
-//			}
-//		}
-//	} else if len(result) == 2 {
-//		methodStr := result[0]
-//		if method, ok := StrToMethod[methodStr]; ok {
-//			return method, result[1]
-//		}
-//	}
-//	return nil, ""
-//	result := SplitByUpper(Name)
-//
-//}
-
 func IsStringAllUpper(str string) bool {
 	for _, u := range []rune(str) {
 		if unicode.IsLower(u) {
@@ -256,3 +233,5 @@ func GetDynamicPath(upper string) string {
 func CheckFilenameValid(Name string) bool {
 	return Name != ""
 }
+
+
