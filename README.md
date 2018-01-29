@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/Hexilee/rady)](https://goreportcard.com/report/github.com/Hexilee/rady)
 [![Build Status](https://travis-ci.org/Hexilee/rady.svg?branch=master)](https://travis-ci.org/Hexilee/rady)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/Hexilee/rady/blob/master/LICENSE)
-
+[![Documentation](https://godoc.org/github.com/Hexilee/rady?status.svg)](https://godoc.org/github.com/Hexilee/rady)
 
 #### [Example](https://github.com/Hexilee/rady/tree/master/example) and Docs are under updating
 
