@@ -1,9 +1,0 @@
-rady:
-  sqlite3:
-    path: ./resources/rady.db
-  mysql:
-    database: rady_storage
-    username: rady
-    password: GopherLoveRady
-  server:
-    addr: :8888

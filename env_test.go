@@ -6,22 +6,18 @@ import (
 	"os"
 )
 
-func resetEnv(key string) {
-	os.Setenv(key, "")
-}
-
 func TestGetModeEnv(t *testing.T) {
 	assert.Equal(t, GetModeEnv(), "")
 	os.Setenv(ModeEnv, TestMod)
 	assert.Equal(t, GetModeEnv(), TestMod)
-	resetEnv(ModeEnv)
+	ResetEnv(ModeEnv)
 }
 
 func TestIsTestMode(t *testing.T) {
 	assert.False(t, IsTestMode())
 	os.Setenv(ModeEnv, TestMod)
 	assert.True(t, IsTestMode())
-	resetEnv(ModeEnv)
+	ResetEnv(ModeEnv)
 }
 
 func TestGetConfigFileByMode(t *testing.T) {
@@ -35,7 +31,7 @@ func TestGetConfigFileByMode(t *testing.T) {
 		assert.Equal(t, GetConfigFileByMode(testCase[0]), testCase[0])
 		os.Setenv(ModeEnv, testCase[1])
 		assert.Equal(t, GetConfigFileByMode(testCase[0]), testCase[2])
-		resetEnv(ModeEnv)
+		ResetEnv(ModeEnv)
 	}
 }
 
@@ -49,6 +45,6 @@ func TestIsAutoRollback(t *testing.T) {
 		assert.False(t, IsAutoRollback())
 		os.Setenv(AutoRollbackEnv, env)
 		assert.Equal(t, IsAutoRollback(), ok)
-		resetEnv(AutoRollbackEnv)
+		ResetEnv(AutoRollbackEnv)
 	}
 }

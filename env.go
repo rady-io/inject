@@ -21,6 +21,10 @@ func IsTestMode() bool {
 	return GetModeEnv() == TestMod
 }
 
+func ResetEnv(key string) {
+	os.Setenv(key, "")
+}
+
 func GetConfigFileByMode(filePath string) string {
 	mode := GetModeEnv()
 	if mode == "" {
