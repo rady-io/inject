@@ -11,23 +11,15 @@ notifications: # 每次构建的时候是否通知，如果不想收到通知，
 go:
   - 1.9
 
-before_install:
-  - mysql -e 'CREATE DATABASE IF NOT EXISTS rady_test;'
-
 install:
-  - mv $HOME/gopath/src/github.com/Hexilee/rady $HOME/gopath/src/rady
-  - cd $HOME/gopath/src/rady
   - go get -u github.com/Masterminds/glide
   - glide install
-  - go get github.com/modocache/gover
   - go get github.com/mattn/goveralls
 
 script: # 集成脚本
   - go test -v -cover -coverprofile=rady.coverprofile
-  - go test -v -cover rady/rorm -coverprofile=rorm.coverprofile
-  - gover
-  - goveralls -coverprofile=gover.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
-  - go test -race -coverprofile=gover.coverprofile -covermode=atomic
+  - goveralls -coverprofile=rady.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
+  - go test -race -coverprofile=rady.coverprofile -covermode=atomic
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

@@ -233,5 +233,3 @@ func GetDynamicPath(upper string) string {
 func CheckFilenameValid(Name string) bool {
 	return Name != ""
 }
-
-

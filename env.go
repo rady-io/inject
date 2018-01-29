@@ -1,16 +1,16 @@
 package rady
 
 import (
+	"fmt"
 	"os"
 	"strings"
-	"fmt"
 )
 
 const (
-	ModeEnv = "RADY_MODE"
+	ModeEnv         = "RADY_MODE"
 	AutoRollbackEnv = "RADY_ROLLBACK"
-	TestMod = "test"
-	AutoRollback = "true"
+	TestMod         = "test"
+	AutoRollback    = "true"
 )
 
 func GetModeEnv() string {

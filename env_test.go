@@ -1,9 +1,9 @@
 package rady
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
 	"os"
+	"testing"
 )
 
 func TestGetModeEnv(t *testing.T) {
@@ -21,7 +21,7 @@ func TestIsTestMode(t *testing.T) {
 }
 
 func TestGetConfigFileByMode(t *testing.T) {
-	testSets := [][]string {
+	testSets := [][]string{
 		{"test", TestMod, "test.test"},
 		{"test.yaml", TestMod, "test.test.yaml"},
 		{"test.json", TestMod, "test.test.json"},
@@ -36,9 +36,9 @@ func TestGetConfigFileByMode(t *testing.T) {
 }
 
 func TestIsAutoRollback(t *testing.T) {
-	testSets := map[string]bool {
+	testSets := map[string]bool{
 		"true": true,
-		"ok": false,
+		"ok":   false,
 	}
 
 	for env, ok := range testSets {
