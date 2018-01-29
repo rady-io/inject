@@ -1,6 +1,6 @@
 package rorm
 
-import "rady/rorm/sqlite3"
+import "github.com/Hexilee/rady/rorm/sqlite3"
 
 type OrmRoot struct {
 	*sqlite3.GormSQLiteConfig

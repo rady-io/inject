@@ -1,8 +1,8 @@
 package main
 
 import (
-	"rady"
-	"rady/rorm"
+	"github.com/Hexilee/rady"
+	"github.com/Hexilee/rady/rorm"
 )
 
 type StorageEntities struct {

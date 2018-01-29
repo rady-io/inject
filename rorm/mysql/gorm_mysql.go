@@ -5,18 +5,19 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"os"
-	ry "rady"
+	"github.com/Hexilee/rady"
 	"reflect"
+	"github.com/Hexilee/rady/rorm/utils"
 )
 
 type (
 	GormMySQLConfig struct {
-		ry.Configuration
-		App *ry.Application
+		rady.Configuration
+		App *rady.Application
 	}
 
 	GormMySQLParameter struct {
-		ry.Parameter
+		rady.Parameter
 		Host      *string `value:"rady.mysql.host" default:"127.0.0.1"`
 		Port      *string `value:"rady.mysql.port" default:"3306"`
 		Database  *string `value:"rady.mysql.database"`
@@ -28,7 +29,7 @@ type (
 	}
 
 	GormMySQL struct {
-		ry.Database
+		rady.Database
 		*gorm.DB
 	}
 )
@@ -45,5 +46,5 @@ func (g *GormMySQLConfig) GetAutoMigrateMySQLDB(params *GormMySQLParameter) *Gor
 			db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(reflect.New(entityType.Elem()).Interface())
 		}
 	}
-	return &GormMySQL{DB: db}
+	return &GormMySQL{DB: utils.SetGormIfAutoRollback(db)}
 }

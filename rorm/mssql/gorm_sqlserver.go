@@ -5,18 +5,19 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mssql"
 	"os"
-	ry "rady"
+	"github.com/Hexilee/rady"
 	"reflect"
+	"github.com/Hexilee/rady/rorm/utils"
 )
 
 type (
 	GormSQLServerConfig struct {
-		ry.Configuration
-		App *ry.Application
+		rady.Configuration
+		App *rady.Application
 	}
 
 	GormSQLServerParameter struct {
-		ry.Parameter
+		rady.Parameter
 		Host     *string `value:"rady.mssql.host" default:"127.0.0.1"`
 		Port     *string `value:"rady.mssql.port" default:"1433"`
 		Database *string `value:"rady.mssql.database"`
@@ -25,7 +26,7 @@ type (
 	}
 
 	GormSQLServer struct {
-		ry.Database
+		rady.Database
 		*gorm.DB
 	}
 )
@@ -42,5 +43,5 @@ func (g *GormSQLServerConfig) GetAutoMigrateSQLServerDB(params *GormSQLServerPar
 			db.AutoMigrate(reflect.New(entityType.Elem()).Interface())
 		}
 	}
-	return &GormSQLServer{DB: db}
+	return &GormSQLServer{DB: utils.SetGormIfAutoRollback(db)}
 }

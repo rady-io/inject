@@ -8,7 +8,9 @@ import (
 
 const (
 	ModeEnv = "RADY_MODE"
+	AutoRollbackEnv = "RADY_ROLLBACK"
 	TestMod = "test"
+	AutoRollback = "true"
 )
 
 func GetModeEnv() string {
@@ -26,4 +28,8 @@ func GetConfigFileByMode(filePath string) string {
 	}
 	index := strings.LastIndexByte(filePath, os.PathSeparator)
 	return fmt.Sprintf("%s%s.%s", filePath[:index+1], mode, filePath[index+1:])
+}
+
+func IsAutoRollback() bool {
+	return os.Getenv(AutoRollbackEnv) == AutoRollback
 }

@@ -1,7 +1,7 @@
 package rorm
 
 import (
-	"rady"
+	"github.com/Hexilee/rady"
 )
 
 type (

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"rady"
-	"rady/rorm/mysql"
+	"github.com/Hexilee/rady"
+	"github.com/Hexilee/rady/rorm/mysql"
 )
 
 func main() {

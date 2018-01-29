@@ -6,18 +6,22 @@ import (
 	"os"
 )
 
+func resetEnv(key string) {
+	os.Setenv(key, "")
+}
+
 func TestGetModeEnv(t *testing.T) {
 	assert.Equal(t, GetModeEnv(), "")
 	os.Setenv(ModeEnv, TestMod)
 	assert.Equal(t, GetModeEnv(), TestMod)
-	os.Setenv(ModeEnv, "")
+	resetEnv(ModeEnv)
 }
 
 func TestIsTestMode(t *testing.T) {
 	assert.False(t, IsTestMode())
 	os.Setenv(ModeEnv, TestMod)
 	assert.True(t, IsTestMode())
-	os.Setenv(ModeEnv, "")
+	resetEnv(ModeEnv)
 }
 
 func TestGetConfigFileByMode(t *testing.T) {
@@ -31,6 +35,20 @@ func TestGetConfigFileByMode(t *testing.T) {
 		assert.Equal(t, GetConfigFileByMode(testCase[0]), testCase[0])
 		os.Setenv(ModeEnv, testCase[1])
 		assert.Equal(t, GetConfigFileByMode(testCase[0]), testCase[2])
-		os.Setenv(ModeEnv, "")
+		resetEnv(ModeEnv)
+	}
+}
+
+func TestIsAutoRollback(t *testing.T) {
+	testSets := map[string]bool {
+		"true": true,
+		"ok": false,
+	}
+
+	for env, ok := range testSets {
+		assert.False(t, IsAutoRollback())
+		os.Setenv(AutoRollbackEnv, env)
+		assert.Equal(t, IsAutoRollback(), ok)
+		resetEnv(AutoRollbackEnv)
 	}
 }

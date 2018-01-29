@@ -1,10 +1,10 @@
 package rorm
 
 import (
-	"rady"
+	"github.com/Hexilee/rady"
 	"testing"
 	"github.com/stretchr/testify/assert"
-	"rady/rorm/sqlite3"
+	"github.com/Hexilee/rady/rorm/sqlite3"
 )
 
 type OrmTest struct {

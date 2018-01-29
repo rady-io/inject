@@ -4,23 +4,24 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"os"
-	ry "rady"
 	"reflect"
+	"github.com/Hexilee/rady"
+	"github.com/Hexilee/rady/rorm/utils"
 )
 
 type (
 	GormSQLiteConfig struct {
-		ry.Configuration
-		App *ry.Application
+		rady.Configuration
+		App *rady.Application
 	}
 
 	GormSQLiteParameter struct {
-		ry.Parameter
+		rady.Parameter
 		Path *string `value:"rady.sqlite3.path" default:"./rady.db"`
 	}
 
 	GormSQLite struct {
-		ry.Database
+		rady.Database
 		*gorm.DB
 	}
 )
@@ -37,5 +38,5 @@ func (g *GormSQLiteConfig) GetAutoMigrateSQLiteDB(params *GormSQLiteParameter) *
 			db.AutoMigrate(reflect.New(entityType.Elem()).Interface())
 		}
 	}
-	return &GormSQLite{DB: db}
+	return &GormSQLite{DB: utils.SetGormIfAutoRollback(db)}
 }

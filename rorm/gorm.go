@@ -5,9 +5,5 @@ import (
 )
 
 type (
-	//GormConfig struct {
-	//	ry.Configuration
-	//	App *ry.Application
-	//}
 	Model = gorm.Model
 )

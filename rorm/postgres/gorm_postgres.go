@@ -5,18 +5,19 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"os"
-	ry "rady"
 	"reflect"
+	"github.com/Hexilee/rady"
+	"github.com/Hexilee/rady/rorm/utils"
 )
 
 type (
 	GormPostgresConfig struct {
-		ry.Configuration
-		App *ry.Application
+		rady.Configuration
+		App *rady.Application
 	}
 
 	GormPostgresParameter struct {
-		ry.Parameter
+		rady.Parameter
 		Host     *string `value:"rady.postgres.host" default:"127.0.0.1"`
 		Port     *string `value:"rady.postgres.port" default:"3306"`
 		Database *string `value:"rady.postgres.database"`
@@ -26,7 +27,7 @@ type (
 	}
 
 	GormPostgres struct {
-		ry.Database
+		rady.Database
 		*gorm.DB
 	}
 )
@@ -43,5 +44,5 @@ func (g *GormPostgresConfig) GetAutoMigratePostgresDB(params *GormPostgresParame
 			db.AutoMigrate(reflect.New(entityType.Elem()).Interface())
 		}
 	}
-	return &GormPostgres{DB: db}
+	return &GormPostgres{DB: utils.SetGormIfAutoRollback(db)}
 }
