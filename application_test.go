@@ -117,5 +117,5 @@ func (o *OtherTest) TestRedisHost(t *testing.T) {
 }
 
 func TestCreateApplication(t *testing.T) {
-	CreateApplication(new(App)).RunTest(t, new(AppTest))
+	CreateApplication(new(App)).PrepareTest().AddTest(new(AppTest)).AddTests(new(AppTest)).Test(t)
 }

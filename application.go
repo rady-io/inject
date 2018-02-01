@@ -99,15 +99,16 @@ func (a *Application) load(fieldType reflect.Type, Value reflect.Value, tag refl
 	return a
 }
 
-func (a *Application) Prepare() {
+func (a *Application) Prepare() *Application {
 	a.loadPrimes()
 	a.loadMethodBeanIn()
+	return a
 }
 
-func (a *Application) PrepareTest() {
+func (a *Application) PrepareTest() *Application {
 	ComponentTypes[reflect.TypeOf(Testing{})] = true
 	COMPONENTS[TESTING] = true
-	a.Prepare()
+	return a.Prepare()
 }
 
 func (a *Application) setTests(testType reflect.Type, testValue reflect.Value) {
