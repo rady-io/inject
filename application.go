@@ -99,28 +99,23 @@ func (a *Application) load(fieldType reflect.Type, Value reflect.Value, tag refl
 	return a
 }
 
-func (a *Application) prepare() {
+func (a *Application) Prepare() {
 	a.loadPrimes()
 	a.loadMethodBeanIn()
-	a.loadBeanChild()
-	a.assemble()
-	a.CallFactory()
-	a.bindFactoryWithValue()
 }
 
-func (a *Application) prepareTest(testType reflect.Type, testValue reflect.Value) {
+func (a *Application) PrepareTest() {
 	ComponentTypes[reflect.TypeOf(Testing{})] = true
 	COMPONENTS[TESTING] = true
-	a.setTests(testType, testValue, "")
+	a.Prepare()
 }
 
-func (a *Application) setTests(testType reflect.Type, testValue reflect.Value, Tag reflect.StructTag) {
-	a.setTest(testType, testValue, Tag)
+func (a *Application) setTests(testType reflect.Type, testValue reflect.Value) {
 	for i := 0; i < testValue.NumField(); i++ {
 		field := testType.Elem().Field(i)
 		if CheckTesting(field) {
 			fieldValue := reflect.New(field.Type.Elem()).Elem()
-			a.setTests(field.Type, fieldValue, field.Tag)
+			a.setTest(field.Type, fieldValue, field.Tag)
 		}
 	}
 }
@@ -152,24 +147,40 @@ And then, we load normal bean recursively
 
 */
 func (a *Application) Run() {
-	a.prepare()
+	a.Prepare()
+	a.loadBeanChild()
+	a.assemble()
+	a.CallFactory()
+	a.bindFactoryWithValue()
 	a.Server.Start(*a.Addr)
 }
 
-func (a *Application) RunTest(t *testing.T, testPointer interface{}) *Application {
-	testType := reflect.TypeOf(testPointer)
-	if !CheckPtrOfStruct(testType) {
-		return a
-	}
-	testValue := reflect.New(testType.Elem()).Elem()
-	a.loadPrimes()
-	a.loadMethodBeanIn()
-	a.prepareTest(testType, testValue)
+func (a *Application) Test(t *testing.T) *Application {
 	a.loadBeanChild()
 	a.assemble()
 	a.CallFactory()
 	a.bindFactoryWithValue()
 	a.runTestCase(t)
+	return a
+}
+
+func (a *Application) AddTest(testPointer interface{}) *Application {
+	testType := reflect.TypeOf(testPointer)
+	if !CheckPtrOfStruct(testType) {
+		return a
+	}
+	testValue := reflect.New(testType.Elem()).Elem()
+	a.setTest(testType, testValue, "")
+	return a
+}
+
+func (a *Application) AddTests(testPointer interface{}) *Application {
+	testType := reflect.TypeOf(testPointer)
+	if !CheckPtrOfStruct(testType) {
+		return a
+	}
+	testValue := reflect.New(testType.Elem()).Elem()
+	a.setTests(testType, testValue)
 	return a
 }
 
