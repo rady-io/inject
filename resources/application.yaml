@@ -7,3 +7,13 @@ rady:
     port: 6937
   jwt:
     start: 2018-1-30 00:00:00
+  server:
+    ports:
+      - 80
+      - 443
+    ready:
+      - true
+      - false
+    starts:
+      - 2018-1-30 00:00:00
+      - 2018-1-30 00:00:00

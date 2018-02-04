@@ -1,10 +1,10 @@
 package rady
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
-	"time"
 	"github.com/tidwall/gjson"
+	"testing"
+	"time"
 )
 
 const (
@@ -22,19 +22,34 @@ type (
 
 	ValueInjectTest struct {
 		Testing
-		RedisPortInt      int64                   `value:"rady.redis.port"`
-		RedisPortIntPtr   *int64                  `value:"rady.redis.port"`
-		RedisPortUint     uint64                  `value:"rady.redis.port"`
-		RedisPortUintPtr  *uint64                 `value:"rady.redis.port"`
-		RedisPortFloat    float64                 `value:"rady.redis.port"`
-		RedisPortFloatPtr *float64                `value:"rady.redis.port"`
-		RedisPortStr      string                  `value:"rady.redis.port"`
-		RedisPortStrPtr   *string                 `value:"rady.redis.port"`
-		MysqlUtf8         bool                    `value:"rady.mysql.utf-8"`
-		MysqlUtf8Ptr      *bool                   `value:"rady.mysql.utf-8"`
-		JWTStartTime      time.Time               `value:"rady.jwt.start"`
-		JWTStartTimePtr   *time.Time              `value:"rady.jwt.start"`
-		RadyConfig        map[string]gjson.Result `value:"rady"`
+		RedisPortInt         int64                    `value:"rady.redis.port"`
+		RedisPortIntPtr      *int64                   `value:"rady.redis.port"`
+		RedisPortUint        uint64                   `value:"rady.redis.port"`
+		RedisPortUintPtr     *uint64                  `value:"rady.redis.port"`
+		RedisPortFloat       float64                  `value:"rady.redis.port"`
+		RedisPortFloatPtr    *float64                 `value:"rady.redis.port"`
+		RedisPortStr         string                   `value:"rady.redis.port"`
+		RedisPortStrPtr      *string                  `value:"rady.redis.port"`
+		MysqlUtf8            bool                     `value:"rady.mysql.utf-8"`
+		MysqlUtf8Ptr         *bool                    `value:"rady.mysql.utf-8"`
+		JWTStartTime         time.Time                `value:"rady.jwt.start"`
+		JWTStartTimePtr      *time.Time               `value:"rady.jwt.start"`
+		RadyConfig           map[string]gjson.Result  `value:"rady"`
+		RadyConfigPtr        *map[string]gjson.Result `value:"rady"`
+		ServePortsResults    []gjson.Result           `value:"rady.server.ports"`
+		ServePortsInt        []int64                  `value:"rady.server.ports"`
+		ServePortsUint       []uint64                 `value:"rady.server.ports"`
+		ServePortsFloat      []float64                `value:"rady.server.ports"`
+		ServePortsStr        []string                 `value:"rady.server.ports"`
+		IfPortsReady         []bool                   `value:"rady.server.ready"`
+		ServerPowerTimes     []time.Time              `value:"rady.server.starts"`
+		ServePortsResultsPtr *[]gjson.Result          `value:"rady.server.ports"`
+		ServePortsIntPtr     *[]int64                 `value:"rady.server.ports"`
+		ServePortsUintPtr    *[]uint64                `value:"rady.server.ports"`
+		ServePortsFloatPtr   *[]float64               `value:"rady.server.ports"`
+		ServePortsStrPtr     *[]string                `value:"rady.server.ports"`
+		IfPortsReadyPtr      *[]bool                  `value:"rady.server.ready"`
+		ServerPowerTimesPtr  *[]time.Time             `value:"rady.server.starts"`
 	}
 )
 
@@ -82,6 +97,11 @@ func (v *ValueInjectTest) TestMapInject(t *testing.T) {
 
 		}
 	}
+}
+
+func (v *ValueInjectTest) TestArrays(t *testing.T) {
+	assert.Equal(t, int64(80), v.ServePortsInt[0])
+	assert.Equal(t, int64(443), v.ServePortsInt[1])
 }
 
 func TestValueInjection(t *testing.T) {
