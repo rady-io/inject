@@ -658,7 +658,7 @@ func (a *Application) recursivelyBind(fieldType reflect.Type, method *Method, ch
 			if _, ok := checkedMap[child.Type]; !ok {
 				a.recursivelyBind(child.Type, method, checkedMap)
 			}
-		} else if CheckValues(child) {
+		} else if CheckPtrValues(child) {
 			key := strings.Trim(child.Tag.Get("value"), " ")
 			valueBean, ok := a.ValueBeanMap[key]
 			if !ok {

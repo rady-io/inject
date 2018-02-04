@@ -79,10 +79,15 @@ func CheckStruct(fieldType reflect.Type) bool {
 	return fieldType.Kind() == reflect.Struct
 }
 
+func CheckPtrValues(field reflect.StructField) bool {
+	_, ok := GJsonPtrTypesSet[field.Type]
+	return ok
+}
+
 func CheckValues(field reflect.StructField) bool {
-	_, ok := GJsonTypesSet[field.Type]
+	_, ok := GJsonPtrTypesSet[field.Type]
 	if !ok {
-		_, ok = GJsonPtrTypesSet[field.Type]
+		_, ok = GJsonTypesSet[field.Type]
 	}
 	return ok
 }
