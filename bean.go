@@ -4,6 +4,7 @@ import (
 	"github.com/tidwall/gjson"
 	"os"
 	"reflect"
+	"time"
 )
 
 type (
@@ -133,46 +134,103 @@ func (v *ValueBean) recallFactory(a *Application) {
 	}
 }
 
-func (v *ValueBean) SetValue(value reflect.Value, Type reflect.Type) bool {
+func (v *ValueBean) setValue(IsPtr bool, value reflect.Value, Type reflect.Type) bool {
 	confValue, ok := v.ValueMap[Type]
 	if ok {
-		value.Set(confValue.Addr())
+		if IsPtr {
+			value.Set(confValue.Addr())
+		} else {
+			value.Set(confValue)
+		}
+		return true
+	}
+	return false
+}
+
+func (v *ValueBean) SetValue(value reflect.Value, Type reflect.Type) bool {
+	IsPtr := Type.Kind() == reflect.Ptr
+	if IsPtr {
+		Type = Type.Elem()
+	}
+
+	if v.setValue(IsPtr, value, Type) {
 		return true
 	}
 	switch Type {
-	case IntPtrType:
+	case IntType:
 		result := v.Value.Int()
 		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
-	case UintPtrType:
+	case UintType:
 		result := v.Value.Uint()
 		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
-	case FloatPtrType:
+	case FloatType:
 		result := v.Value.Float()
 		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
-	case StringPtrType:
+	case StringType:
 		result := v.Value.String()
 		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
-	case BoolPtrType:
+	case BoolType:
 		result := v.Value.Bool()
 		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
-	case TimePtrType:
+	case TimeType:
 		result := v.Value.Time()
 		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
-	case ArrayPtrType:
+	case ArrayType:
 		result := v.Value.Array()
 		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
-	case MapPtrType:
+	case MapType:
 		result := v.Value.Map()
 		v.ValueMap[Type] = reflect.ValueOf(&result).Elem()
+	case ArrayIntType:
+		result := v.Value.Array()
+		length := len(result)
+		realResult := make([]int64, length)
+		for i := 0; i < length; i++ {
+			realResult[i] = result[i].Int()
+		}
+		v.ValueMap[Type] = reflect.ValueOf(&realResult).Elem()
+	case ArrayUintType:
+		result := v.Value.Array()
+		length := len(result)
+		realResult := make([]uint64, length)
+		for i := 0; i < length; i++ {
+			realResult[i] = result[i].Uint()
+		}
+		v.ValueMap[Type] = reflect.ValueOf(&realResult).Elem()
+	case ArrayFloatType:
+		result := v.Value.Array()
+		length := len(result)
+		realResult := make([]float64, length)
+		for i := 0; i < length; i++ {
+			realResult[i] = result[i].Float()
+		}
+		v.ValueMap[Type] = reflect.ValueOf(&realResult).Elem()
+	case ArrayBoolType:
+		result := v.Value.Array()
+		length := len(result)
+		realResult := make([]bool, length)
+		for i := 0; i < length; i++ {
+			realResult[i] = result[i].Bool()
+		}
+		v.ValueMap[Type] = reflect.ValueOf(&realResult).Elem()
+	case ArrayStringType:
+		result := v.Value.Array()
+		length := len(result)
+		realResult := make([]string, length)
+		for i := 0; i < length; i++ {
+			realResult[i] = result[i].String()
+		}
+		v.ValueMap[Type] = reflect.ValueOf(&realResult).Elem()
+	case ArrayTimeType:
+		result := v.Value.Array()
+		length := len(result)
+		realResult := make([]time.Time, length)
+		for i := 0; i < length; i++ {
+			realResult[i] = result[i].Time()
+		}
+		v.ValueMap[Type] = reflect.ValueOf(&realResult).Elem()
 	}
-
-	confValue, ok = v.ValueMap[Type]
-	if ok {
-		value.Set(confValue.Addr())
-		return true
-	}
-
-	return false
+	return v.setValue(IsPtr, value, Type)
 }
 
 /*
