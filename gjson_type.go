@@ -21,9 +21,7 @@ var (
 	ArrayString []string
 	ArrayBool   []bool
 	ArrayTime   []time.Time
-)
 
-var (
 	IntType            = reflect.TypeOf(INT)
 	UintType           = reflect.TypeOf(UINT)
 	FloatType          = reflect.TypeOf(FLOAT)
@@ -52,9 +50,7 @@ var (
 	ArrayStringPtrType = reflect.TypeOf(&ArrayString)
 	ArrayBoolPtrType   = reflect.TypeOf(&ArrayBool)
 	ArrayTimePtrType   = reflect.TypeOf(&ArrayTime)
-)
 
-var (
 	GJsonPtrTypesSet = map[reflect.Type]bool{
 		IntPtrType:         true,
 		UintPtrType:        true,
