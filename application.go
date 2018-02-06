@@ -301,11 +301,21 @@ func (a *Application) loadCtrl(field reflect.StructField, prefix string) {
 
 func (a *Application) loadMiddleware(field reflect.StructField, prefix string) {
 	path := GetPathFromType(field, Middleware{})
-	prefix = GetNewPrefix(prefix, path)
+	newPrefix := GetNewPrefix(prefix, path)
+
+	if a.MiddlewareStackMap[newPrefix] == nil {
+		newMidStack := NewMiddlewareStack()
+		MotherStack, ok := a.MiddlewareStackMap[prefix]
+		if ok {
+			newMidStack.PushStack(MotherStack)
+		}
+		a.MiddlewareStackMap[newPrefix] = newMidStack
+	}
+
 	fieldType := field.Type
 	Name := field.Name
 	Value := reflect.New(fieldType.Elem()).Elem()
-	a.MdWareBeanMap[prefix] = NewMdWareBean(Value, field.Tag, Name)
+	a.MdWareBeanMap[newPrefix] = NewMdWareBean(Value, field.Tag, Name)
 	a.LoadPrimeBean(fieldType, Value, ``)
 
 	for i := 0; i < fieldType.NumMethod(); i++ {
@@ -313,7 +323,8 @@ func (a *Application) loadMiddleware(field reflect.StructField, prefix string) {
 		methodField := fieldType.Method(i)
 		handlerName := methodField.Name
 		if trueMethod, ok := method.Interface().(func(handlerFunc HandlerFunc) HandlerFunc); ok {
-			a.Server.Group(prefix, trueMethod)
+			a.MiddlewareStackMap[newPrefix].Push(NewMiddlewareContainer(handlerName, trueMethod))
+			a.Server.Group(newPrefix, trueMethod)
 			a.logMiddlewareRegistry(prefix, handlerName)
 		}
 	}
