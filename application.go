@@ -531,31 +531,14 @@ func (a *Application) logMiddlewareRegistry(path, Name string) {
 }
 
 func (a *Application) registerCtrl(handlerFunc HandlerFunc, method reflect.Type, path string) {
-	switch method {
-	case reflect.TypeOf(GET{}):
-		a.Server.GET(path, handlerFunc)
-	case reflect.TypeOf(POST{}):
-		a.Server.POST(path, handlerFunc)
-	case reflect.TypeOf(PUT{}):
-		a.Server.PUT(path, handlerFunc)
-	case reflect.TypeOf(DELETE{}):
-		a.Server.DELETE(path, handlerFunc)
-	case reflect.TypeOf(OPTIONS{}):
-		a.Server.OPTIONS(path, handlerFunc)
-	case reflect.TypeOf(GET{}):
-		a.Server.GET(path, handlerFunc)
-	case reflect.TypeOf(HEAD{}):
-		a.Server.HEAD(path, handlerFunc)
-	case reflect.TypeOf(CONNECT{}):
-		a.Server.CONNECT(path, handlerFunc)
-	case reflect.TypeOf(TRACE{}):
-		a.Server.TRACE(path, handlerFunc)
-	case reflect.TypeOf(OPTIONS{}):
-		a.Server.OPTIONS(path, handlerFunc)
-	case reflect.TypeOf(PATCH{}):
-		a.Server.PATCH(path, handlerFunc)
-	default:
-		break
+	MethodName, ok := MethodsTypeSet[method]
+	if ok {
+		ServerVal := reflect.ValueOf(a.Server)
+		MethodVal := ServerVal.MethodByName(strings.ToUpper(MethodName))
+		MethodVal.Call([]reflect.Value {
+			reflect.ValueOf(path),
+			reflect.ValueOf(handlerFunc),
+		})
 	}
 }
 
