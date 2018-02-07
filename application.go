@@ -304,12 +304,7 @@ func (a *Application) loadMiddleware(field reflect.StructField, prefix string) {
 	newPrefix := GetNewPrefix(prefix, path)
 
 	if a.MiddlewareStackMap[newPrefix] == nil {
-		newMidStack := NewMiddlewareStack()
-		MotherStack, ok := a.MiddlewareStackMap[prefix]
-		if ok {
-			newMidStack.PushStack(MotherStack)
-		}
-		a.MiddlewareStackMap[newPrefix] = newMidStack
+		a.MiddlewareStackMap[newPrefix] = NewMiddlewareStack()
 	}
 
 	fieldType := field.Type
@@ -323,7 +318,7 @@ func (a *Application) loadMiddleware(field reflect.StructField, prefix string) {
 		methodField := fieldType.Method(i)
 		handlerName := methodField.Name
 		if trueMethod, ok := method.Interface().(func(handlerFunc HandlerFunc) HandlerFunc); ok {
-			a.MiddlewareStackMap[newPrefix].Push(NewMiddlewareContainer(handlerName, trueMethod))
+			a.MiddlewareStackMap[newPrefix] = a.MiddlewareStackMap[newPrefix].Push(NewMiddlewareContainer(handlerName, trueMethod))
 			a.Server.Group(newPrefix, trueMethod)
 			a.logMiddlewareRegistry(prefix, handlerName)
 		}
