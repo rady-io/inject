@@ -61,7 +61,7 @@ CreateApplication can initial application with root
 if root is not kinds of Ptr, there will be an error
 */
 func CreateApplication(root interface{}) *Application {
-	if CheckFieldPtr(reflect.TypeOf(root)) {
+	if CheckPtrOfStruct(reflect.TypeOf(root)) {
 		return (&Application{
 			Root:               root,
 			BeanMap:            make(map[reflect.Type]map[string]*Bean),
