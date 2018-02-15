@@ -2,7 +2,6 @@ package rady
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -69,12 +68,10 @@ type (
 	AppTest struct {
 		Testing
 		*OtherTest
-		RedisPort *int64 `value:"rady.redis.port"`
 	}
 
 	OtherTest struct {
 		Testing
-		RedisHost *string `value:"rady.redis.host"`
 	}
 )
 
@@ -104,18 +101,6 @@ func (b *BookController) GetRedisHost(ctx Context) error {
 func (b *BookController) GetConfReload(ctx Context) error {
 	b.App.ReloadValues()
 	return ctx.String(200, fmt.Sprintf(`{"host": "%s"}`, b.UserComponent.GetHost()))
-}
-
-func (a *AppTest) TestRedisPort(t *testing.T) {
-	assert.Equal(t, int64(6937), *a.RedisPort)
-}
-
-func (o *OtherTest) TestRedisHost(t *testing.T) {
-	assert.Equal(t, "127.0.0.1", *o.RedisHost)
-}
-
-func (a *AuthMiddleware) Auth(next HandlerFunc) HandlerFunc {
-	return next
 }
 
 func TestCreateApplication(t *testing.T) {
