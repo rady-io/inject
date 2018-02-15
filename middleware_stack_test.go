@@ -70,5 +70,5 @@ func (mid *MidStackTest) TestMidStacks(t *testing.T) {
 }
 
 func TestMidStack(t *testing.T) {
-	CreateApplication(new(MidStackRoot)).PrepareTest().AddTest(new(MidStackTest)).Test(t)
+	CreateTest(new(MidStackRoot)).AddTest(new(MidStackTest)).Test(t)
 }

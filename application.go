@@ -81,6 +81,10 @@ func CreateApplication(root interface{}) *Application {
 	return new(Application)
 }
 
+func CreateTest(root interface{}) *Application {
+	return CreateApplication(root).PrepareTest()
+}
+
 func (a *Application) init() *Application {
 	return a.loadElem(a.Logger, *new(reflect.StructTag)).loadElem(a, *new(reflect.StructTag)).loadConfigFile()
 }

@@ -6,20 +6,77 @@ import (
 	"testing"
 )
 
-type RouterConfig struct {
-	Configuration
-	*UserComponent `name:"*UserComponent"`
-}
+type (
+	App struct {
+		*RouterConfig
+		*HandlerConfig
+		*BookController
+		*BookRouter
+	}
 
-type HandlerConfig struct {
-	Configuration
-}
+	RouterConfig struct {
+		Configuration
+		*UserComponent `name:"*UserComponent"`
+	}
 
-type GetUserParam struct {
-	Parameter
-	*BookService
-	RedisHost *string `value:"rady.redis.host"`
-}
+	HandlerConfig struct {
+		Configuration
+	}
+
+	GetUserParam struct {
+		Parameter
+		*BookService
+		RedisHost *string `value:"rady.redis.host"`
+	}
+
+	UserComponent struct {
+		Component
+		*RouterConfig
+		RedisPort *int64
+		RedisHost *string
+	}
+
+	BookService struct {
+		Service
+		RedisPort *int64 `value:"rady.redis.port"`
+	}
+
+	BookRepository struct {
+		Repository
+		RedisPort *int64 `value:"rady.redis.port"`
+	}
+
+	BookController struct {
+		Controller `prefix:"/api/v1"`
+		GET        `path:"/:id" method:"GetBooks"`
+		FILE       `path:"/config" file:"./resources/application.conf"`
+		STATIC     `prefix:"/assets" root:"./"`
+		BookRepository *BookRepository
+		UserComponent  *UserComponent
+		App            *Application
+	}
+
+	BookRouter struct {
+		Router `prefix:"/api"`
+		*AuthMiddleware
+	}
+
+	AuthMiddleware struct {
+		Middleware
+		RedisHost *string `value:"rady.redis.host"`
+	}
+
+	AppTest struct {
+		Testing
+		*OtherTest
+		RedisPort *int64 `value:"rady.redis.port"`
+	}
+
+	OtherTest struct {
+		Testing
+		RedisHost *string `value:"rady.redis.host"`
+	}
+)
 
 func (rc *RouterConfig) GetUserComponent(BR *BookRepository, GP *GetUserParam) *UserComponent {
 	return &UserComponent{
@@ -28,49 +85,8 @@ func (rc *RouterConfig) GetUserComponent(BR *BookRepository, GP *GetUserParam) *
 	}
 }
 
-type UserComponent struct {
-	Component
-	*RouterConfig
-	RedisPort *int64
-	RedisHost *string
-}
-
 func (u *UserComponent) GetHost() string {
 	return *u.RedisHost
-}
-
-type BookService struct {
-	Service
-	RedisPort *int64 `value:"rady.redis.port"`
-}
-
-type BookRepository struct {
-	Repository
-	RedisPort *int64 `value:"rady.redis.port"`
-}
-
-type BookController struct {
-	Controller     `prefix:"/api/v1"`
-	GET            `path:"/:id" method:"GetBooks"`
-	FILE           `path:"/config" file:"./resources/application.conf"`
-	STATIC         `prefix:"/assets" root:"./"`
-	BookRepository *BookRepository
-	UserComponent  *UserComponent
-	App            *Application
-}
-
-type BookRouter struct {
-	Router `prefix:"/api"`
-	*AuthMiddleware
-}
-
-type AuthMiddleware struct {
-	Middleware
-	RedisHost *string `value:"rady.redis.host"`
-}
-
-func (a *AuthMiddleware) Auth(next HandlerFunc) HandlerFunc {
-	return next
 }
 
 func (b *BookController) GetBooks(ctx Context) error {
@@ -90,24 +106,6 @@ func (b *BookController) GetConfReload(ctx Context) error {
 	return ctx.String(200, fmt.Sprintf(`{"host": "%s"}`, b.UserComponent.GetHost()))
 }
 
-type App struct {
-	*RouterConfig
-	*HandlerConfig
-	*BookController
-	*BookRouter
-}
-
-type AppTest struct {
-	Testing
-	*OtherTest
-	RedisPort *int64 `value:"rady.redis.port"`
-}
-
-type OtherTest struct {
-	Testing
-	RedisHost *string `value:"rady.redis.host"`
-}
-
 func (a *AppTest) TestRedisPort(t *testing.T) {
 	assert.Equal(t, int64(6937), *a.RedisPort)
 }
@@ -116,6 +114,10 @@ func (o *OtherTest) TestRedisHost(t *testing.T) {
 	assert.Equal(t, "127.0.0.1", *o.RedisHost)
 }
 
+func (a *AuthMiddleware) Auth(next HandlerFunc) HandlerFunc {
+	return next
+}
+
 func TestCreateApplication(t *testing.T) {
-	CreateApplication(new(App)).PrepareTest().AddTest(new(AppTest)).AddTests(new(AppTest)).Test(t)
+	CreateTest(new(App)).AddTest(new(AppTest)).AddTests(new(AppTest)).Test(t)
 }

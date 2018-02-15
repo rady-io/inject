@@ -44,6 +44,6 @@ func (c *ConfigTypeJSONTest) TestConfigTypeJSON(t *testing.T) {
 }
 
 func TestConfigFileLoad(t *testing.T) {
-	CreateApplication(new(ConfigTestDefault)).PrepareTest().AddTest(new(ConfigDefaultTest)).Test(t)
-	CreateApplication(new(ConfigTestTypeJSON)).PrepareTest().AddTest(new(ConfigTypeJSONTest)).Test(t)
+	CreateTest(new(ConfigTestDefault)).AddTest(new(ConfigDefaultTest)).Test(t)
+	CreateTest(new(ConfigTestTypeJSON)).AddTest(new(ConfigTypeJSONTest)).Test(t)
 }

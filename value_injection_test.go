@@ -105,5 +105,5 @@ func (v *ValueInjectTest) TestArrays(t *testing.T) {
 }
 
 func TestValueInjection(t *testing.T) {
-	CreateApplication(new(ValueInjectRoot)).PrepareTest().AddTest(new(ValueInjectTest)).Test(t)
+	CreateTest(new(ValueInjectRoot)).AddTest(new(ValueInjectTest)).Test(t)
 }
