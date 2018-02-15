@@ -485,7 +485,7 @@ func (a *Application) RecursivelyLoad(fieldType reflect.Type) {
 	}
 }
 
-func (a *Application) loadConfigFile() *Application {
+func (a *Application) GetRealConfigPathAndType() (string, string) {
 	appType := reflect.TypeOf(a.Root).Elem()
 	for i := 0; i < appType.NumField(); i++ {
 		field := appType.Field(i)
@@ -504,24 +504,23 @@ func (a *Application) loadConfigFile() *Application {
 
 			if fileType != "" && fileType != JSON && fileType != YAML {
 				a.Logger.Info("Conf file suffix .%s unexpected, use default", fileType)
+				return path, JSON
 			}
-
-			a.Logger.Debug("Load %s(%s)", path, fileType)
-
-			config, err := GetJSONFromAnyFile(path, fileType)
-			if err == nil {
-				a.ConfigFile = config
-				return a
-			} else {
-				a.Logger.Error("File %s load failed, %s", path, err.Error())
-			}
+			return path, fileType
 		}
 	}
 
-	config, err := GetJSONFromAnyFile(DefaultPath, JSON)
+	return DefaultPath, JSON
+}
+
+func (a *Application) loadConfigFile() *Application {
+	path, fileType := a.GetRealConfigPathAndType()
+	config, err := GetJSONFromAnyFile(path, fileType)
 	if err == nil {
-		a.Logger.Debug("Load %s(%s)", DefaultPath, JSON)
 		a.ConfigFile = config
+		a.Logger.Debug("Load %s(%s)", path, fileType)
+	} else {
+		a.Logger.Error("File %s load failed, %s", path, err.Error())
 	}
 	return a
 }
@@ -539,7 +538,7 @@ func (a *Application) registerCtrl(handlerFunc HandlerFunc, method reflect.Type,
 	if ok {
 		ServerVal := reflect.ValueOf(a.Server)
 		MethodVal := ServerVal.MethodByName(strings.ToUpper(MethodName))
-		MethodVal.Call([]reflect.Value {
+		MethodVal.Call([]reflect.Value{
 			reflect.ValueOf(path),
 			reflect.ValueOf(handlerFunc),
 		})
