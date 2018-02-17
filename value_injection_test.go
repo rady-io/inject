@@ -8,11 +8,33 @@ import (
 )
 
 const (
-	FormatTime = "2006-01-02 15:04:05"
+	FormatTime   = "2006-01-02 15:04:05"
+	ReloadConfig = `
+rady:
+  mysql:
+    host: localhost
+    utf-8: false
+  redis:
+    host: 127.0.0.1
+    port: 6937
+  jwt:
+    start: 2018-1-29 00:00:00
+  server:
+    ports:
+      - 8080
+      - 443
+    ready:
+      - false
+      - false
+    starts:
+      - 2018-1-29 00:00:00
+      - 2018-1-30 00:00:00
+`
 )
 
 var (
-	TrueTime, _ = time.Parse(FormatTime, "2018-1-30 00:00:00")
+	TrueTime, _         = time.Parse(FormatTime, "2018-1-30 00:00:00")
+	ReloadedTrueTime, _ = time.Parse(FormatTime, "2018-1-29 00:00:00")
 )
 
 type (
@@ -22,6 +44,7 @@ type (
 
 	ValueInjectTest struct {
 		Testing
+		*Application
 		RedisPortInt         int64                    `value:"rady.redis.port"`
 		RedisPortIntPtr      *int64                   `value:"rady.redis.port"`
 		RedisPortUint        uint64                   `value:"rady.redis.port"`
@@ -68,6 +91,15 @@ func (v *ValueInjectTest) TestElemOrPtrInject(t *testing.T) {
 	assert.Equal(t, TrueTime, *v.JWTStartTimePtr)
 }
 
+func (v *ValueInjectTest) TestReloadValues(t *testing.T) {
+	v.WriteConfigFile(ReloadConfig)
+	v.ReloadValues()
+	assert.False(t, *v.MysqlUtf8Ptr)
+	assert.Equal(t, ReloadedTrueTime, *v.JWTStartTimePtr)
+	v.WriteConfigFile(InitConfig)
+	v.ReloadValues()
+}
+
 func (v *ValueInjectTest) TestMapInject(t *testing.T) {
 	for Key, Value := range v.RadyConfig {
 		switch Key {
@@ -99,9 +131,53 @@ func (v *ValueInjectTest) TestMapInject(t *testing.T) {
 	}
 }
 
+func (v *ValueInjectTest) TestReloadedMap(t *testing.T) {
+	v.WriteConfigFile(ReloadConfig)
+	v.ReloadValues()
+	for Key, Value := range *v.RadyConfigPtr {
+		switch Key {
+		case "mysql":
+			for key, value := range Value.Map() {
+				switch key {
+				case "host":
+					assert.Equal(t, "localhost", value.String())
+				case "utf-8":
+					assert.False(t, value.Bool())
+				default:
+				}
+			}
+		case "redis":
+			for key, value := range Value.Map() {
+				switch key {
+				case "host":
+					assert.Equal(t, "127.0.0.1", value.String())
+				case "utf-8":
+					assert.Equal(t, int64(6937), value.Int())
+				default:
+				}
+			}
+		case "jwt":
+			assert.Equal(t, ReloadedTrueTime, Value.Time())
+		default:
+
+		}
+	}
+	v.WriteConfigFile(InitConfig)
+	v.ReloadValues()
+}
+
 func (v *ValueInjectTest) TestArrays(t *testing.T) {
 	assert.Equal(t, int64(80), v.ServePortsInt[0])
 	assert.Equal(t, int64(443), v.ServePortsInt[1])
+}
+
+func (v *ValueInjectTest) TestReloadedArrays(t *testing.T) {
+	v.WriteConfigFile(ReloadConfig)
+	v.ReloadValues()
+	assert.Equal(t, int64(8080), (*v.ServePortsIntPtr)[0])
+	assert.Equal(t, int64(443), (*v.ServePortsIntPtr)[1])
+	v.WriteConfigFile(InitConfig)
+	v.ReloadValues()
 }
 
 func TestValueInjection(t *testing.T) {

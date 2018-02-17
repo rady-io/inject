@@ -46,10 +46,10 @@ type (
 	}
 
 	BookController struct {
-		Controller `prefix:"/api/v1"`
-		GET        `path:"/:id" method:"GetBooks"`
-		FILE       `path:"/config" file:"./resources/application.conf"`
-		STATIC     `prefix:"/assets" root:"./"`
+		Controller     `prefix:"/api/v1"`
+		GET            `path:"/:id" method:"GetBooks"`
+		FILE           `path:"/config" file:"./resources/application.conf"`
+		STATIC         `prefix:"/assets" root:"./"`
 		BookRepository *BookRepository
 		RedisComponent *RedisComponent
 		App            *Application
