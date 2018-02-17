@@ -37,7 +37,7 @@ type (
 
 	BookService struct {
 		Service
-		RedisPort *int64 `value:"rady.redis.port"`
+		//RedisPort *int64 `value:"rady.redis.port"`
 	}
 
 	BookRepository struct {
@@ -62,7 +62,7 @@ type (
 
 	AuthMiddleware struct {
 		Middleware
-		RedisHost *string `value:"rady.redis.host"`
+		//RedisHost *string `value:"rady.redis.host"`
 	}
 
 	AppTest struct {

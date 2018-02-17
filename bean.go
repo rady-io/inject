@@ -106,22 +106,70 @@ func (v *ValueBean) Reload(a *Application) {
 func (v *ValueBean) resetValue() {
 	for Type, Value := range v.ValueMap {
 		switch Type {
-		case IntPtrType:
+		case IntType:
 			Value.SetInt(v.Value.Int())
-		case UintPtrType:
+		case UintType:
 			Value.SetUint(v.Value.Uint())
-		case FloatPtrType:
+		case FloatType:
 			Value.SetFloat(v.Value.Float())
-		case StringPtrType:
+		case StringType:
 			Value.SetString(v.Value.String())
-		case BoolPtrType:
+		case BoolType:
 			Value.SetBool(v.Value.Bool())
-		case TimePtrType:
+		case TimeType:
 			Value.Set(reflect.ValueOf(v.Value.Time()))
-		case ArrayPtrType:
+		case ArrayType:
 			Value.Set(reflect.ValueOf(v.Value.Array()))
-		case MapPtrType:
+		case MapType:
 			Value.Set(reflect.ValueOf(v.Value.Map()))
+		case ArrayIntType:
+			result := v.Value.Array()
+			length := len(result)
+			realResult := make([]int64, length)
+			for i := 0; i < length; i++ {
+				realResult[i] = result[i].Int()
+			}
+			Value.Set(reflect.ValueOf(realResult))
+		case ArrayUintType:
+			result := v.Value.Array()
+			length := len(result)
+			realResult := make([]uint64, length)
+			for i := 0; i < length; i++ {
+				realResult[i] = result[i].Uint()
+			}
+			Value.Set(reflect.ValueOf(realResult))
+		case ArrayFloatType:
+			result := v.Value.Array()
+			length := len(result)
+			realResult := make([]float64, length)
+			for i := 0; i < length; i++ {
+				realResult[i] = result[i].Float()
+			}
+			Value.Set(reflect.ValueOf(realResult))
+		case ArrayBoolType:
+			result := v.Value.Array()
+			length := len(result)
+			realResult := make([]bool, length)
+			for i := 0; i < length; i++ {
+				realResult[i] = result[i].Bool()
+			}
+			Value.Set(reflect.ValueOf(realResult))
+		case ArrayStringType:
+			result := v.Value.Array()
+			length := len(result)
+			realResult := make([]string, length)
+			for i := 0; i < length; i++ {
+				realResult[i] = result[i].String()
+			}
+			Value.Set(reflect.ValueOf(realResult))
+		case ArrayTimeType:
+			result := v.Value.Array()
+			length := len(result)
+			realResult := make([]time.Time, length)
+			for i := 0; i < length; i++ {
+				realResult[i] = result[i].Time()
+			}
+			Value.Set(reflect.ValueOf(realResult))
 		}
 	}
 }

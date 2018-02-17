@@ -68,13 +68,13 @@ rady:
 `
 )
 
-type ReloadValuesTest struct {
+type RecallFactoryTest struct {
 	Testing
 	*RedisComponent
 	*Application
 }
 
-func (R *ReloadValuesTest) TestReloadValues(t *testing.T) {
+func (R *RecallFactoryTest) TestRecallFactory(t *testing.T) {
 	assert.Equal(t, "127.0.0.1", R.GetHost())
 	assert.Equal(t, int64(6937), R.GetPort())
 	R.WriteConfigFile(NoRedis)
@@ -89,5 +89,5 @@ func (R *ReloadValuesTest) TestReloadValues(t *testing.T) {
 }
 
 func TestReloadValues(t *testing.T) {
-	CreateTest(new(App)).AddTest(new(ReloadValuesTest)).Test(t)
+	CreateTest(new(App)).AddTest(new(RecallFactoryTest)).Test(t)
 }
