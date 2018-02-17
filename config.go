@@ -4,6 +4,8 @@ const (
 	// DefaultPath is the path of config file for default
 	DefaultPath = "./resources/application.conf"
 
+	DefaultConfType = YAML
+
 	// YAML is the suffix of yaml file
 	YAML = "yaml"
 

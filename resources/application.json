@@ -1,0 +1,14 @@
+{
+  "rady": {
+    "mysql": {
+      "host": "localhost"
+    },
+    "redis": {
+      "host": "127.0.0.1",
+      "port": 6937
+    },
+    "server": {
+      "addr": ":8888"
+    }
+  }
+}

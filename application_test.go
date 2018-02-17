@@ -46,10 +46,10 @@ type (
 	}
 
 	BookController struct {
-		Controller `prefix:"/api/v1"`
-		GET        `path:"/:id" method:"GetBooks"`
-		FILE       `path:"/config" file:"./resources/application.conf"`
-		STATIC     `prefix:"/assets" root:"./"`
+		Controller     `prefix:"/api/v1"`
+		GET            `path:"/:id" method:"GetBooks"`
+		FILE           `path:"/config" file:"./resources/application.conf"`
+		STATIC         `prefix:"/assets" root:"./"`
 		BookRepository *BookRepository
 		UserComponent  *UserComponent
 		App            *Application
@@ -105,4 +105,5 @@ func (b *BookController) GetConfReload(ctx Context) error {
 
 func TestCreateApplication(t *testing.T) {
 	CreateTest(new(App)).AddTest(new(AppTest)).AddTests(new(AppTest)).Test(t)
+	go CreateApplication(new(App)).Run()
 }

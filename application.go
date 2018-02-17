@@ -502,15 +502,23 @@ func (a *Application) GetRealConfigPathAndType() (string, string) {
 
 			path = GetConfigFileByMode(path)
 
-			if fileType != "" && fileType != JSON && fileType != YAML {
-				a.Logger.Info("Conf file suffix .%s unexpected, use default", fileType)
+			if fileType != "" {
+				if fileType == JSON || fileType == YAML {
+					return path, fileType
+				}
+				a.Logger.Info("Conf file suffix .%s unexpected, use default type", fileType, DefaultConfType)
+			}
+
+			if strings.HasSuffix(path, JSON) {
 				return path, JSON
 			}
-			return path, fileType
+
+			return path, DefaultConfType
 		}
+
 	}
 
-	return DefaultPath, JSON
+	return DefaultPath, DefaultConfType
 }
 
 func (a *Application) loadConfigFile() *Application {
