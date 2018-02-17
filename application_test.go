@@ -15,7 +15,7 @@ type (
 
 	RouterConfig struct {
 		Configuration
-		*UserComponent `name:"*UserComponent"`
+		*RedisComponent `name:"*RedisComponent"`
 	}
 
 	HandlerConfig struct {
@@ -25,10 +25,10 @@ type (
 	GetUserParam struct {
 		Parameter
 		*BookService
-		RedisHost *string `value:"rady.redis.host"`
+		RedisHost *string `value:"rady.redis.host" default:"localhost"`
 	}
 
-	UserComponent struct {
+	RedisComponent struct {
 		Component
 		*RouterConfig
 		RedisPort *int64
@@ -42,16 +42,16 @@ type (
 
 	BookRepository struct {
 		Repository
-		RedisPort *int64 `value:"rady.redis.port"`
+		RedisPort *int64 `value:"rady.redis.port" default:"6666"`
 	}
 
 	BookController struct {
-		Controller     `prefix:"/api/v1"`
-		GET            `path:"/:id" method:"GetBooks"`
-		FILE           `path:"/config" file:"./resources/application.conf"`
-		STATIC         `prefix:"/assets" root:"./"`
+		Controller `prefix:"/api/v1"`
+		GET        `path:"/:id" method:"GetBooks"`
+		FILE       `path:"/config" file:"./resources/application.conf"`
+		STATIC     `prefix:"/assets" root:"./"`
 		BookRepository *BookRepository
-		UserComponent  *UserComponent
+		RedisComponent *RedisComponent
 		App            *Application
 	}
 
@@ -75,15 +75,19 @@ type (
 	}
 )
 
-func (rc *RouterConfig) GetUserComponent(BR *BookRepository, GP *GetUserParam) *UserComponent {
-	return &UserComponent{
+func (rc *RouterConfig) GetRedisComponent(BR *BookRepository, GP *GetUserParam) *RedisComponent {
+	return &RedisComponent{
 		RedisHost: GP.RedisHost,
 		RedisPort: BR.RedisPort,
 	}
 }
 
-func (u *UserComponent) GetHost() string {
+func (u *RedisComponent) GetHost() string {
 	return *u.RedisHost
+}
+
+func (u *RedisComponent) GetPort() int64 {
+	return *u.RedisPort
 }
 
 func (b *BookController) GetBooks(ctx Context) error {
@@ -95,12 +99,12 @@ func (b *BookController) GetUserUUID(ctx Context) error {
 }
 
 func (b *BookController) GetRedisHost(ctx Context) error {
-	return ctx.String(200, fmt.Sprintf(`{"host": "%s"}`, b.UserComponent.GetHost()))
+	return ctx.String(200, fmt.Sprintf(`{"host": "%s"}`, b.RedisComponent.GetHost()))
 }
 
 func (b *BookController) GetConfReload(ctx Context) error {
 	b.App.ReloadValues()
-	return ctx.String(200, fmt.Sprintf(`{"host": "%s"}`, b.UserComponent.GetHost()))
+	return ctx.String(200, fmt.Sprintf(`{"host": "%s"}`, b.RedisComponent.GetHost()))
 }
 
 func TestCreateApplication(t *testing.T) {

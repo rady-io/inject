@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"io/ioutil"
 )
 
 /*
@@ -531,6 +532,11 @@ func (a *Application) loadConfigFile() *Application {
 		a.Logger.Error("File %s load failed, %s", path, err.Error())
 	}
 	return a
+}
+
+func (a *Application) WriteConfigFile(value string) error {
+	path, _ := a.GetRealConfigPathAndType()
+	return ioutil.WriteFile(path, []byte(value), os.ModeAppend)
 }
 
 func (a *Application) logHandlerRegistry(method string, path, Name string) {
