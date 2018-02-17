@@ -462,10 +462,10 @@ LoadBeanAndRecursion initialize a instance of a type and load it
 
 then recursively load children of this type
 */
-func (a *Application) LoadBeanAndRecursion(fieldType reflect.Type) {
-	a.LoadBean(fieldType, reflect.New(fieldType.Elem()).Elem(), *new(reflect.StructTag))
-	a.RecursivelyLoad(fieldType)
-}
+//func (a *Application) LoadBeanAndRecursion(fieldType reflect.Type) {
+//	a.LoadBean(fieldType, reflect.New(fieldType.Elem()).Elem(), *new(reflect.StructTag))
+//	a.RecursivelyLoad(fieldType)
+//}
 
 /*
 RecursivelyLoad recursively load children of a normal bean
@@ -498,7 +498,7 @@ func (a *Application) GetRealConfigPathAndType() (string, string) {
 			if truePath != "" {
 				path = truePath
 			} else {
-				a.Logger.Info("Conf file path unexpected, use %s", truePath)
+				a.Logger.Info("Conf file path unexpected, use %s", path)
 			}
 
 			path = GetConfigFileByMode(path)
