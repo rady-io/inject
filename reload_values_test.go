@@ -15,7 +15,7 @@ rady:
     host: 127.0.0.1
     port: 6937
   jwt:
-    start: 2018-1-30 00:00:00
+    start: 2018-01-30T00:00:00Z
   server:
     ports:
       - 80
@@ -24,8 +24,8 @@ rady:
       - true
       - false
     starts:
-      - 2018-1-30 00:00:00
-      - 2018-1-30 00:00:00
+      - 2018-01-30T00:00:00Z
+      - 2018-01-30T00:00:00Z
 `
 	NoRedis = `
 rady:
@@ -33,7 +33,7 @@ rady:
     host: localhost
     utf-8: true
   jwt:
-    start: 2018-1-30 00:00:00
+    start: 2018-01-30T00:00:00Z
   server:
     ports:
       - 80
@@ -42,8 +42,8 @@ rady:
       - true
       - false
     starts:
-      - 2018-1-30 00:00:00
-      - 2018-1-30 00:00:00
+      - 2018-01-30T00:00:00Z
+      - 2018-01-30T00:00:00Z
 `
 	ChangedRedis = `
 rady:
@@ -54,7 +54,7 @@ rady:
     host: 127.0.0.1
     port: 1200
   jwt:
-    start: 2018-1-30 00:00:00
+    start: 2018-01-30T00:00:00Z
   server:
     ports:
       - 80
@@ -63,8 +63,8 @@ rady:
       - true
       - false
     starts:
-      - 2018-1-30 00:00:00
-      - 2018-1-30 00:00:00
+      - 2018-01-30T00:00:00Z
+      - 2018-01-30T00:00:00Z
 `
 )
 

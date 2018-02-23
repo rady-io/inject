@@ -8,7 +8,6 @@ import (
 )
 
 const (
-	FormatTime   = "2006-01-02 15:04:05"
 	ReloadConfig = `
 rady:
   mysql:
@@ -18,7 +17,7 @@ rady:
     host: 127.0.0.1
     port: 6937
   jwt:
-    start: 2018-1-29 00:00:00
+    start: 2018-01-29T00:00:00Z
   server:
     ports:
       - 8080
@@ -27,14 +26,14 @@ rady:
       - false
       - false
     starts:
-      - 2018-1-29 00:00:00
-      - 2018-1-30 00:00:00
+      - 2018-01-29T00:00:00Z
+      - 2018-01-30T00:00:00Z
 `
 )
 
 var (
-	TrueTime, _         = time.Parse(FormatTime, "2018-1-30 00:00:00")
-	ReloadedTrueTime, _ = time.Parse(FormatTime, "2018-1-29 00:00:00")
+	TrueTime, _         = time.Parse(time.RFC3339, "2018-01-30T00:00:00Z")
+	ReloadedTrueTime, _ = time.Parse(time.RFC3339, "2018-01-29T00:00:00Z")
 )
 
 type (
@@ -124,7 +123,11 @@ func (v *ValueInjectTest) TestMapInject(t *testing.T) {
 				}
 			}
 		case "jwt":
-			assert.Equal(t, TrueTime, Value.Time())
+			for key, value := range Value.Map() {
+				if key == "start" {
+					assert.Equal(t, TrueTime, value.Time())
+				}
+			}
 		default:
 
 		}
@@ -157,7 +160,11 @@ func (v *ValueInjectTest) TestReloadedMap(t *testing.T) {
 				}
 			}
 		case "jwt":
-			assert.Equal(t, ReloadedTrueTime, Value.Time())
+			for key, value := range Value.Map() {
+				if key == "start" {
+					assert.Equal(t, ReloadedTrueTime, value.Time())
+				}
+			}
 		default:
 
 		}
