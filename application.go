@@ -47,7 +47,6 @@ type Application struct {
 	FactoryToRecall    map[*Method]bool
 	CtrlBeanMap        map[string]*CtrlBean
 	MdWareBeanMap      map[string]*MdWareBean
-	MiddlewareStackMap map[string]*MiddlewareStack
 	Entities           []reflect.Type
 	TestingBeans       []*TestingBean
 	Server             *echo.Echo
@@ -71,7 +70,6 @@ func CreateApplication(root interface{}) *Application {
 			FactoryToRecall:    make(map[*Method]bool),
 			CtrlBeanMap:        make(map[string]*CtrlBean),
 			MdWareBeanMap:      make(map[string]*MdWareBean),
-			MiddlewareStackMap: make(map[string]*MiddlewareStack),
 			Entities:           make([]reflect.Type, 0),
 			TestingBeans:       make([]*TestingBean, 0),
 			Server:             echo.New(),
@@ -308,10 +306,6 @@ func (a *Application) loadMiddleware(field reflect.StructField, prefix string) {
 	path := GetPathFromType(field, Middleware{})
 	newPrefix := GetNewPrefix(prefix, path)
 
-	if a.MiddlewareStackMap[newPrefix] == nil {
-		a.MiddlewareStackMap[newPrefix] = NewMiddlewareStack()
-	}
-
 	fieldType := field.Type
 	Name := field.Name
 	Value := reflect.New(fieldType.Elem()).Elem()
@@ -323,7 +317,6 @@ func (a *Application) loadMiddleware(field reflect.StructField, prefix string) {
 		methodField := fieldType.Method(i)
 		handlerName := methodField.Name
 		if trueMethod, ok := method.Interface().(func(handlerFunc HandlerFunc) HandlerFunc); ok {
-			a.MiddlewareStackMap[newPrefix] = a.MiddlewareStackMap[newPrefix].Push(NewMiddlewareContainer(handlerName, trueMethod))
 			a.Server.Group(newPrefix, trueMethod)
 			a.logMiddlewareRegistry(prefix, handlerName)
 		}
