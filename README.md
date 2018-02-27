@@ -12,15 +12,16 @@
 - Dependency injection (Include components and value in config file).
 - Structured route registration (annotation route. router, controller and middleware, can be embedded in other router).
 - Middleware registration.
-- Initialize components in factory mode.
+- Initialize components in factory function.
 - Entities registration.
 - Config file hot-reload (Include factories' recall).
-- Gorm integration (In subproject rorm).
-- Some [wrappers](https://github.com/Hexilee/rady/tree/master/middleware) (cors, jwt, logger) of echo-middleware.
+- Some [wrappers](https://github.com/Hexilee/rady-middleware) (cors, jwt, logger) for echo-middleware.
 - DI test
+- Env-dependent config file
 
 ## Todos
-- Complete lifetime sysytem of bean
+- Complete lifetime system for beans
+- Gorm integration (In project [rorm](https://github.com/Hexilee/rorm)).
 - Integration with [htest](https://github.com/Hexilee/htest)
 - Editor plugin (Goland and vscode):
     - Tag indecator.
