@@ -195,7 +195,7 @@ func (a *Application) runTestCase(t *testing.T) {
 			methodValue := testingBean.Value.Addr().Method(i)
 			TestCase, ok := methodValue.Interface().(func(t *testing.T))
 			if strings.HasPrefix(method.Name, "Test") && ok {
-				TestCase(t)
+				t.Run(method.Name, TestCase)
 			}
 		}
 	}
