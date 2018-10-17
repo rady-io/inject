@@ -1,6 +1,6 @@
 package rady
 
 const (
-	PreInit = "PreInit"
+	PreInit  = "PreInit"
 	PostInit = "PostInit"
 )

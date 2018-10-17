@@ -1,10 +1,10 @@
 # Welcome to Rady-framework!
 
-[![Coverage Status](https://coveralls.io/repos/github/Hexilee/rady/badge.svg)](https://coveralls.io/github/Hexilee/rady)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Hexilee/rady)](https://goreportcard.com/report/github.com/Hexilee/rady)
-[![Build Status](https://travis-ci.org/Hexilee/rady.svg?branch=master)](https://travis-ci.org/Hexilee/rady)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Hexilee/rady/blob/master/LICENSE)
-[![Documentation](https://godoc.org/github.com/Hexilee/rady?status.svg)](https://godoc.org/github.com/Hexilee/rady)
+[![Coverage Status](https://coveralls.io/repos/github/rady-io/inject/badge.svg)](https://coveralls.io/github/rady-io/inject)
+[![Go Report Card](https://goreportcard.com/badge/github.com/rady-io/inject)](https://goreportcard.com/report/github.com/rady-io/inject)
+[![Build Status](https://travis-ci.org/rady-io/inject.svg?branch=master)](https://travis-ci.org/rady-io/inject)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/rady-io/inject/blob/master/LICENSE)
+[![Documentation](https://godoc.org/github.com/rady-io/inject?status.svg)](https://godoc.org/github.com/rady-io/inject)
 
 #### Example and Docs are under updating
 

@@ -40,19 +40,19 @@ ConfigFile is the string json value of config file
 */
 type Application struct {
 	BootStrap
-	Root               interface{}
-	BeanMap            map[reflect.Type]map[string]*Bean
-	BeanMethodMap      map[reflect.Type]map[string]*Method
-	ValueBeanMap       map[string]*ValueBean
-	FactoryToRecall    map[*Method]bool
-	CtrlBeanMap        map[string]*CtrlBean
-	MdWareBeanMap      map[string]*MdWareBean
-	Entities           []reflect.Type
-	TestingBeans       []*TestingBean
-	Server             *echo.Echo
-	Logger             *Logger
-	ConfigFile         string
-	Addr               *string `value:"rady.server.addr" default:":8081"`
+	Root            interface{}
+	BeanMap         map[reflect.Type]map[string]*Bean
+	BeanMethodMap   map[reflect.Type]map[string]*Method
+	ValueBeanMap    map[string]*ValueBean
+	FactoryToRecall map[*Method]bool
+	CtrlBeanMap     map[string]*CtrlBean
+	MdWareBeanMap   map[string]*MdWareBean
+	Entities        []reflect.Type
+	TestingBeans    []*TestingBean
+	Server          *echo.Echo
+	Logger          *Logger
+	ConfigFile      string
+	Addr            *string `value:"rady.server.addr" default:":8081"`
 }
 
 /*
@@ -63,17 +63,17 @@ if root is not kinds of Ptr, there will be an error
 func CreateApplication(root interface{}) *Application {
 	if CheckPtrOfStruct(reflect.TypeOf(root)) {
 		return (&Application{
-			Root:               root,
-			BeanMap:            make(map[reflect.Type]map[string]*Bean),
-			BeanMethodMap:      make(map[reflect.Type]map[string]*Method),
-			ValueBeanMap:       make(map[string]*ValueBean),
-			FactoryToRecall:    make(map[*Method]bool),
-			CtrlBeanMap:        make(map[string]*CtrlBean),
-			MdWareBeanMap:      make(map[string]*MdWareBean),
-			Entities:           make([]reflect.Type, 0),
-			TestingBeans:       make([]*TestingBean, 0),
-			Server:             echo.New(),
-			Logger:             NewLogger(),
+			Root:            root,
+			BeanMap:         make(map[reflect.Type]map[string]*Bean),
+			BeanMethodMap:   make(map[reflect.Type]map[string]*Method),
+			ValueBeanMap:    make(map[string]*ValueBean),
+			FactoryToRecall: make(map[*Method]bool),
+			CtrlBeanMap:     make(map[string]*CtrlBean),
+			MdWareBeanMap:   make(map[string]*MdWareBean),
+			Entities:        make([]reflect.Type, 0),
+			TestingBeans:    make([]*TestingBean, 0),
+			Server:          echo.New(),
+			Logger:          NewLogger(),
 		}).init()
 	}
 	NewLogger().Errorf("%s is not kind of Ptr!!!\n", reflect.TypeOf(root).Name())
